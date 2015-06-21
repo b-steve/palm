@@ -1,5 +1,6 @@
 ## Taking points and moving those outside the limits back into the limits.
 pbc.fix <- function(points, lims){
+    ## Errors for inconsistent dimensions.
     if (!is.matrix(points)){
         points <- matrix(points, nrow = 1)
     }
@@ -30,4 +31,3 @@ pbc.fix <- function(points, lims){
     }
     points
 }
-
