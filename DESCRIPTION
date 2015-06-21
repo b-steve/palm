@@ -10,7 +10,7 @@ Depends:
     Rcpp (>= 0.11.5)
 Imports:
     mvtnorm
-#LinkingTo: Rcpp
+LinkingTo: Rcpp
 Description: This package provides functions for the simulation and parameter estimation of Neyman-Scott point process models.
 License: GPL
 URL: https://github.com/b-steve/nspp

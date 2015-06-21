@@ -3,3 +3,4 @@
 export(sim.ns)
 import(Rcpp)
 importFrom(mvtnorm,rmvnorm)
+useDynLib(nspp)
