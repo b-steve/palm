@@ -12,7 +12,7 @@ fit.ns(points = NULL, lims = NULL, child.dist = NULL,
 where each row corresponds to a point and each column corresponds
 to a dimension.}
 
-\item{lims}{A matrix with two colums, corresponding to the upper
+\item{lims}{A matrix with two columns, corresponding to the upper
 and lower limits of each dimension, respectively.}
 
 \item{child.dist}{A list containing information about the
