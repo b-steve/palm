@@ -31,3 +31,22 @@ pbc.fix <- function(points, lims){
     }
     points
 }
+
+empirical.palm <- function(points, lims, plot = FALSE){
+    dists <- pbc_distances(points = points, lims = lims)
+    n.points <- nrow(points)
+    hist.obj <- hist(dists, plot = FALSE)
+    midpoints <- hist.obj$mids
+    h <- hist.obj$breaks[2] - hist.obj$breaks[1]
+    intensities <- numeric(length(midpoints))
+    for (i in 1:length(midpoints)){
+        n.interval <- sum(dists <= (midpoints[i] + 0.5*h)) -
+            sum(dists <= (midpoints[i] - 0.5*h))
+        area <- pi*(midpoints[i] + 0.5*h)^2 - pi*(midpoints[i] - 0.5*h)^2
+        intensities[i] <- n.interval/(n.points*area)
+    }
+    if (plot){
+        plot(midpoints, intensities, ylim = c(0, max(intensities)), type = "l")
+    }
+    list(intensity = intensities, distance = midpoints)
+}
