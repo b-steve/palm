@@ -41,3 +41,27 @@ analytic.Dc <- function(nu, sigma, n.dists, n.points, R, d){
 analytic.nu <- function(Dc, sigma, n.dists, n.points, R, d){
     (n.dists/n.points - Dc*Vd(R, d))/Fd(R, sigma, d)
 }
+
+## Surface area of d-dimensional hypersphere with radius r.
+Sd <- function(r, d){
+    d*pi^(d/2)*r^(d - 1)/gamma(d/2 + 1)
+}
+
+## Volume of d-dimensional hypersphere with radius r.
+Vd <- function(r, d){
+    pi^(d/2)*r^d/gamma(d/2 + 1)
+}
+
+## PDF of between-sibling distances.
+fd <- function(r, sigma, d){
+    2^(1 - d/2)*(r/(sigma*sqrt(2)))^(d - 1)*exp(-r^2/(4*sigma^2))/(sigma*sqrt(2)*gamma(d/2))
+}
+
+## CDF of between-sibling distances.
+Fd <- function(r, sigma, d){
+    pgamma(r^2/(4*sigma^2), d/2)
+}
+
+palm.intensity <- function(r, Dc, nu, sigma, d){
+    Dc + nu/Sd(r, d)*fd(r, sigma, d)
+}
