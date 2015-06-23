@@ -77,6 +77,7 @@ fit.ns <- function(points = NULL, lims = NULL, R, sigma.sv = 0.1*R,
     n.dists <- length(dists)
     ## Sorting out start values.
     nu.sv <- nu.fun(child.dist$sv, child.dist)
+    browser()
     Dc.sv <- analytic.Dc(nu.sv, sigma.sv, n.dists, n.points, R)
     sv <- c(Dc.sv, nu.sv, sigma.sv)
     names(sv) <- c("Dc", "nu", "sigma")
@@ -91,7 +92,7 @@ fit.ns <- function(points = NULL, lims = NULL, R, sigma.sv = 0.1*R,
                    lower = log(lower),
                    upper = log(upper),
                    n.points = n.points, dists = dists, R = R,
-                   n.dims = n.dims, nu.fun = nu.fun,
+                   d = n.dims, nu.fun = nu.fun,
                    par.names = names(sv))
     ## Extracting sigma and nu estimates.
     opt.pars <- exp(coef(fit)[1, ])
@@ -115,7 +116,7 @@ fit.ns <- function(points = NULL, lims = NULL, R, sigma.sv = 0.1*R,
     out
 }
 
-ns.nll <- function(pars, n.points, dists, R, n.dims, nu.fun, par.names){
+ns.nll <- function(pars, n.points, dists, R, d, nu.fun, par.names){
     ## Extracting parameters.
     names(pars) <- par.names
     pars <- exp(pars)
@@ -123,21 +124,33 @@ ns.nll <- function(pars, n.points, dists, R, n.dims, nu.fun, par.names){
     nu <- pars["nu"]
     sigma <- pars["sigma"]
     ## Can work out Dc analytically.
-    ##Dc <- analytic.Dc(nu, sigma, length(dists), n.points, R)
     vol <- n.points*(pi*Dc*R^2 + nu - nu*exp((-R^2)/(4*sigma^2)))
-    ##if (nu > (length(dists)/n.points + nu*exp((-R^2)/(4*sigma^2)))){
-    ##    ll <- NA
-    ##} else {
-        ll <- sum(log(n.points*ns.palm(dists, Dc, nu, sigma, n.dims))) - vol
-    ##}
+    ll1 <- sum(log(n.points*palm.intensity(dists, Dc, nu, sigma, d)))
+    ## Contribution from integral.
+    ll2 <- n.points*(Dc*R^d*pi^(d/2)/gamma(d/2 + 1) + nu*Fd(R, sigma, d))
+    ll <- ll1 - ll2
     ## Printing parameter values.
     cat("Dc = ", Dc, ", sigma = ", sigma, ", nu = ", nu, ", LL = ", ll, "\n", sep = "")
     -ll
 }
 
-## To generalise for n dimensions.
-ns.palm <- function(r, Dc, nu, sigma, n.dims){
-    Dc + nu*exp((-r^2)/(4*sigma^2))/(4*pi*sigma^2)
+## Surface area of n-dimensional hypersphere with radius r.
+Sd <- function(r, d){
+    d*pi^(d/2)*r^(d - 1)/gamma(d/2 + 1)
+}
+
+## PDF of between-sibling distances.
+fd <- function(r, sigma, d){
+    2^(1 - d/2)*(r/(sigma*sqrt(2)))^(d - 1)*exp(-r^2/(4*sigma^2))/(sigma*sqrt(2)*gamma(d/2))
+}
+
+## CDF of between-sibling distances.
+Fd <- function(r, sigma, d){
+    pgamma(r^2/(4*sigma^2), d/2)
+}
+
+palm.intensity <- function(r, Dc, nu, sigma, d){
+    Dc + nu/Sd(r, d)*fd(r, sigma, d)
 }
 
 ## Roxygen code for NAMESPACE.
