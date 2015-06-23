@@ -77,8 +77,7 @@ fit.ns <- function(points = NULL, lims = NULL, R, sigma.sv = 0.1*R,
     n.dists <- length(dists)
     ## Sorting out start values.
     nu.sv <- nu.fun(child.dist$sv, child.dist)
-    browser()
-    Dc.sv <- analytic.Dc(nu.sv, sigma.sv, n.dists, n.points, R)
+    Dc.sv <- analytic.Dc(nu.sv, sigma.sv, n.dists, n.points, R, n.dims)
     sv <- c(Dc.sv, nu.sv, sigma.sv)
     names(sv) <- c("Dc", "nu", "sigma")
     ## Sorting out bounds.
@@ -127,16 +126,21 @@ ns.nll <- function(pars, n.points, dists, R, d, nu.fun, par.names){
     vol <- n.points*(pi*Dc*R^2 + nu - nu*exp((-R^2)/(4*sigma^2)))
     ll1 <- sum(log(n.points*palm.intensity(dists, Dc, nu, sigma, d)))
     ## Contribution from integral.
-    ll2 <- n.points*(Dc*R^d*pi^(d/2)/gamma(d/2 + 1) + nu*Fd(R, sigma, d))
+    ll2 <- n.points*(Dc*Vd(R, d) + nu*Fd(R, sigma, d))
     ll <- ll1 - ll2
     ## Printing parameter values.
     cat("Dc = ", Dc, ", sigma = ", sigma, ", nu = ", nu, ", LL = ", ll, "\n", sep = "")
     -ll
 }
 
-## Surface area of n-dimensional hypersphere with radius r.
+## Surface area of d-dimensional hypersphere with radius r.
 Sd <- function(r, d){
     d*pi^(d/2)*r^(d - 1)/gamma(d/2 + 1)
+}
+
+## Volume of d-dimensional hypersphere with radius r.
+Vd <- function(r, d){
+    pi^(d/2)*r^d/gamma(d/2 + 1)
 }
 
 ## PDF of between-sibling distances.
