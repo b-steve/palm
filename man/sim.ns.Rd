@@ -5,7 +5,7 @@
 \title{Simulating Neyman-Scott point process data}
 \usage{
 sim.ns(pars = NULL, lims = rbind(c(0, 1), c(0, 1)), rchild = rpois,
-  non.siblings = NULL, plot = TRUE, ...)
+  non.siblings = NULL, plot = FALSE, ...)
 }
 \arguments{
 \item{pars}{A named vector (or list?) of parameter values. Required

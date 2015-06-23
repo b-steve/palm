@@ -4,9 +4,9 @@
 \alias{fit.ns}
 \title{Fitting a model to a Neyman-Scott point process}
 \usage{
-fit.ns(points = NULL, lims = NULL, R, child.dist = list(mean = function(x)
-  x, var = function(x) x, sv = 5, bounds = c(1e-08, 1e+08)),
-  non.siblings = NULL)
+fit.ns(points = NULL, lims = NULL, R, sigma.sv = 0.1 * R,
+  sigma.bounds = c(0, R), child.dist = list(mean = function(x) x, var =
+  function(x) x, sv = 5, bounds = c(1e-08, 1e+08)), non.siblings = NULL)
 }
 \arguments{
 \item{points}{A matrix containing locations of observed points,
@@ -17,6 +17,11 @@ to a dimension.}
 and lower limits of each dimension, respectively.}
 
 \item{R}{Truncation distance for the difference process.}
+
+\item{sigma.sv}{The start value for \code{sigma} in optimisation.}
+
+\item{sigma.bounds}{The bounds of the \code{sigma} parameter in
+optimisation.}
 
 \item{child.dist}{An argument describing the distribution
 generating the number of children per parent. It must be a list
