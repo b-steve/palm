@@ -24,7 +24,7 @@
 #' @param ... Further parameters for rchild.dist.
 #'
 #' @export
-sim.ns <- function(pars = NULL, lims = rbind(c(0, 1), c(0, 1)), rchild = rpois, non.siblings = NULL, plot = TRUE, ...){
+sim.ns <- function(pars = NULL, lims = rbind(c(0, 1), c(0, 1)), rchild = rpois, non.siblings = NULL, plot = FALSE, ...){
     ## Allowing lims to be a vector if only one dimension.
     if (!is.matrix(lims)){
         lims <- matrix(lims, nrow = 1)
