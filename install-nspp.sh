@@ -1,4 +1,5 @@
 #!/bin/bash
+cd ~/GitHub/nspp
 rm -rfv man
 rm -fv NAMESPACE
 R --slave -e "library(Rcpp); compileAttributes()"
