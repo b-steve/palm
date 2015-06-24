@@ -33,13 +33,15 @@
 #' @param non.siblings An object containing information about known
 #' siblings (or known non-siblings). Not yet implemented.
 #' @param sv A vector (or list?) of start values for optimisation.
+#' @param trace Logical, if \code{TRUE}, parameter values are printed
+#' to the screen for each iteration of the optimisation procedure.
 #'
 #' @export
 fit.ns <- function(points = NULL, lims = NULL, R, sigma.sv = 0.1*R,
                    sigma.bounds = c(0, R),
                    child.dist = list(mean = function(x) x, var = function(x) x,
                        sv = 5, bounds = c(1e-8, 1e8)),
-                   non.siblings = NULL){
+                   non.siblings = NULL, trace = FALSE){
     ## Saving arguments.
     arg.names <- names(as.list(environment()))
     args <- vector(mode = "list", length = length(arg.names))
@@ -91,7 +93,7 @@ fit.ns <- function(points = NULL, lims = NULL, R, sigma.sv = 0.1*R,
                    upper = log(upper),
                    n.points = n.points, dists = dists, R = R,
                    d = n.dims, nu.fun = nu.fun,
-                   par.names = names(sv))
+                   par.names = names(sv), trace = trace)
     ## Extracting sigma and nu estimates.
     opt.pars <- exp(coef(fit)[1, ])
     names(opt.pars) <- names(sv)
@@ -100,10 +102,14 @@ fit.ns <- function(points = NULL, lims = NULL, R, sigma.sv = 0.1*R,
     ## Calculating Dc estimate.
     ##Dc.par <- analytic.Dc(nu.par, sigma.par, n.dists, n.points, R)
     Dc.par <- opt.pars["Dc"]
+    ## Search bounds slightly outwith optimised bounds.
+    search.bounds <- child.dist$bounds
+    search.bounds[1] <- search.bounds[1] - 0.04*diff(child.dist$bounds)
+    search.bounds[2] <- search.bounds[2] + 0.04*diff(child.dist$bounds)
     ## Calculating parameter of child distribution.
-    child.par <- uniroot(function(x, child.dist, nu) nu.fun(x, child.dist) - nu,
-                         interval = child.dist$bounds, child.dist = child.dist,
-                         nu = nu.par)$root
+    child.par <- try(uniroot(function(x, child.dist, nu) nu.fun(x, child.dist) - nu,
+                         interval = search.bounds, child.dist = child.dist,
+                             nu = nu.par)$root, silent = FALSE)
     ## Calculating mu.
     mu.par <- child.dist$mean(child.par)
     D.par <- Dc.par/mu.par
@@ -114,7 +120,7 @@ fit.ns <- function(points = NULL, lims = NULL, R, sigma.sv = 0.1*R,
     out
 }
 
-ns.nll <- function(pars, n.points, dists, R, d, nu.fun, par.names){
+ns.nll <- function(pars, n.points, dists, R, d, nu.fun, par.names, trace){
     ## Extracting parameters.
     names(pars) <- par.names
     pars <- exp(pars)
@@ -122,13 +128,14 @@ ns.nll <- function(pars, n.points, dists, R, d, nu.fun, par.names){
     nu <- pars["nu"]
     sigma <- pars["sigma"]
     ## Can work out Dc analytically.
-    vol <- n.points*(pi*Dc*R^2 + nu - nu*exp((-R^2)/(4*sigma^2)))
     ll1 <- sum(log(n.points*palm.intensity(dists, Dc, nu, sigma, d)))
     ## Contribution from integral.
     ll2 <- n.points*(Dc*Vd(R, d) + nu*Fd(R, sigma, d))
     ll <- ll1 - ll2
     ## Printing parameter values.
-    cat("Dc = ", Dc, ", sigma = ", sigma, ", nu = ", nu, ", LL = ", ll, "\n", sep = "")
+    if (trace){
+        cat("Dc = ", Dc, ", sigma = ", sigma, ", nu = ", nu, ", LL = ", ll, "\n", sep = "")
+    }
     -ll
 }
 
