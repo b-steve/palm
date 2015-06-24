@@ -11,6 +11,9 @@
 #' 
 #' @export
 empirical.palm <- function(points, lims, breaks = NULL, add = FALSE){
+    if (nrow(points) != 2){
+        stop("Only implemented for two-dimensional point patterns.")
+    }
     if (is.null(breaks)){
         breaks <- "Sturges"
     }
@@ -57,8 +60,8 @@ plot.nspp <- function(x, emp = FALSE, breaks = NULL, ...){
     nu <- x$pars["nu"]
     sigma <- x$pars["sigma"]
     R <- x$args$R
-    xx <- seq(0, R, length.out = 500)
-    yy <- ns.palm(xx, Dc, nu, sigma, n.dims = 2)
+    xx <- seq(0, R, length.out = 500)[-1]
+    yy <- palm.intensity(xx, Dc, nu, sigma, ncol(x$args$points))
     par(xaxs = "i")
     plot.new()
     plot.window(xlim = c(0, R), ylim = c(0, max(yy)))

@@ -54,7 +54,7 @@ Vd <- function(r, d){
 
 ## PDF of between-sibling distances.
 fd <- function(r, sigma, d){
-    2^(1 - d/2)*(r/(sigma*sqrt(2)))^(d - 1)*exp(-r^2/(4*sigma^2))/(sigma*sqrt(2)*gamma(d/2))
+    2^(1 - d/2)*r^(d - 1)*exp(-r^2/(4*sigma^2))/((sigma*sqrt(2))^d*gamma(d/2))
 }
 
 ## CDF of between-sibling distances.
@@ -62,6 +62,10 @@ Fd <- function(r, sigma, d){
     pgamma(r^2/(4*sigma^2), d/2)
 }
 
+## Note that Dc + nu/Sd(r, d)*fd(r, sigma, d) is a correct
+## formulation, but the below cancels the r^(d - 1) from both Sd(r, d)
+## and fd(r, sigma, d).
 palm.intensity <- function(r, Dc, nu, sigma, d){
-    Dc + nu/Sd(r, d)*fd(r, sigma, d)
+    Dc + nu/(pi^(d/2)*d/gamma(d/2 + 1))*
+        2^(1 - d/2)*exp(-r^2/(4*sigma^2))/((sigma*sqrt(2))^d*gamma(d/2))
 }
