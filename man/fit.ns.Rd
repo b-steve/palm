@@ -6,7 +6,8 @@
 \usage{
 fit.ns(points = NULL, lims = NULL, R, sigma.sv = 0.1 * R,
   sigma.bounds = c(0, R), child.dist = list(mean = function(x) x, var =
-  function(x) x, sv = 5, bounds = c(1e-08, 1e+08)), non.siblings = NULL)
+  function(x) x, sv = 5, bounds = c(1e-08, 1e+08)), non.siblings = NULL,
+  trace = FALSE)
 }
 \arguments{
 \item{points}{A matrix containing locations of observed points,
@@ -37,6 +38,9 @@ parameter bounds.}
 
 \item{non.siblings}{An object containing information about known
 siblings (or known non-siblings). Not yet implemented.}
+
+\item{trace}{Logical, if \code{TRUE}, parameter values are printed
+to the screen for each iteration of the optimisation procedure.}
 
 \item{sv}{A vector (or list?) of start values for optimisation.}
 }
