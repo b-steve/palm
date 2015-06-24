@@ -69,3 +69,16 @@ palm.intensity <- function(r, Dc, nu, sigma, d){
     Dc + nu/(pi^(d/2)*d/gamma(d/2 + 1))*
         2^(1 - d/2)*exp(-r^2/(4*sigma^2))/((sigma*sqrt(2))^d*gamma(d/2))
 }
+
+## Error function for incompatible dimensions.
+error.dims <- function(points, lims){
+    if (!is.matrix(points)){
+        stop("Argument 'points' must be a matrix.")
+    }
+    if (!is.matrix(lims)){
+        stop("Argument 'lims' must be a matrix.")
+    }
+    if (ncol(points) != nrow(lims)){
+        stop("The number of columns in 'points' and 'lims' must both equal the number of dimensions.")
+    }
+}

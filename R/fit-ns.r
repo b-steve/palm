@@ -56,9 +56,8 @@ fit.ns <- function(points = NULL, lims = NULL, R, sigma.sv = 0.1*R,
     if (!is.matrix(lims)){
         lims <- matrix(lims, nrow = 1)
     }
-    if (ncol(points) != nrow(lims)){
-        stop("The number of columns in 'points' and 'lims' must both equal the number of dimensions.")
-    }
+    ## Error for incompatible dimensions.
+    error.dims(points, lims)
     n.points <- nrow(points)
     n.dims <- nrow(lims)
     ## Declaring function to calculate nu.
