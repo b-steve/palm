@@ -11,12 +11,11 @@
 #' 
 #' @export
 empirical.palm <- function(points, lims, breaks = NULL, add = FALSE){
-    if (nrow(points) != 2){
-        stop("Only implemented for two-dimensional point patterns.")
-    }
+    error.dims(points, lims)
     if (is.null(breaks)){
         breaks <- "Sturges"
     }
+    n.dims <- ncol(points)
     dists <- pbc_distances(points = points, lims = lims)
     n.points <- nrow(points)
     hist.obj <- hist(dists, plot = FALSE, breaks = breaks)
@@ -26,7 +25,7 @@ empirical.palm <- function(points, lims, breaks = NULL, add = FALSE){
     for (i in 1:length(midpoints)){
         n.interval <- sum(dists <= (midpoints[i] + 0.5*h)) -
             sum(dists <= (midpoints[i] - 0.5*h))
-        area <- pi*(midpoints[i] + 0.5*h)^2 - pi*(midpoints[i] - 0.5*h)^2
+        area <- Vd(midpoints[i] + 0.5*h, n.dims) -  Vd(midpoints[i] - 0.5*h, n.dims)
         intensities[i] <- n.interval/(n.points*area)
     }
     if (!add){
