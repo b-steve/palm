@@ -6,7 +6,7 @@
 \usage{
 fit.ns(points = NULL, lims = NULL, R, sigma.sv = 0.1 * R,
   sigma.bounds = c(0, R), child.dist = list(mean = function(x) x, var =
-  function(x) x, sv = 5, bounds = c(1e-08, 1e+08)), non.siblings = NULL,
+  function(x) x, sv = 5, bounds = c(1e-08, 1e+08)), siblings = NULL,
   trace = FALSE)
 }
 \arguments{
@@ -36,13 +36,21 @@ value for the parameter to be estimated, and (4) A component named
 \code{bounds} providing a vector of length two that gives the
 parameter bounds.}
 
-\item{non.siblings}{An object containing information about known
-siblings (or known non-siblings). Not yet implemented.}
+\item{siblings}{A named list, containing the following three
+components: (1) A component named \code{matrix}, where the jth
+column of the ith row is \code{TRUE} if the ith and jth observed
+points are known siblings, \code{FALSE} if they are known
+non-siblings, and \code{NA} if it is not known whether or not they
+are siblings, (2) A component named pT, containing a scalar
+providing the probability that the element (i, j) in the component
+\code{matrix} is \code{TRUE}, conditional on the ith and jth points
+being siblings, (3) A component named pF, containing a scalar
+providing the probability that the element (i, j) in the component
+\code{matrix} is \code{FALSE}, conditional on the ith and jth
+points not being siblings.}
 
 \item{trace}{Logical, if \code{TRUE}, parameter values are printed
 to the screen for each iteration of the optimisation procedure.}
-
-\item{sv}{A vector (or list?) of start values for optimisation.}
 }
 \value{
 An object with information that can be extracted via other
