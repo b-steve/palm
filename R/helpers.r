@@ -65,9 +65,55 @@ Fd <- function(r, sigma, d){
 ## Note that Dc + nu/Sd(r, d)*fd(r, sigma, d) is a correct
 ## formulation, but the below cancels the r^(d - 1) from both Sd(r, d)
 ## and fd(r, sigma, d).
-palm.intensity <- function(r, Dc, nu, sigma, d){
+palm.intensity <- function(r, Dc, nu, sigma, d, siblings = NULL){
     Dc + nu/(pi^(d/2)*d/gamma(d/2 + 1))*
         2^(1 - d/2)*exp(-r^2/(4*sigma^2))/((sigma*sqrt(2))^d*gamma(d/2))
+}
+
+## Separate intensity function for known sibling information to
+## optimise performance when there isn't any.
+palm.intensity.siblings <- function(r, Dc, nu, sigma, d, siblings){
+    ns.intensity <- Dc
+    s.intensity <- nu/(pi^(d/2)*d/gamma(d/2 + 1))*
+        2^(1 - d/2)*exp(-r^2/(4*sigma^2))/((sigma*sqrt(2))^d*gamma(d/2))
+    siblings$ns.multipliers*ns.intensity +
+        siblings$s.multipliers*s.intensity
+}
+
+## Takes matrix component of siblings and turns it into a vector that
+## matches up to the distances computed by pbc_distance().
+vectorise.siblings <- function(siblings){
+    if (nrow(siblings$matrix) != ncol(siblings$matrix)){
+        stop("Sibling matrix is not square.")
+    }
+    n.points <- nrow(siblings$matrix)
+    n.comparisons <- n.points^2 - n.points
+    vec <- numeric(n.comparisons)
+    ns.multipliers <- numeric(n.comparisons)
+    s.multipliers <- numeric(n.comparisons)
+    k <- 1
+    for (i in 1:(n.points - 1)){
+        for (j in (i +1):n.points){
+            vec[k] <- vec[k + 1] <- siblings$matrix[i, j]
+            ## Multipliers for TRUE.
+            if (!is.na(siblings$matrix[i, j]) & siblings$matrix[i, j]){
+                ns.multipliers[k] <- ns.multipliers[k + 1] <- 0
+                s.multipliers[k] <- s.multipliers[k + 1] <- siblings$pT
+            }
+            ## Multipliers for FALSE.
+            if (!is.na(siblings$matrix[i, j]) & !siblings$matrix[i, j]){
+                ns.multipliers[k] <- ns.multipliers[k + 1] <- siblings$pF
+                s.multipliers[k] <- s.multipliers[k + 1] <- 0
+            }
+            ## Multipliers for NA.
+            if (is.na(siblings$matrix[i, j])){
+                ns.multipliers[k] <- ns.multipliers[k + 1] <- 1 - siblings$pF
+                s.multipliers[k] <- s.multipliers[k + 1] <- 1 - siblings$pT
+            }
+            k <- k + 2
+        }
+    }
+    list(vector = vec, ns.multipliers = ns.multipliers, s.multipliers = s.multipliers)
 }
 
 ## Error function for incompatible dimensions.

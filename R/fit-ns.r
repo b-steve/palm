@@ -30,9 +30,18 @@
 #' value for the parameter to be estimated, and (4) A component named
 #' \code{bounds} providing a vector of length two that gives the
 #' parameter bounds.
-#' @param non.siblings An object containing information about known
-#' siblings (or known non-siblings). Not yet implemented.
-#' @param sv A vector (or list?) of start values for optimisation.
+#' @param siblings A named list, containing the following three
+#' components: (1) A component named \code{matrix}, where the jth
+#' column of the ith row is \code{TRUE} if the ith and jth observed
+#' points are known siblings, \code{FALSE} if they are known
+#' non-siblings, and \code{NA} if it is not known whether or not they
+#' are siblings, (2) A component named pT, containing a scalar
+#' providing the probability that the element (i, j) in the component
+#' \code{matrix} is \code{TRUE}, conditional on the ith and jth points
+#' being siblings, (3) A component named pF, containing a scalar
+#' providing the probability that the element (i, j) in the component
+#' \code{matrix} is \code{FALSE}, conditional on the ith and jth
+#' points not being siblings.
 #' @param trace Logical, if \code{TRUE}, parameter values are printed
 #' to the screen for each iteration of the optimisation procedure.
 #'
@@ -41,7 +50,7 @@ fit.ns <- function(points = NULL, lims = NULL, R, sigma.sv = 0.1*R,
                    sigma.bounds = c(0, R),
                    child.dist = list(mean = function(x) x, var = function(x) x,
                        sv = 5, bounds = c(1e-8, 1e8)),
-                   non.siblings = NULL, trace = FALSE){
+                   siblings = NULL, trace = FALSE){
     ## Saving arguments.
     arg.names <- names(as.list(environment()))
     args <- vector(mode = "list", length = length(arg.names))
@@ -62,6 +71,13 @@ fit.ns <- function(points = NULL, lims = NULL, R, sigma.sv = 0.1*R,
     error.dims(points, lims)
     n.points <- nrow(points)
     n.dims <- nrow(lims)
+    ## Vectorising siblings matrix, and setting intensity function.
+    if (!is.null(siblings)){
+        siblings <- vectorise.siblings(siblings)
+        intensity.fun <- palm.intensity.siblings
+    } else {
+        intensity.fun <- palm.intensity
+    }
     ## Declaring function to calculate nu.
     nu.fun <- function(x, child.dist){
         ## Mean and variance for number of children.
@@ -93,7 +109,8 @@ fit.ns <- function(points = NULL, lims = NULL, R, sigma.sv = 0.1*R,
                    upper = log(upper),
                    n.points = n.points, dists = dists, R = R,
                    d = n.dims, nu.fun = nu.fun,
-                   par.names = names(sv), trace = trace)
+                   par.names = names(sv), siblings = siblings,
+                   intensity.fun = intensity.fun, trace = trace)
     ## Extracting sigma and nu estimates.
     opt.pars <- exp(coef(fit)[1, ])
     names(opt.pars) <- names(sv)
@@ -120,7 +137,8 @@ fit.ns <- function(points = NULL, lims = NULL, R, sigma.sv = 0.1*R,
     out
 }
 
-ns.nll <- function(pars, n.points, dists, R, d, nu.fun, par.names, trace){
+ns.nll <- function(pars, n.points, dists, R, d, nu.fun, par.names, siblings,
+                   intensity.fun, trace){
     ## Extracting parameters.
     names(pars) <- par.names
     pars <- exp(pars)
@@ -128,7 +146,7 @@ ns.nll <- function(pars, n.points, dists, R, d, nu.fun, par.names, trace){
     nu <- pars["nu"]
     sigma <- pars["sigma"]
     ## Can work out Dc analytically.
-    ll1 <- sum(log(n.points*palm.intensity(dists, Dc, nu, sigma, d)))
+    ll1 <- sum(log(n.points*intensity.fun(dists, Dc, nu, sigma, d, siblings)))
     ## Contribution from integral.
     ll2 <- n.points*(Dc*Vd(R, d) + nu*Fd(R, sigma, d))
     ll <- ll1 - ll2
