@@ -146,3 +146,28 @@ ns.nll <- function(pars, n.points, dists, R, d, nu.fun, par.names, trace){
 #' @useDynLib nspp
 NULL
 
+## Data documentation.
+
+#' 1-dimensional example data
+#'
+#' Simulated data, with children points generated from a Binomial(4,
+#' 0.5) distribution.
+#'
+#' @name example.1D
+#' @format A matrix.
+#' @usage example.1D
+#' @docType data
+#' @keywords datasets
+NULL
+
+#' 2-dimensional example data
+#'
+#' Simulated data, with children points generated from a Binomial(2,
+#' 0.5) distribution.
+#'
+#' @name example.2D
+#' @format A matrix.
+#' @usage example.2D
+#' @docType data
+#' @keywords datasets
+NULL
