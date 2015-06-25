@@ -5,7 +5,7 @@
 \title{Simulating Neyman-Scott point process data}
 \usage{
 sim.ns(pars = NULL, lims = rbind(c(0, 1), c(0, 1)), rchild = rpois,
-  non.siblings = NULL, plot = FALSE, ...)
+  non.siblings = NULL, plot.points = FALSE, plot.empirical = FALSE, ...)
 }
 \arguments{
 \item{pars}{A named vector (or list?) of parameter values. Required
@@ -27,8 +27,14 @@ functions (e.g., \code{rpois}) are suitable.}
 \item{non.siblings}{An argument specifying the type of sibling
 information to return (not sure what this should look like yet).}
 
-\item{plot}{Logical, if \code{TRUE}, simulated parent and children
+\item{plot.points}{Logical, if \code{TRUE}, simulated parent and children
 point locations will be plotted (only for two dimensions).}
+
+\item{plot.empirical}{Logical, if \code{TRUE}, the empirical Palm
+intensity is plotted, with the true Palm intensity from the
+provided parameters overlain. The latter is only approximate as the
+mean and variance of the number of children per parent are
+calculated via simulation from rchild.}
 
 \item{...}{Further parameters for rchild.dist.}
 }

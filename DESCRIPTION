@@ -5,13 +5,15 @@ Version: 0.0.1
 Date: 2015-06-21
 Author: Ben Stevenson <bcs5@st-andrews.ac.uk>
 Maintainer: Ben Stevenson <bcs5@st-andrews.ac.uk>
-Depends:
+Depends: 
     R (>= 3.0.0),
     Rcpp (>= 0.11.5)
-Imports:
+Imports: 
     mvtnorm,
     optimx
 LinkingTo: Rcpp
+Suggests: testthat
 Description: This package provides functions for the simulation and parameter estimation of Neyman-Scott point process models.
 License: GPL
 URL: https://github.com/b-steve/nspp
+LazyData: TRUE

@@ -4,13 +4,13 @@
 \alias{plot.nspp}
 \title{Plotting an estimated Palm intensity function.}
 \usage{
-\method{plot}{nspp}(x, emp = FALSE, breaks = NULL, ...)
+\method{plot}{nspp}(x, plot.empirical = FALSE, breaks = NULL, ...)
 }
 \arguments{
 \item{x}{A fitted model from \link{fit.ns}().}
 
-\item{emp}{Logical, if \code{TRUE} then the empirical Palm
-intensity is also plotted.}
+\item{plot.empirical}{Logical, if \code{TRUE} then the empirical
+Palm intensity is also plotted.}
 
 \item{breaks}{The (approximate) number of points plotted.}
 
