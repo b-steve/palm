@@ -19,12 +19,17 @@
 #' functions (e.g., \code{rpois}) are suitable.
 #' @param non.siblings An argument specifying the type of sibling
 #' information to return (not sure what this should look like yet).
-#' @param plot Logical, if \code{TRUE}, simulated parent and children
+#' @param plot.points Logical, if \code{TRUE}, simulated parent and children
 #' point locations will be plotted (only for two dimensions).
+#' @param plot.empirical Logical, if \code{TRUE}, the empirical Palm
+#' intensity is plotted, with the true Palm intensity from the
+#' provided parameters overlain. The latter is only approximate as the
+#' mean and variance of the number of children per parent are
+#' calculated via simulation from rchild.
 #' @param ... Further parameters for rchild.dist.
 #'
 #' @export
-sim.ns <- function(pars = NULL, lims = rbind(c(0, 1), c(0, 1)), rchild = rpois, non.siblings = NULL, plot = FALSE, ...){
+sim.ns <- function(pars = NULL, lims = rbind(c(0, 1), c(0, 1)), rchild = rpois, non.siblings = NULL, plot.points = FALSE, plot.empirical = FALSE, ...){
     ## Allowing lims to be a vector if only one dimension.
     if (!is.matrix(lims)){
         lims <- matrix(lims, nrow = 1)
@@ -60,10 +65,10 @@ sim.ns <- function(pars = NULL, lims = rbind(c(0, 1), c(0, 1)), rchild = rpois, 
     ## Generating children dispersion from parent.
     child.disp <- rmvnorm(n = n.children, mean = rep(0, n.dims),
                           sigma = sigma^2*diag(n.dims))
-    child.locs <- matrix(rep(parent.locs, times = rep(n.childs, 2)), ncol = 2) + child.disp
+    child.locs <- matrix(rep(parent.locs, times = rep(n.childs, n.dims)), ncol = n.dims) + child.disp
     ## Adjusting for periodic boundary constraints.
     child.locs <- pbc.fix(child.locs, lims)
-    if (plot){
+    if (plot.points){
         if (n.dims == 2){
             plot.new()
             plot.window(xlim = lims[1, ], ylim = lims[2, ])
@@ -75,6 +80,17 @@ sim.ns <- function(pars = NULL, lims = rbind(c(0, 1), c(0, 1)), rchild = rpois, 
         } else {
             warning("Plotting points only implemented for two dimensions.")
         }
+        if (plot.empirical){
+            warning("Both 'plot.points' and 'plot.empirical' are TRUE, the latter is being ignored.")
+        }
+    } else if (plot.empirical){
+        empirical.palm(child.locs, lims)
+        rs <- rchild(10000, ...)
+        rs.mean <- mean(rs)
+        rs.var <- var(rs)
+        Dc <- D*rs.mean
+        nu <- (rs.var + rs.mean^2)/rs.mean - 1
+        analytic.palm(Dc, nu, sigma, n.dims, c(0, 1), add = TRUE)
     }
     child.locs
 }

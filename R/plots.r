@@ -46,31 +46,38 @@ empirical.palm <- function(points, lims, breaks = NULL, add = FALSE){
 #' \link{fit.ns}().
 #'
 #' @param x A fitted model from \link{fit.ns}().
-#' @param emp Logical, if \code{TRUE} then the empirical Palm
-#' intensity is also plotted.
+#' @param plot.empirical Logical, if \code{TRUE} then the empirical
+#' Palm intensity is also plotted.
 #' @inheritParams empirical.palm
 #' @param ... Other parameters (for S3 generic compatibility).
 #'
 #' @method plot nspp
 #'
 #' @export
-plot.nspp <- function(x, emp = FALSE, breaks = NULL, ...){
+plot.nspp <- function(x, plot.empirical = FALSE, breaks = NULL, ...){
     Dc <- x$pars["Dc"]
     nu <- x$pars["nu"]
     sigma <- x$pars["sigma"]
     R <- x$args$R
-    xx <- seq(0, R, length.out = 500)[-1]
-    yy <- palm.intensity(xx, Dc, nu, sigma, ncol(x$args$points))
-    par(xaxs = "i")
-    plot.new()
-    plot.window(xlim = c(0, R), ylim = c(0, max(yy)))
-    box()
-    abline(h = 0, col = "lightgrey")
-    lines(xx, yy, col = "red")
-    if (emp){
+    analytic.palm(Dc, nu, sigma, ncol(x$args$points), c(0, R))
+    if (plot.empirical){
         empirical.palm(x$args$points, x$args$lims,
                        breaks = breaks, add = TRUE)
     }
-    axis(1)
-    axis(2)
+}
+
+## Plots the analytic Palm intensity.
+analytic.palm <- function(Dc, nu, sigma, n.dims, xlim = c(0, 1), add = FALSE){
+    xx <- seq(xlim[1], xlim[2], length.out = 500)
+    yy <- palm.intensity(xx, Dc, nu, sigma, n.dims)
+    if (!add){
+        par(xaxs = "i")
+        plot.new()
+        plot.window(xlim = xlim, ylim = c(0, max(yy)))
+        box()
+        abline(h = 0, col = "lightgrey")
+        axis(1)
+        axis(2)
+    }
+    lines(xx, yy, col = "red")
 }
