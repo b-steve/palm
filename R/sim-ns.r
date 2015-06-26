@@ -94,3 +94,54 @@ sim.ns <- function(pars = NULL, lims = rbind(c(0, 1), c(0, 1)), rchild = rpois, 
     }
     child.locs
 }
+
+#' Simulating two-plane whale survey data
+#'
+#' Simulates observed whale locations and plane IDs from a two-plane
+#' whale survey.
+#'
+#' @return A list containing observed whale locations and associated
+#' plane IDs.
+#'
+#' @param pars A named vector of parameter values. Required parameters
+#' are \code{D}, whale density, \code{sigma}, whale movement,
+#' \code{p01}, the probability that a whale is on the surface when the
+#' second plane flies over, given that it was submerged when the first
+#' plane flew over, and \code{10}, the probability that a whale is
+#' submerged with the second plane flies over, given that it was on
+#' the surface when the first plane flew over.
+#' @param lims The limits of the survey transect.
+sim.twoplane <- function(pars, lims){
+    ## Extracting parameters.
+    D <- pars["D"]
+    sigma <- pars["sigma"]
+    p01 <- pars["p01"]
+    p10 <- pars["p10"]
+    p11 <- 1 - p10
+    p00 <- 1 - p01
+    ## Simulating number of whales.
+    n.whales <- rpois(n = 1, lambda = D*diff(lims))
+    ## Simulating whale locations for first flyover.
+    pos.plane1 <- runif(n.whales, min = lims[1], max = lims[2])
+    ## Simulating whale movement.
+    movement <- sample(c(0, 1), size = n.whales, replace = TRUE)*
+        sigma*sqrt(2)*sqrt(rchisq(n.whales, 1))
+    ## Calculating whale locations for second flyover.
+    pos.plane2 <- pos.plane1 + movement
+    ## Simulating detections for first flyover.
+    det.plane1 <- sample(c(TRUE, FALSE), size = n.whales, replace = TRUE,
+                         prob = c(p01/(p10 + p01), p10/(p10 + p01)))
+    ## Simulating detections for second flyover.
+    det.plane2 <- logical(n.whales)
+    det.plane2[det.plane1] <- sample(c(TRUE, FALSE), size = sum(det.plane1),
+                                     replace = TRUE, prob = c(p11, p10))
+    det.plane2[!det.plane1] <- sample(c(TRUE, FALSE), size = sum(!det.plane1),
+                                      replace = TRUE, prob = c(p01, p00))
+    ## Concatenating detection locations.
+    points <- c(pos.plane1[det.plane1], pos.plane2[det.plane2])
+    ## Fixing points for periodic boundary conditions.
+    points <- pbc.fix(points, lims)
+    points
+}
+
+    
