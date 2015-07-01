@@ -2,7 +2,7 @@
 pbc.fix <- function(points, lims){
     ## Errors for inconsistent dimensions.
     if (!is.matrix(points)){
-        points <- matrix(points, nrow = 1)
+        points <- matrix(points, ncol = 1)
     }
     if (!is.matrix(lims)){
         lims <- matrix(lims, nrow = 1)
