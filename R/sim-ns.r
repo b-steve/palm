@@ -111,6 +111,8 @@ sim.ns <- function(pars = NULL, lims = rbind(c(0, 1), c(0, 1)), rchild = rpois, 
 #' submerged with the second plane flies over, given that it was on
 #' the surface when the first plane flew over.
 #' @param lims The limits of the survey transect.
+#'
+#' @export
 sim.twoplane <- function(pars, lims){
     ## Extracting parameters.
     D <- pars["D"]
@@ -120,11 +122,11 @@ sim.twoplane <- function(pars, lims){
     p11 <- 1 - p10
     p00 <- 1 - p01
     ## Simulating number of whales.
-    n.whales <- rpois(n = 1, lambda = D*diff(lims))
+    n.whales <- rpois(n = 1, lambda = D*diff(lims[1, ]))
     ## Simulating whale locations for first flyover.
-    pos.plane1 <- runif(n.whales, min = lims[1], max = lims[2])
+    pos.plane1 <- runif(n.whales, min = lims[1, 1], max = lims[1, 2])
     ## Simulating whale movement.
-    movement <- sample(c(0, 1), size = n.whales, replace = TRUE)*
+    movement <- sample(c(-1, 1), size = n.whales, replace = TRUE)*
         sigma*sqrt(2)*sqrt(rchisq(n.whales, 1))
     ## Calculating whale locations for second flyover.
     pos.plane2 <- pos.plane1 + movement
@@ -141,7 +143,8 @@ sim.twoplane <- function(pars, lims){
     points <- c(pos.plane1[det.plane1], pos.plane2[det.plane2])
     ## Fixing points for periodic boundary conditions.
     points <- pbc.fix(points, lims)
-    points
+    planes <- c(rep(1, sum(det.plane1)), rep(2, sum(det.plane2)))
+    list(points = points, planes = planes)
 }
 
     
