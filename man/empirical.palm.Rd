@@ -4,7 +4,7 @@
 \alias{empirical.palm}
 \title{Plotting the empirical Palm intensity}
 \usage{
-empirical.palm(points, lims, breaks = NULL, add = FALSE)
+empirical.palm(points, lims, breaks = 50, xlim = NULL, add = FALSE)
 }
 \arguments{
 \item{points}{A matrix containing locations of observed points,
@@ -15,6 +15,8 @@ to a dimension.}
 and lower limits of each dimension, respectively.}
 
 \item{breaks}{The (approximate) number of points plotted.}
+
+\item{xlim}{The x-axis limits for the plot.}
 
 \item{add}{Logical, if \code{TRUE} then the line is added to a
 plot.}

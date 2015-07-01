@@ -12,7 +12,7 @@ observed location.}
 }
 \value{
 A list, a suitable object for the \code{siglings} argument
-to \link{ns.fit}.
+to \link{fit.ns}.
 }
 \description{
 Creates an object suitable for the \code{siblings} argument to
