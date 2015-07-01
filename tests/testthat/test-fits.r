@@ -29,3 +29,23 @@ test_that(
                                  sv = 0.5, bounds = c(1e-6, 1)))
         expect_that(abs(coef(fit.bin.2D)[1] - 20.54872790) < 1e-4, is_true())
     })
+
+test_that(
+    "Two-plane simulation and model fitting.",
+    {
+        set.seed(4321)
+        lims <- rbind(c(0, 100))
+        pars <- c(D = 1, sigma = 0.025, p01 = 0.2, p10 = 0.1)
+        ## Simulating data.
+        plane.data <- sim.twoplane(pars = pars, lims = lims)
+        points <- plane.data$points
+        planes <- plane.data$planes
+        expect_that(abs(plane.data$points[1, 1] - 75.043889) < 1e-4, is_true())
+        siblings <- twoplane.siblings(planes)
+        ## Fitting model.
+        fit <- fit.ns(points = points, lims = lims, R = 0.5,
+                      child.dist = list(mean = function(x) 2*0.2/(x + 0.2),
+                             var = function(x) 2*x*0.2*(2 - x - 0.2)/(x + 0.2)^2,
+                          sv = 0.2, bounds = c(0, 1)), siblings = siblings)
+        expect_that(abs(coef(fit)[1] - 1.387786) < 1e-4, is_true())
+    })
