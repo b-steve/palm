@@ -6,26 +6,29 @@
 #' 
 #' @inheritParams fit.ns
 #' @param breaks The (approximate) number of points plotted.
+#' @param xlim The x-axis limits for the plot.
 #' @param add Logical, if \code{TRUE} then the line is added to a
 #' plot.
 #' 
 #' @export
-empirical.palm <- function(points, lims, breaks = NULL, add = FALSE){
+empirical.palm <- function(points, lims, breaks = 50, xlim = NULL, add = FALSE){
     error.dims(points, lims)
-    if (is.null(breaks)){
-        breaks <- "Sturges"
-    }
     n.dims <- ncol(points)
     dists <- pbc_distances(points = points, lims = lims)
     n.points <- nrow(points)
-    hist.obj <- hist(dists, plot = FALSE, breaks = breaks)
-    midpoints <- hist.obj$mids
-    h <- hist.obj$breaks[2] - hist.obj$breaks[1]
+    if (is.null(xlim)){
+        xlim <- 0.5*min(apply(lims, 1, diff))
+    }
+    midpoints <- seq(0, max(xlim), length.out = breaks)
+    midpoints <- midpoints[-length(midpoints)]
+    h <- diff(midpoints[c(1, 2)])
+    midpoints[1] <- midpoints[1] + h/2
     intensities <- numeric(length(midpoints))
     for (i in 1:length(midpoints)){
-        n.interval <- sum(dists <= (midpoints[i] + 0.5*h)) -
-            sum(dists <= (midpoints[i] - 0.5*h))
-        area <- Vd(midpoints[i] + 0.5*h, n.dims) -  Vd(midpoints[i] - 0.5*h, n.dims)
+        halfwidth <- ifelse(i == 1, 0.25*h, 0.5*h)
+        n.interval <- sum(dists <= (midpoints[i] + halfwidth)) -
+            sum(dists <= (midpoints[i] - halfwidth))
+        area <- Vd(midpoints[i] + halfwidth, n.dims) -  Vd(midpoints[i] - halfwidth, n.dims)
         intensities[i] <- n.interval/(n.points*area)
     }
     if (!add){
