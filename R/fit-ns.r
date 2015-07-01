@@ -73,9 +73,10 @@ fit.ns <- function(points = NULL, lims = NULL, R, sigma.sv = 0.1*R,
     n.dims <- nrow(lims)
     ## Vectorising siblings matrix, and setting intensity function.
     if (!is.null(siblings)){
-        siblings <- vectorise.siblings(siblings)
+        v.siblings <- vectorise.siblings(siblings)
         intensity.fun <- palm.intensity.siblings
     } else {
+        v.siblings <- NULL
         intensity.fun <- palm.intensity
     }
     ## Declaring function to calculate nu.
@@ -90,7 +91,10 @@ fit.ns <- function(points = NULL, lims = NULL, R, sigma.sv = 0.1*R,
     ## Calculating distances.
     dists <- pbc_distances(points = points, lims = lims)
     ## Truncating distances.
-    dists <- dists[dists <= R]
+    keep <- dists <= R
+    dists <- dists[keep]
+    v.siblings$ns.multipliers <- v.siblings$ns.multipliers[keep]
+    v.siblings$s.multipliers <- v.siblings$s.multipliers[keep]
     n.dists <- length(dists)
     ## Sorting out start values.
     nu.sv <- nu.fun(child.dist$sv, child.dist)
@@ -101,6 +105,7 @@ fit.ns <- function(points = NULL, lims = NULL, R, sigma.sv = 0.1*R,
     Dc.bounds <- c(0, Inf)
     nu.bounds <- nu.fun(child.dist$bounds, child.dist)
     if (is.nan(nu.bounds[1])) nu.bounds[1] <- 0
+    nu.bounds <- sort(nu.bounds)
     lower <- c(Dc.bounds[1], nu.bounds[1], sigma.bounds[1])
     upper <- c(Dc.bounds[2], nu.bounds[2], sigma.bounds[2])
     fit <-  optimx(par = log(sv), fn = ns.nll,
@@ -109,7 +114,7 @@ fit.ns <- function(points = NULL, lims = NULL, R, sigma.sv = 0.1*R,
                    upper = log(upper),
                    n.points = n.points, dists = dists, R = R,
                    d = n.dims, nu.fun = nu.fun,
-                   par.names = names(sv), siblings = siblings,
+                   par.names = names(sv), siblings = v.siblings,
                    intensity.fun = intensity.fun, trace = trace)
     ## Extracting sigma and nu estimates.
     opt.pars <- exp(coef(fit)[1, ])
