@@ -27,8 +27,11 @@ boot.ns <- function(fit, rchild.fun, N, prog = TRUE){
     pars <- fit$pars
     n.pars <- length(pars)
     lims <- args$lims
+    ## Error for fits with known (non-)siblings.
+    if (!is.null(args$siblings)){
+        stop("Bootstrapping not implemented for models with known (non-)siblings.")
+    }
     boots <- matrix(0, nrow = N, ncol = n.pars)
-    ## Setting up progress bar.
     ## Setting up progress bar.
     if (prog){
         pb <- txtProgressBar(min = 0, max = N, style = 3)
