@@ -54,6 +54,7 @@ boot.ns <- function(fit, rchild.fun, N, prog = TRUE){
     }
     colnames(boots) <- names(pars)
     fit$boots <- boots
+    fit$se <- apply(boots, 2, sd)
     class(fit) <- c("boot.nspp", class(fit))
     fit
 }
