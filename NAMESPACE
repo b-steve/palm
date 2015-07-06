@@ -2,6 +2,8 @@
 
 S3method(coef,nspp)
 S3method(plot,nspp)
+S3method(print,summary.nspp)
+S3method(summary,nspp)
 export(boot.ns)
 export(empirical.palm)
 export(fit.ns)
