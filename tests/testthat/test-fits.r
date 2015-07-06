@@ -13,6 +13,15 @@ test_that(
                                  var = function(x) 4*x*(1 - x),
                                  sv = 0.5, bounds = c(0, 1)))
         expect_that(abs(coef(fit.bin.1D)[1] - 34.908843190) < 1e-4, is_true())
+        ## Testing bootstrapping.
+        set.seed(5432)
+        fit.pois.1D.boot <- boot.ns(fit = fit.pois.1D,
+                                    rchild.fun = function(n, child.par){
+                                        rpois(n, lambda = child.par)
+                                    },
+                                    N = 5, prog = FALSE)
+        expect_that(abs(mean(fit.pois.1D.boot$boots[, 1]) - 48.787782395) < 1e-4, is_true())
+
     })
 
 test_that(
@@ -47,18 +56,7 @@ test_that(
                              var = function(x) 2*x*0.2*(2 - x - 0.2)/(x + 0.2)^2,
                           sv = 0.2, bounds = c(0, 1)), siblings = siblings)
         expect_that(abs(coef(fit.twoplane)[1] - 1.387786) < 1e-4, is_true())
-    })
-
-test_that(
-    "Bootstrapping",
-    {
-        set.seed(5432)
-        fit.pois.1D.boot <- boot.ns(fit = fit.pois.1D,
-                                    rchild.fun = function(n, child.par){
-                                        rpois(n, lambda = child.par)
-                                    },
-                                    N = 5, prog = FALSE)
-        expect_that(abs(mean(fit.pois.1D.boot$boots[, 1]) - 48.787782395) < 1e-4, is_true())
+        ## Testing bootstrapping error.
         rchild.twoplane <- function(n, child.par){
             p10 <- child.par
             p01 <- 0.2
@@ -79,3 +77,5 @@ test_that(
         expect_that(boot.ns(fit.twoplane, rchild.fun = rchild.twoplane,
                             N = 10, prog = FALSE), throws_error())
     })
+
+
