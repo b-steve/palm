@@ -2,7 +2,7 @@
 % Please edit documentation in R/methods.r
 \name{coef.nspp}
 \alias{coef.nspp}
-\title{Extract Neyman-Scott point process parameter estiamtes}
+\title{Extract Neyman-Scott point process parameter estimates}
 \usage{
 \method{coef}{nspp}(object, ...)
 }
@@ -13,6 +13,6 @@
 }
 \description{
 Extracts estimated and derived parameters from a model fitted using
-\link{fit.ns}().
+\link{fit.ns}.
 }
 
