@@ -16,7 +16,7 @@ test_that(
         ## Testing bootstrapping.
         set.seed(5432)
         fit.pois.1D.boot <- boot.ns(fit = fit.pois.1D,
-                                    rchild.fun = function(n, child.par){
+                                    rchild = function(n, child.par){
                                         rpois(n, lambda = child.par)
                                     },
                                     N = 5, prog = FALSE)
