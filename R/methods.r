@@ -31,19 +31,27 @@ coef.nspp <- function(object, ...){
 #' @param parm A vector of parameter names, specifying which
 #' parameters are to be given confidence intervals.
 #' @param level The confidence level required.
+#' @param method A character string specifying the method used to
+#' calculate confidence intervals. Choices are "normal", for a normal
+#' approximation, and "percentile", for the percentile method.
 #' @param ... Other parameters (for S3 generic compatability).
 #'
 #' @method confint boot.nspp
 #'
 #' @export
-confint.boot.nspp <- function(object, parm = NULL, level = 0.95, ...){
+confint.boot.nspp <- function(object, parm = NULL, level = 0.95, method = "percentile", ...){
     if (is.null(parm)){
         parm <- 1:length(object$se)
     }
-    ests <- coef(object)[parm]
-    ses <- object$se[parm]
-    out <- cbind(ests + qnorm((1 - level)/2)*ses,
-                 ests - qnorm((1 - level)/2)*ses)
+    if (method == "normal"){
+        ests <- coef(object)[parm]
+        ses <- object$se[parm]
+        out <- cbind(ests + qnorm((1 - level)/2)*ses,
+                     ests - qnorm((1 - level)/2)*ses)
+    } else if (method == "percentile"){
+        out <- t(apply(object$boots[, parm, drop = FALSE], 2, quantile, probs = c((1 - level)/2, 1 - (1 - level)/2),
+                       na.rm = TRUE))
+    }
     colnames(out) <- c(paste(100*(1 - level)/2, "%"),
                        paste(100*((1 + level)/2), "%"))
     out
