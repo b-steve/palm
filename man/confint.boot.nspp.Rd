@@ -4,7 +4,8 @@
 \alias{confint.boot.nspp}
 \title{Extracts Neyman-Scott point process parameter confidence intervals.}
 \usage{
-\method{confint}{boot.nspp}(object, parm = NULL, level = 0.95, ...)
+\method{confint}{boot.nspp}(object, parm = NULL, level = 0.95,
+  method = "percentile", ...)
 }
 \arguments{
 \item{object}{A fitted model from \link{fit.ns}, bootstrapped using
@@ -14,6 +15,10 @@
 parameters are to be given confidence intervals.}
 
 \item{level}{The confidence level required.}
+
+\item{method}{A character string specifying the method used to
+calculate confidence intervals. Choices are "normal", for a normal
+approximation, and "percentile", for the percentile method.}
 
 \item{...}{Other parameters (for S3 generic compatability).}
 }
