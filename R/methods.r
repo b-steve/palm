@@ -4,13 +4,20 @@
 #' \link{fit.ns}.
 #'
 #' @param object A fitted model from \link{fit.ns}.
+#' @param all Logical, if \code{TRUE} derived parameters are also
+#' included.
 #' @param ... Other parameters (for S3 generic compatibility).
 #'
 #' @method coef nspp
 #'
 #' @export
-coef.nspp <- function(object, ...){
-    object$pars
+coef.nspp <- function(object, all = FALSE, ...){
+    if (all){
+        parm <- 1:6
+    } else {
+        parm <- 1:3
+    }
+    object$pars[parm]
 }
 
 #' Extracts Neyman-Scott point process parameter confidence intervals.
@@ -39,7 +46,7 @@ coef.nspp <- function(object, ...){
 #' @method confint boot.nspp
 #'
 #' @export
-confint.boot.nspp <- function(object, parm = NULL, level = 0.95, method = "percentile", ...){
+confint.boot.nspp <- function(object, parm = c("D", "sigma", "child.par"), level = 0.95, method = "percentile", ...){
     if (is.null(parm)){
         parm <- 1:length(object$se)
     }
@@ -63,16 +70,22 @@ confint.boot.nspp <- function(object, parm = NULL, level = 0.95, method = "perce
 #'
 #' @param object A fitted model from \link{fit.ns}.
 #' @param ... Other parameters (for S3 generic compatibility).
-#'
+#' @inheritParams coef.nspp
+#' 
 #' @method summary nspp
 #'
 #' @export
-summary.nspp <- function(object, ...){
-    coefs <- coef(object)
-    ses <- object$se
+summary.nspp <- function(object, all = FALSE, ...){
+    if (all){
+        parm <- 1:6
+    } else {
+        parm <- 1:3
+    }
+    coefs <- coef(object)[parm]
+    ses <- object$se[parm]
     if (is.null(ses)){
         ses <- rep(NA, length(coefs))
-        names(ses) <- names(coefs)
+        names(ses) <- names(coefs)[parm]
     }
     out <- list(coefs = coefs, ses = ses)
     class(out) <- c("summary.nspp", class(out))
@@ -80,7 +93,7 @@ summary.nspp <- function(object, ...){
 }
 
 #' @method print summary.nspp
-#'
+#' 
 #' @export
 print.summary.nspp <- function(x, ...){
     n.coefs <- length(x$coefs)

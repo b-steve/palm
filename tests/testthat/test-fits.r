@@ -49,7 +49,7 @@ test_that(
         points <- plane.data$points
         planes <- plane.data$planes
         expect_that(abs(plane.data$points[1, 1] - 75.043889) < 1e-4, is_true())
-        siblings <- twoplane.siblings(planes)
+        siblings <- siblings.twoplane(planes)
         ## Fitting model.
         fit.twoplane <- fit.ns(points = points, lims = lims, R = 0.5,
                       child.dist = list(mean = function(x) 2*0.2/(x + 0.2),

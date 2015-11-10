@@ -23,16 +23,16 @@
 #' generating the number of children per parent. It must be a list
 #' with four components: (1) A component named \code{mean} that
 #' provides a function returning the expectation of the distribution,
-#' as an argument of a single parameter to be estimated, (2) A
-#' component named \code{var} that provides a function returning the
-#' variance of a distribution, as an argument of a singla parameter to
-#' be estimated, (3) A component named \code{sv} providing the start
-#' value for the parameter to be estimated, and (4) A component named
-#' \code{bounds} providing a vector of length two that gives the
-#' parameter bounds.
+#' with its only argument being the single parameter to be estimated,
+#' (2) A component named \code{var} that provides a function returning
+#' the variance of a distribution, with its only argument being the
+#' single parameter to be estimated, (3) A component named \code{sv}
+#' providing the start value for the parameter to be estimated, and
+#' (4) A component named \code{bounds} providing a vector of length
+#' two that gives the parameter bounds.
 #' @param siblings A named list, containing the following three
 #' components: (1) A component named \code{matrix}, where the jth
-#' column of the ith row is \code{TRUE} if the ith and jth observed
+#' element of the ith row is \code{TRUE} if the ith and jth observed
 #' points are known siblings, \code{FALSE} if they are known
 #' non-siblings, and \code{NA} if it is not known whether or not they
 #' are siblings, (2) A component named pT, containing a scalar
@@ -99,6 +99,9 @@ fit.ns <- function(points = NULL, lims = NULL, R, sigma.sv = 0.1*R,
     ## Sorting out start values.
     nu.sv <- nu.fun(child.dist$sv, child.dist)
     Dc.sv <- analytic.Dc(nu.sv, sigma.sv, n.dists, n.points, R, n.dims)
+    if (Dc.sv <= 0){
+        Dc.sv <- n.points/area
+    }
     sv <- c(Dc.sv, nu.sv, sigma.sv)
     names(sv) <- c("Dc", "nu", "sigma")
     ## Sorting out bounds.
@@ -108,6 +111,7 @@ fit.ns <- function(points = NULL, lims = NULL, R, sigma.sv = 0.1*R,
     nu.bounds <- sort(nu.bounds)
     lower <- c(Dc.bounds[1], nu.bounds[1], sigma.bounds[1])
     upper <- c(Dc.bounds[2], nu.bounds[2], sigma.bounds[2])
+    if (any(is.nan(log(sv)))) traceback()
     fit <-  optimx(par = log(sv), fn = ns.nll,
                    method = "L-BFGS-B",
                    lower = log(lower),

@@ -14,7 +14,7 @@
 #' observed location.
 #'
 #' @export
-twoplane.siblings <- function(plane.id){
+siblings.twoplane <- function(plane.id){
     n.points <- length(plane.id)
     out <- matrix(NA, nrow = n.points, ncol = n.points)
     for (i in 1:n.points){
