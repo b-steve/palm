@@ -9,9 +9,11 @@
 #' @param xlim The x-axis limits for the plot.
 #' @param add Logical, if \code{TRUE} then the line is added to a
 #' plot.
+#' @param ... Graphical parameters (e.g., to be passed to
+#' \link{par}().
 #' 
 #' @export
-empirical.palm <- function(points, lims, breaks = 50, xlim = NULL, add = FALSE){
+empirical.palm <- function(points, lims, breaks = 50, xlim = NULL, add = FALSE, ...){
     error.dims(points, lims)
     n.dims <- ncol(points)
     dists <- pbc_distances(points = points, lims = lims)
@@ -40,7 +42,7 @@ empirical.palm <- function(points, lims, breaks = 50, xlim = NULL, add = FALSE){
         axis(1)
         axis(2)
     }
-    lines(midpoints, intensities)
+    lines(midpoints, intensities, ...)
 }
 
 #' Plotting an estimated Palm intensity function.
@@ -52,7 +54,8 @@ empirical.palm <- function(points, lims, breaks = 50, xlim = NULL, add = FALSE){
 #' @param plot.empirical Logical, if \code{TRUE} then the empirical
 #' Palm intensity is also plotted.
 #' @inheritParams empirical.palm
-#' @param ... Other parameters (for S3 generic compatibility).
+#' @param ... Graphical parameters (e.g., to be passed to
+#' \link{par}().
 #'
 #' @method plot nspp
 #'
@@ -62,7 +65,7 @@ plot.nspp <- function(x, plot.empirical = FALSE, breaks = NULL, ...){
     nu <- x$pars["nu"]
     sigma <- x$pars["sigma"]
     R <- x$args$R
-    analytic.palm(Dc, nu, sigma, ncol(x$args$points), c(0, R))
+    analytic.palm(Dc, nu, sigma, ncol(x$args$points), c(0, R), ...)
     if (plot.empirical){
         empirical.palm(x$args$points, x$args$lims,
                        breaks = breaks, add = TRUE)
@@ -70,7 +73,7 @@ plot.nspp <- function(x, plot.empirical = FALSE, breaks = NULL, ...){
 }
 
 ## Plots the analytic Palm intensity.
-analytic.palm <- function(Dc, nu, sigma, n.dims, xlim = c(0, 1), add = FALSE){
+analytic.palm <- function(Dc, nu, sigma, n.dims, xlim = c(0, 1), add = FALSE, ...){
     xx <- seq(xlim[1], xlim[2], length.out = 500)
     yy <- palm.intensity(xx, Dc, nu, sigma, n.dims)
     if (!add){
@@ -82,5 +85,5 @@ analytic.palm <- function(Dc, nu, sigma, n.dims, xlim = c(0, 1), add = FALSE){
         axis(1)
         axis(2)
     }
-    lines(xx, yy, col = "red")
+    lines(xx, yy, ...)
 }
