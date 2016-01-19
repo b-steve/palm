@@ -14,7 +14,8 @@ Palm intensity is also plotted.}
 
 \item{breaks}{The (approximate) number of points plotted.}
 
-\item{...}{Other parameters (for S3 generic compatibility).}
+\item{...}{Graphical parameters (e.g., to be passed to
+\link{par}().}
 }
 \description{
 Plots a fitted Palm intensity function from an object returned by
