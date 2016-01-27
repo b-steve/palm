@@ -128,3 +128,23 @@ error.dims <- function(points, lims){
         stop("The number of columns in 'points' and 'lims' must both equal the number of dimensions.")
     }
 }
+
+## Functions below calculate partial derivatives for model parameters
+## for two-dimensional processes with a Poisson distribution for the
+## number of children.
+dldD <- function(D, nu, sigma, n.points, dists, R){
+    sum(1/(D + exp(-dists^2/(4*sigma^2))/(4*pi*sigma^2))) - n.points*pi*nu*R^2
+}
+
+dldnu <- function(D, nu, sigma, n.points, dists, R){
+    sum((n.points*D + n.points*exp(-dists^2/(4*sigma^2))/(4*pi*sigma^2))/
+            (n.points*D*nu + n.points*nu*exp(-dists^2/(4*sigma^2))/(4*pi*sigma^2))) -
+        n.points*pi*D*R^2 - n.points + n.points*exp(-R^2/(4*sigma^2))
+}
+
+dldsigma <- function(D, nu, sigma, n.points, dists, R){
+    sum((-n.points*nu*exp(-dists^2/(4*sigma^2))/(2*pi*sigma^3) +
+             n.points*nu*dists^2*exp(-dists^2/(4*sigma^2))/(8*pi*sigma^5))/
+        (n.points*D*nu + n.points*nu*exp(-dists^2/(4*sigma^2))/(4*pi*sigma^2))) +
+        n.points*nu*(R^2)*exp(-R^2/(4*sigma^2))/(2*sigma^3)
+}

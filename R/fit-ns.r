@@ -117,9 +117,15 @@ fit.ns <- function(points = NULL, lims = NULL, R, sigma.sv = 0.1*R,
                    lower = log(lower),
                    upper = log(upper),
                    n.points = n.points, dists = dists, R = R,
-                   d = n.dims, nu.fun = nu.fun,
+                   d = n.dims,
                    par.names = names(sv), siblings = v.siblings,
                    intensity.fun = intensity.fun, trace = trace)
+    ## Estimation from system of partial derivatives.
+    ## fit.system <- nleqslv(c(sv["Dc"]/sv["nu"], sv["nu"], sv["sigma"),
+    ##                       function(x, n.points, dists, R) c(dldD(x[1], x[2], x[3], n.points, dists, R),
+    ##                                                         dldnu(x[1], x[2], x[3], n.points, dists, R),
+    ##                                                         dldsigma(x[1], x[2], x[3], n.points, dists, R)),
+    ##                       n.points = n.points, dists = dists, R = R)
     ## Extracting sigma and nu estimates.
     opt.pars <- exp(coef(fit)[1, ])
     names(opt.pars) <- names(sv)
@@ -146,7 +152,7 @@ fit.ns <- function(points = NULL, lims = NULL, R, sigma.sv = 0.1*R,
     out
 }
 
-ns.nll <- function(pars, n.points, dists, R, d, nu.fun, par.names, siblings,
+ns.nll <- function(pars, n.points, dists, R, d, par.names, siblings,
                    intensity.fun, trace){
     ## Extracting parameters.
     names(pars) <- par.names
@@ -162,6 +168,12 @@ ns.nll <- function(pars, n.points, dists, R, d, nu.fun, par.names, siblings,
     ## Printing parameter values.
     if (trace){
         cat("Dc = ", Dc, ", sigma = ", sigma, ", nu = ", nu, ", LL = ", ll, "\n", sep = "")
+        cat("Partial derivative for D: ", dldD(Dc/nu, nu, sigma, n.points, dists, R), "\n",
+            sep = "")
+        cat("Partial derivative for nu: ", dldnu(Dc/nu, nu, sigma, n.points, dists, R), "\n",
+            sep = "")
+        cat("Partial derivative for sigma: ", dldsigma(Dc/nu, nu, sigma, n.points, dists, R),
+            "\n", sep = "")
     }
     -ll
 }
