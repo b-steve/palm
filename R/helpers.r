@@ -137,9 +137,7 @@ dldD <- function(D, nu, sigma, n.points, dists, R){
 }
 
 dldnu <- function(D, nu, sigma, n.points, dists, R){
-    sum((n.points*D + n.points*exp(-dists^2/(4*sigma^2))/(4*pi*sigma^2))/
-            (n.points*D*nu + n.points*nu*exp(-dists^2/(4*sigma^2))/(4*pi*sigma^2))) -
-        n.points*pi*D*R^2 - n.points + n.points*exp(-R^2/(4*sigma^2))
+    length(dists)/nu - n.points*pi*D*R^2 - n.points + n.points*exp(-R^2/(4*sigma^2))
 }
 
 dldsigma <- function(D, nu, sigma, n.points, dists, R){
