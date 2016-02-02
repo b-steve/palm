@@ -21,7 +21,8 @@ test_that(
                                     },
                                     N = 5, prog = FALSE)
         expect_that(abs(mean(fit.pois.1D.boot$boots[, 1]) - 48.787782395) < 1e-4, is_true())
-
+        ## Testing plotting.
+        expect_that(plot(fit.pois.1D.boot), is_null())
     })
 
 test_that(
