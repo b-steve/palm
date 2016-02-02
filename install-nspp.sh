@@ -11,4 +11,4 @@ R CMD build .
 mkdir -p package-build
 mv nspp_*.tar.gz package-build/
 R CMD check package-build/nspp_*.tar.gz
-R CMD INSTALL package-build/nspp_*.tar.gz
+R CMD INSTALL --install-tests package-build/nspp_*.tar.gz
