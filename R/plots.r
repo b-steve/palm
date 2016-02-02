@@ -21,6 +21,9 @@ empirical.palm <- function(points, lims, breaks = 50, xlim = NULL, add = FALSE, 
     if (is.null(xlim)){
         xlim <- 0.5*min(apply(lims, 1, diff))
     }
+    if (is.null(breaks)){
+        breaks <- 50
+    }
     midpoints <- seq(0, max(xlim), length.out = breaks)
     midpoints <- midpoints[-length(midpoints)]
     h <- diff(midpoints[c(1, 2)])
@@ -65,7 +68,8 @@ plot.nspp <- function(x, plot.empirical = FALSE, breaks = NULL, ...){
     nu <- x$pars["nu"]
     sigma <- x$pars["sigma"]
     R <- x$args$R
-    analytic.palm(Dc, nu, sigma, ncol(x$args$points), c(0, R), ...)
+    analytic.palm(Dc, nu, sigma, ncol(x$args$points), c(0, R),
+                  lty = ifelse(plot.empirical, "dashed", "solid"))
     if (plot.empirical){
         empirical.palm(x$args$points, x$args$lims,
                        breaks = breaks, add = TRUE)
