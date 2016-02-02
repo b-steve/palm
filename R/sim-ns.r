@@ -86,8 +86,8 @@ sim.ns <- function(pars = NULL, lims = rbind(c(0, 1), c(0, 1)), rchild = rpois, 
             box()
             axis(1)
             axis(2)
-            points(parent.locs, pch = 4, lwd = 2, col = "red")
             points(child.locs)
+            points(parent.locs, pch = 4, lwd = 2, col = "red")
         } else {
             warning("Plotting points only implemented for two dimensions.")
         }
@@ -101,7 +101,7 @@ sim.ns <- function(pars = NULL, lims = rbind(c(0, 1), c(0, 1)), rchild = rpois, 
         rs.var <- var(rs)
         Dc <- D*rs.mean
         nu <- (rs.var + rs.mean^2)/rs.mean - 1
-        analytic.palm(Dc, nu, sigma, n.dims, c(0, 1), add = TRUE)
+        analytic.palm(Dc, nu, sigma, n.dims, c(0, 1), add = TRUE, lty = "dashed")
     }
     child.locs
 }
