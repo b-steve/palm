@@ -28,10 +28,7 @@ from a model fitted using \link{fit.ns}, then bootstrapped using
 \link{boot.ns}.
 }
 \details{
-Calculation of confidence intervals is via a normal approximation,
-whereby standard errors are calculated from the standard deviations
-of the parameter estimates across the bootstrap
-resamples. Bootstrap parameter estimates can be found in the
+Bootstrap parameter estimates can be found in the
 \code{boot} component of the model object, so alternative
 confidence interval methods can be calculated by hand.
 }
