@@ -3,6 +3,16 @@
 #' Carries out a bootstrap for Neymann-Scott point process models
 #' fitted by \link{fit.ns}().
 #'
+#' The \code{rchild} function may only take a single distributional
+#' parameter. If the distribution for the number of children generated
+#' by each parent is Poisson, then the native \code{rpois} is
+#' appropriate, as this distribution has a single parameter. For
+#' distributions with two or more parameters, those other than
+#' \code{child.par} must be hard-coded into \code{rchild}. For
+#' example, if a Binomial(n, 2, p) is required, then \code{function(n,
+#' p) rbinom(n = n, size = 2, prob = p)} would be an appropriate
+#' function for \code{rchild}.
+#'
 #' @return The first argument, with added information from the
 #' bootstrap procedure.
 #'
