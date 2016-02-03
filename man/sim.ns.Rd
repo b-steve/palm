@@ -52,4 +52,8 @@ example, if a Binomial(n, 2, p) is required, then \code{function(n,
 p) rbinom(n = n, size = 2, prob = p)} would be an appropriate
 function for \code{rchild}.
 }
+\examples{
+points <- sim.ns(pars = c(D = 20, sigma = 0.025, child.par = 5))
+
+}
 

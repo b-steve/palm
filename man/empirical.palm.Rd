@@ -30,4 +30,8 @@ A plot showing the empirical Palm intensity.
 \description{
 Plots the Palm intensity from empirical data.
 }
+\examples{
+empirical.palm(example.2D, lims = rbind(c(0, 1), c(0, 1)), breaks = 25)
+
+}
 

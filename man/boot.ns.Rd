@@ -41,4 +41,13 @@ example, if a Binomial(n, 2, p) is required, then \code{function(n,
 p) rbinom(n = n, size = 2, prob = p)} would be an appropriate
 function for \code{rchild}.
 }
+\examples{
+\dontrun{
+## Fitting a model.
+fit <- fit.ns(example.2D, lims = rbind(c(0, 1), c(0, 1)), R = 0.5)
+## Bootstrapping.
+fit.boot <- boot.ns(fit, rchild = rpois, N = 100)
+}
+
+}
 

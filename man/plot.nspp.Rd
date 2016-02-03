@@ -4,7 +4,8 @@
 \alias{plot.nspp}
 \title{Plotting an estimated Palm intensity function.}
 \usage{
-\method{plot}{nspp}(x, plot.empirical = FALSE, breaks = NULL, ...)
+\method{plot}{nspp}(x, plot.empirical = FALSE, breaks = NULL, xlim = NULL,
+  ylim = NULL, ...)
 }
 \arguments{
 \item{x}{A fitted model from \link{fit.ns}().}
@@ -14,11 +15,22 @@ Palm intensity is also plotted.}
 
 \item{breaks}{The (approximate) number of points plotted.}
 
+\item{xlim}{The x-axis limits for the plot.}
+
+\item{ylim}{The y-axis limits for the plot.}
+
 \item{...}{Graphical parameters (e.g., to be passed to
 \link{par}().}
 }
 \description{
 Plots a fitted Palm intensity function from an object returned by
 \link{fit.ns}().
+}
+\examples{
+## Fitting a model.
+fit <- fit.ns(example.2D, lims = rbind(c(0, 1), c(0, 1)), R = 0.5)
+## Plotting.
+plot(fit, plot.empirical = TRUE, breaks = 30, ylim = c(0, 200))
+
 }
 
