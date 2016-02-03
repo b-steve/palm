@@ -41,10 +41,20 @@
 #' being siblings, (3) A component named pF, containing a scalar
 #' providing the probability that the element (i, j) in the component
 #' \code{matrix} is \code{FALSE}, conditional on the ith and jth
-#' points not being siblings.
+#' points not being siblings. Defaults to an argument representing a
+#' Poisson distribution.
 #' @param trace Logical, if \code{TRUE}, parameter values are printed
 #' to the screen for each iteration of the optimisation procedure.
 #'
+#' @examples
+#'## Poisson number of children per parent.
+#'fit.2D.pois <- fit.ns(example.2D, lims = rbind(c(0, 1), c(0, 1)), R = 0.5)
+#'## Binomial number of children per parent.
+#'fit.1D.binom <- fit.ns(example.1D, lims = cbind(0, 1), R = 0.5,
+#'                       child.dist = list(mean = function(x) 4*x,
+#'                           var = function(x) 4*x*(1 - x),
+#'                           sv = 0.5, bounds = c(0, 1)))
+#' 
 #' @export
 fit.ns <- function(points = NULL, lims = NULL, R, sigma.sv = 0.1*R,
                    sigma.bounds = c(0, R),

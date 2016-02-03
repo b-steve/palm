@@ -21,6 +21,14 @@
 #' @param prog Logical, if \code{TRUE}, a progress bar is printed to
 #' the console.
 #' @inheritParams sim.ns
+#'
+#' @examples
+#' \dontrun{
+#' ## Fitting a model.
+#' fit <- fit.ns(example.2D, lims = rbind(c(0, 1), c(0, 1)), R = 0.5)
+#' ## Bootstrapping.
+#' fit.boot <- boot.ns(fit, rchild = rpois, N = 100)
+#' }
 #' 
 #' @export
 boot.ns <- function(fit, rchild, N, prog = TRUE){

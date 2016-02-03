@@ -35,6 +35,9 @@
 #' mean and variance of the number of children per parent are
 #' calculated via simulation from rchild.
 #' @param ... Further parameters for rchild.dist.
+#'
+#' @examples
+#' points <- sim.ns(pars = c(D = 20, sigma = 0.025, child.par = 5))
 #' 
 #' @export
 sim.ns <- function(pars = NULL, lims = rbind(c(0, 1), c(0, 1)), rchild = rpois, plot.points = FALSE, plot.empirical = FALSE){
