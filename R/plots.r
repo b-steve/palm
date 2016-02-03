@@ -11,6 +11,9 @@
 #' plot.
 #' @param ... Graphical parameters (e.g., to be passed to
 #' \link{par}().
+#'
+#' @examples
+#' empirical.palm(example.2D, lims = rbind(c(0, 1), c(0, 1)), breaks = 25)
 #' 
 #' @export
 empirical.palm <- function(points, lims, breaks = 50, xlim = NULL, add = FALSE, ...){
@@ -56,20 +59,32 @@ empirical.palm <- function(points, lims, breaks = 50, xlim = NULL, add = FALSE, 
 #' @param x A fitted model from \link{fit.ns}().
 #' @param plot.empirical Logical, if \code{TRUE} then the empirical
 #' Palm intensity is also plotted.
+#' @param xlim The x-axis limits for the plot.
+#' @param ylim The y-axis limits for the plot.
 #' @inheritParams empirical.palm
 #' @param ... Graphical parameters (e.g., to be passed to
 #' \link{par}().
 #'
 #' @method plot nspp
 #'
+#' @examples
+#' ## Fitting a model.
+#' fit <- fit.ns(example.2D, lims = rbind(c(0, 1), c(0, 1)), R = 0.5)
+#' ## Plotting.
+#' plot(fit, plot.empirical = TRUE, breaks = 30, ylim = c(0, 200))
+#' 
 #' @export
-plot.nspp <- function(x, plot.empirical = FALSE, breaks = NULL, ...){
+plot.nspp <- function(x, plot.empirical = FALSE, breaks = NULL,
+                      xlim = NULL, ylim = NULL, ...){
     Dc <- x$pars["Dc"]
     nu <- x$pars["nu"]
     sigma <- x$pars["sigma"]
     R <- x$args$R
-    analytic.palm(Dc, nu, sigma, ncol(x$args$points), c(0, R),
-                  lty = ifelse(plot.empirical, "dashed", "solid"))
+    if (is.null(xlim)){
+        xlim <- c(0, R)
+    }
+    analytic.palm(Dc, nu, sigma, ncol(x$args$points), xlim = xlim,
+                  ylim = ylim, lty = ifelse(plot.empirical, "dashed", "solid"), ...)
     if (plot.empirical){
         empirical.palm(x$args$points, x$args$lims,
                        breaks = breaks, add = TRUE)
@@ -77,13 +92,16 @@ plot.nspp <- function(x, plot.empirical = FALSE, breaks = NULL, ...){
 }
 
 ## Plots the analytic Palm intensity.
-analytic.palm <- function(Dc, nu, sigma, n.dims, xlim = c(0, 1), add = FALSE, ...){
+analytic.palm <- function(Dc, nu, sigma, n.dims, xlim = c(0, 1), ylim = NULL, add = FALSE, ...){
     xx <- seq(xlim[1], xlim[2], length.out = 500)
     yy <- palm.intensity(xx, Dc, nu, sigma, n.dims)
+    if (is.null(ylim)){
+        ylim <- c(0, max(yy))
+    }
     if (!add){
         par(xaxs = "i")
         plot.new()
-        plot.window(xlim = xlim, ylim = c(0, max(yy)))
+        plot.window(xlim = xlim, ylim = ylim)
         box()
         abline(h = 0, col = "lightgrey")
         axis(1)
