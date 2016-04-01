@@ -90,10 +90,32 @@ fit.ns <- function(points = NULL, lims = NULL, R, sigma.sv = 0.1*R,
         intensity.fun <- palm.intensity
     }
     ## Declaring function to calculate nu.
-    nu.fun <- function(x, child.dist){
+    protect.child.var <- function(x, child.dist, sigma){
+        if (any(names(formals(child.dist$var)) == "sigma")){
+            if (is.null(sigma)){
+                stop("Value of sigma not specified.")
+            }
+            out <- child.dist$var(x, sigma)
+        } else {
+            out <- child.dist$var(x)
+        }
+        out
+    }
+    protect.child.mean <- function(x, child.dist, sigma){
+        if (any(names(formals(child.dist$mean)) == "sigma")){
+            if (is.null(sigma)){
+                stop("Value of sigma not specified.")
+            }
+            out <- child.dist$mean(x, sigma)
+        } else {
+            out <- child.dist$mean(x)
+        }
+        out
+    }
+    nu.fun <- function(x, child.dist, sigma = NULL){
         ## Mean and variance for number of children.
-        var.c <- child.dist$var(x)
-        mean.c <- child.dist$mean(x)
+        var.c <- protect.child.var(x, child.dist, sigma)
+        mean.c <- protect.child.mean(x, child.dist, sigma)
         (var.c + mean.c^2)/mean.c - 1
     }
     ## Calculating survey area.
@@ -107,7 +129,7 @@ fit.ns <- function(points = NULL, lims = NULL, R, sigma.sv = 0.1*R,
     v.siblings$s.multipliers <- v.siblings$s.multipliers[keep]
     n.dists <- length(dists)
     ## Sorting out start values.
-    nu.sv <- nu.fun(child.dist$sv, child.dist)
+    nu.sv <- nu.fun(child.dist$sv, child.dist, sigma.sv)
     Dc.sv <- analytic.Dc(nu.sv, sigma.sv, n.dists, n.points, R, n.dims)
     if (Dc.sv <= 0){
         Dc.sv <- n.points/area
@@ -116,7 +138,7 @@ fit.ns <- function(points = NULL, lims = NULL, R, sigma.sv = 0.1*R,
     names(sv) <- c("Dc", "nu", "sigma")
     ## Sorting out bounds.
     Dc.bounds <- c(0, Inf)
-    nu.bounds <- nu.fun(child.dist$bounds, child.dist)
+    nu.bounds <- nu.fun(child.dist$bounds, child.dist, sigma.sv)
     if (is.nan(nu.bounds[1])) nu.bounds[1] <- 0
     nu.bounds <- sort(nu.bounds)
     lower <- c(Dc.bounds[1], nu.bounds[1], sigma.bounds[1])
@@ -149,11 +171,12 @@ fit.ns <- function(points = NULL, lims = NULL, R, sigma.sv = 0.1*R,
     search.bounds[1] <- search.bounds[1] - 0.04*diff(child.dist$bounds)
     search.bounds[2] <- search.bounds[2] + 0.04*diff(child.dist$bounds)
     ## Calculating parameter of child distribution.
-    child.par <- try(uniroot(function(x, child.dist, nu) nu.fun(x, child.dist) - nu,
-                         interval = search.bounds, child.dist = child.dist,
-                             nu = nu.par)$root, silent = FALSE)
+    child.par <- try(uniroot(function(x, child.dist, nu, sigma)
+        nu.fun(x, child.dist, sigma) - nu,
+                             interval = search.bounds, child.dist = child.dist,
+                             nu = nu.par, sigma = sigma.par)$root, silent = FALSE)
     ## Calculating mu.
-    mu.par <- child.dist$mean(child.par)
+    mu.par <- protect.child.mean(child.par, child.dist, sigma)
     D.par <- Dc.par/mu.par
     pars <- c(D.par, sigma.par, child.par, Dc.par, mu.par, nu.par)
     names(pars) <- c("D", "sigma", "child.par", "Dc", "mu", "nu")
@@ -178,12 +201,14 @@ ns.nll <- function(pars, n.points, dists, R, d, par.names, siblings,
     ## Printing parameter values.
     if (trace){
         cat("Dc = ", Dc, ", sigma = ", sigma, ", nu = ", nu, ", LL = ", ll, "\n", sep = "")
-        cat("Partial derivative for D: ", dldD(Dc/nu, nu, sigma, n.points, dists, R), "\n",
-            sep = "")
-        cat("Partial derivative for nu: ", dldnu(Dc/nu, nu, sigma, n.points, dists, R), "\n",
-            sep = "")
-        cat("Partial derivative for sigma: ", dldsigma(Dc/nu, nu, sigma, n.points, dists, R),
-            "\n", sep = "")
+        if (d == 2){
+            cat("Partial derivative for D: ", dldD(Dc/nu, nu, sigma, n.points, dists, R), "\n",
+                sep = "")
+            cat("Partial derivative for nu: ", dldnu(Dc/nu, nu, sigma, n.points, dists, R), "\n",
+                sep = "")
+            cat("Partial derivative for sigma: ", dldsigma(Dc/nu, nu, sigma, n.points, dists, R),
+                "\n", sep = "")
+        }
     }
     -ll
 }
