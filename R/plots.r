@@ -87,7 +87,7 @@ plot.nspp <- function(x, plot.empirical = FALSE, breaks = NULL,
                   ylim = ylim, lty = ifelse(plot.empirical, "dashed", "solid"), ...)
     if (plot.empirical){
         empirical.palm(x$args$points, x$args$lims,
-                       breaks = breaks, add = TRUE)
+                       breaks = breaks, xlim = xlim, add = TRUE)
     }
 }
 
