@@ -5,7 +5,7 @@
 \title{Simulating Neyman-Scott point process data}
 \usage{
 sim.ns(pars = NULL, lims = rbind(c(0, 1), c(0, 1)), rchild = rpois,
-  plot.points = FALSE, plot.empirical = FALSE)
+  plot.points = FALSE, plot.empirical = FALSE, parent.info = FALSE)
 }
 \arguments{
 \item{pars}{A named vector (or list?) of parameter values. Required
@@ -32,6 +32,13 @@ intensity is plotted, with the true Palm intensity from the
 provided parameters overlain. The latter is only approximate as the
 mean and variance of the number of children per parent are
 calculated via simulation from rchild.}
+
+\item{parent.info}{Logical, if \code{TRUE}, information about the
+parent points is retained. The object returned is a list with three
+components: (i) \code{child.locs} contains the locations of
+children, (ii) \code{parent.id} contains information about which
+parent generated each child, and (iii) \code{parent.locs} contains
+parent locations.}
 
 \item{...}{Further parameters for rchild.dist.}
 }

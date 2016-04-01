@@ -6,6 +6,8 @@
 #' Calculates pairwise distances between points subject to periodic boundary constraints.
 #'
 #' @inheritParams fit.ns
+#'
+#' @export
 pbc_distances <- function(points, lims) {
     .Call('nspp_pbc_distances', PACKAGE = 'nspp', points, lims)
 }
