@@ -34,13 +34,20 @@
 #' provided parameters overlain. The latter is only approximate as the
 #' mean and variance of the number of children per parent are
 #' calculated via simulation from rchild.
+#' @param parent.info Logical, if \code{TRUE}, information about the
+#' parent points is retained. The object returned is a list with three
+#' components: (i) \code{child.locs} contains the locations of
+#' children, (ii) \code{parent.id} contains information about which
+#' parent generated each child, and (iii) \code{parent.locs} contains
+#' parent locations.
 #' @param ... Further parameters for rchild.dist.
 #'
 #' @examples
 #' points <- sim.ns(pars = c(D = 20, sigma = 0.025, child.par = 5))
 #' 
 #' @export
-sim.ns <- function(pars = NULL, lims = rbind(c(0, 1), c(0, 1)), rchild = rpois, plot.points = FALSE, plot.empirical = FALSE){
+sim.ns <- function(pars = NULL, lims = rbind(c(0, 1), c(0, 1)), rchild = rpois,
+                   plot.points = FALSE, plot.empirical = FALSE, parent.info = FALSE){
     ## Allowing lims to be a vector if only one dimension.
     if (!is.matrix(lims)){
         lims <- matrix(lims, nrow = 1)
@@ -96,15 +103,24 @@ sim.ns <- function(pars = NULL, lims = rbind(c(0, 1), c(0, 1)), rchild = rpois, 
             warning("Both 'plot.points' and 'plot.empirical' are TRUE, the latter is being ignored.")
         }
     } else if (plot.empirical){
-        empirical.palm(child.locs, lims)
+        xlim <- c(0, 0.5*min(apply(lims, 1, diff)))
+        empirical.palm(child.locs, lims, xlim = xlim)
         rs <- rchild(10000, child.par)
         rs.mean <- mean(rs)
         rs.var <- var(rs)
         Dc <- D*rs.mean
         nu <- (rs.var + rs.mean^2)/rs.mean - 1
-        analytic.palm(Dc, nu, sigma, n.dims, c(0, 1), add = TRUE, lty = "dashed")
+        analytic.palm(Dc, nu, sigma, n.dims, xlim, add = TRUE, lty = "dashed")
     }
-    child.locs
+    if (parent.info){
+        out <- list(child.locs = child.locs,
+                    parent.id = rep(1:n.parents, n.childs),
+                    n.child = n.childs,
+                    parent.locs = parent.locs)
+    } else {
+        out <- child.locs
+    }
+    out
 }
 
 #' Simulating two-plane whale survey data
