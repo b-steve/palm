@@ -176,7 +176,7 @@ fit.ns <- function(points = NULL, lims = NULL, R, sigma.sv = 0.1*R,
                              interval = search.bounds, child.dist = child.dist,
                              nu = nu.par, sigma = sigma.par)$root, silent = FALSE)
     ## Calculating mu.
-    mu.par <- protect.child.mean(child.par, child.dist, sigma)
+    mu.par <- protect.child.mean(child.par, child.dist, sigma.par)
     D.par <- Dc.par/mu.par
     pars <- c(D.par, sigma.par, child.par, Dc.par, mu.par, nu.par)
     names(pars) <- c("D", "sigma", "child.par", "Dc", "mu", "nu")
