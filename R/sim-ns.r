@@ -176,3 +176,69 @@ sim.twoplane <- function(pars, lims){
 }
 
     
+
+#' Simulating two-dimensional two-plane whale survey data
+#'
+#' Simulates observed whale locations and plane IDs from a two-plane
+#' whale survey.
+#'
+#' @return A list containing observed whale locations and associated
+#'     plane IDs.
+#'
+#' @param pars A named vector of parameter values. Required parameters
+#'     are \code{D}, whale density, \code{sigma}, whale movement,
+#'     \code{p.up.down}, the probability that a whale is on the
+#'     surface when the second plane flies over, given that it was
+#'     submerged when the first plane flew over, and \code{p.down.up},
+#'     the probability that a whale is submerged with the second plane
+#'     flies over, given that it was on the surface when the first
+#'     plane flew over.
+#' @param lims The one-dimensional limits of the transect.
+#' @param w The distance from the transect and the edge of the
+#'     detection zone.
+#' @param b The distance from the transect and the edge of the buffer
+#'     zone.
+#'
+#' @export
+sim.twoplane.2D <- function(pars, lims, w, b){
+    D <- pars["D"]
+    sigma <- pars["sigma"]
+    p.up.down <- pars["p.up.down"]
+    p.down.up <- pars["p.down.up"]
+    names(D) <- NULL
+    names(sigma) <- NULL
+    names(p.up.down) <- NULL
+    names(p.down.up) <- NULL
+    p.down.down <- 1 - p.up.down
+    p.up.up <- 1 - p.down.up
+    p.up <- p.up.down/(p.up.down + p.down.up)
+    p.down <- 1 - p.up
+    ## Area in which to simulate parents includes 3*sigma buffer.
+    parent.lims <- rbind(c(-b - 3*sigma, b + 3*sigma),
+                         c(lims[1] - 3*sigma, lims[2] + 3*sigma))
+    parent.area <- prod(apply(parent.lims, 1, diff))
+    n.parents <- rpois(1, D*parent.area)
+    parent.locs <- cbind(runif(n.parents, parent.lims[1, 1], parent.lims[1, 2]),
+                         runif(n.parents, parent.lims[2, 1], parent.lims[2, 2]))
+    p1.locs <- parent.locs + rnorm(2*n.parents, 0, sigma)
+    p2.locs <- parent.locs + rnorm(2*n.parents, 0, sigma)
+    p1.up <- sample(c(TRUE, FALSE), size = n.parents, replace = TRUE,
+                    prob = c(p.up, p.down))
+    p2.up <- logical(n.parents)
+    p2.up[p1.up] <- sample(c(TRUE, FALSE), size = sum(p1.up), replace = TRUE,
+                           prob = c(p.up.up, p.down.up))
+    p2.up[!p1.up] <- sample(c(TRUE, FALSE), size = sum(!p1.up), replace = TRUE,
+                            prob = c(p.up.down, p.down.down))
+    points <- rbind(p1.locs[p1.up, ], p2.locs[p2.up, ])
+    in.buffer <- (points[, 2] > lims[1]) & (points[, 2] < lims[2]) &
+        (points[, 1] > -b) & (points[, 1] < b)
+    points.2D <- points[in.buffer, ]
+    planes <- c(rep(1, sum(p1.up)), rep(2, sum(p2.up)))
+    planes.2D <- planes[in.buffer]
+    in.zone <- (points[, 2] > lims[1]) & (points[, 2] < lims[2]) &
+        (points[, 1] > -w) & (points[, 1] < w)
+    points.1D <- points[in.zone, 2, drop = FALSE]
+    planes.1D <- planes[in.zone]
+    list(points.1D = points.1D, planes.1D = planes.1D,
+         points.2D = points.2D, planes.2D = planes.2D)
+}
