@@ -143,7 +143,6 @@ fit.ns <- function(points = NULL, lims = NULL, R, sigma.sv = 0.1*R,
     nu.bounds <- sort(nu.bounds)
     lower <- c(Dc.bounds[1], nu.bounds[1], sigma.bounds[1])
     upper <- c(Dc.bounds[2], nu.bounds[2], sigma.bounds[2])
-    if (any(is.nan(log(sv)))) traceback()
     fit <-  optimx(par = log(sv), fn = ns.nll,
                    method = "L-BFGS-B",
                    lower = log(lower),
