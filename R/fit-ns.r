@@ -57,7 +57,7 @@
 #' 
 #' @export
 fit.ns <- function(points = NULL, lims = NULL, R, sigma.sv = 0.1*R,
-                   sigma.bounds = c(0, R),
+                   sigma.bounds = c(1e-10, R),
                    child.dist = list(mean = function(x) x, var = function(x) x,
                        sv = 5, bounds = c(1e-8, 1e8)),
                    siblings = NULL, trace = FALSE){
@@ -138,9 +138,31 @@ fit.ns <- function(points = NULL, lims = NULL, R, sigma.sv = 0.1*R,
     names(sv) <- c("Dc", "nu", "sigma")
     ## Sorting out bounds.
     Dc.bounds <- c(0, Inf)
-    nu.bounds <- nu.fun(child.dist$bounds, child.dist, sigma.sv)
-    if (is.nan(nu.bounds[1])) nu.bounds[1] <- 0
-    nu.bounds <- sort(nu.bounds)
+    nu.optim.fun <- function(par, child.dist, max){
+        if (max){
+            out <- -nu.fun(par[1], child.dist, par[2])
+        } else {
+            out <- nu.fun(par[1], child.dist, par[2])
+        }
+        if (is.nan(out)){
+            out <- NA
+        }
+        out
+    }
+    ## Sorting out bounds for nu (complicated as it is affected by sigma and child.par).
+    if (any(names(formals(child.dist$mean)) == "sigma") | any(names(formals(child.dist$var)) == "sigma")){
+        nu.max <- -optim(c(child.dist$sv, sigma.sv), nu.optim.fun, child.dist = child.dist, max = TRUE,
+                         method = "L-BFGS-B", lower = c(child.dist$bounds[1], sigma.bounds[1]),
+                         upper = c(child.dist$bounds[2], sigma.bounds[2]))$value
+        nu.min <- optim(c(child.dist$sv, sigma.sv), nu.optim.fun, child.dist = child.dist, max = FALSE,
+                        method = "L-BFGS-B", lower = c(child.dist$bounds[1], sigma.bounds[1]),
+                        upper = c(child.dist$bounds[2], sigma.bounds[2]))$value
+        nu.bounds <- c(nu.min, nu.max)
+    } else {
+        nu.bounds <- nu.fun(child.dist$bounds, child.dist)
+        if (is.nan(nu.bounds[1])) nu.bounds[1] <- 0
+        nu.bounds <- sort(nu.bounds)
+    }
     lower <- c(Dc.bounds[1], nu.bounds[1], sigma.bounds[1])
     upper <- c(Dc.bounds[2], nu.bounds[2], sigma.bounds[2])
     fit <-  optimx(par = log(sv), fn = ns.nll,
@@ -167,13 +189,20 @@ fit.ns <- function(points = NULL, lims = NULL, R, sigma.sv = 0.1*R,
     Dc.par <- opt.pars["Dc"]
     ## Search bounds slightly outwith optimised bounds.
     search.bounds <- child.dist$bounds
-    search.bounds[1] <- search.bounds[1] - 0.04*diff(child.dist$bounds)
-    search.bounds[2] <- search.bounds[2] + 0.04*diff(child.dist$bounds)
+    #search.bounds[1] <- search.bounds[1] - 0.04*diff(child.dist$bounds)
+    #search.bounds[2] <- search.bounds[2] + 0.04*diff(child.dist$bounds)
     ## Calculating parameter of child distribution.
-    child.par <- try(uniroot(function(x, child.dist, nu, sigma)
-        nu.fun(x, child.dist, sigma) - nu,
-                             interval = search.bounds, child.dist = child.dist,
-                             nu = nu.par, sigma = sigma.par)$root, silent = FALSE)
+    ##child.par <- try(uniroot(function(x, child.dist, nu, sigma)
+    ##    nu.fun(x, child.dist, sigma) - nu,
+    ##                         interval = search.bounds, child.dist = child.dist,
+    ##                         nu = nu.par, sigma = sigma.par)$root, silent = FALSE)
+    child.par.optim <- function(child.par, child.dist, nu, sigma){
+        (nu.fun(child.par, child.dist, sigma) - nu)^2
+    }
+    child.par.optim <- optim(child.dist$sv, child.par.optim, child.dist = child.dist,
+                       sigma = sigma.par, nu = nu.par, method = "L-BFGS-B",
+                             lower = child.dist$bounds[1], upper = child.dist$bounds[2])
+    child.par <- child.par.optim$par
     ## Calculating mu.
     mu.par <- protect.child.mean(child.par, child.dist, sigma.par)
     D.par <- Dc.par/mu.par
@@ -211,6 +240,52 @@ ns.nll <- function(pars, n.points, dists, R, d, par.names, siblings,
     }
     -ll
 }
+
+#' Estimation of animal density from two-plane surveys.
+#'
+#' Estimates animal density (amongst other parameters) from two-plane
+#' aerial surveys. This conceptualises sighting locations as a
+#' Neyman-Scott point pattern---estimation is carried out via
+#' \code{fit.ns()}.
+#'
+#' @return An object of class \code{"nspp"} that can be extracted via
+#' the same utility functions fit for objects created using
+#' \code{fit.ns()}.
+#'
+#' @param points A vector (or single-column matrix) containing the
+#' distance along the transect that each detection was made.
+#' @param planes A vector containing the plane ID (either \code{1} or
+#' \code{2}) that made the corresponding detection in \code{points}.
+#' @param l The length of the transect flown (in km).
+#' @param w The distance from the transect to which detection of
+#' individuals on the surface is certain. This is equivalent to the
+#' half-width of the detection zone.
+#' @param b The distance from the transect to the edge of the area of
+#' interest. Conceptually, the distance between the transect and the
+#' furthest distance a whale could be on the passing on the first
+#' plane and plausibly move into the detection zone by the passing of
+#' the second plane.
+#' @param t The lag between planes (in seconds).
+#' @param C Mean dive-cycle duration (in seconds).
+#' @param R Truncation distance (see \link{fit.ns}).
+#' @param trace Logical, if \code{TRUE}, parameter values are printed
+#' to the screen for each iteration of the optimisation procedure.
+#' 
+#' @export
+fit.twoplane <- function(points, planes = NULL, l, w, b, t, C, R, trace = FALSE){
+    if (!is.matrix(points)){
+        points <- matrix(points, nrow = length(points), ncol = 1)
+    }
+    if (is.null(planes)){
+        sibling.mat = NULL
+    } else {
+        sibling.mat <- siblings.twoplane(planes)
+    }
+    child.dist <- make.twoplane.child.dist(t, C, w, b)
+    fit.ns(points = points, lims = rbind(c(0, l)), R, sigma.sv = b/5,
+           child.dist = child.dist, siblings = sibling.mat, trace = trace)
+}
+
 
 ## Roxygen code for NAMESPACE.
 #' @import Rcpp

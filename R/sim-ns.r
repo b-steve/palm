@@ -121,99 +121,32 @@ sim.ns <- function(pars = NULL, lims = rbind(c(0, 1), c(0, 1)), rchild = rpois,
         out <- child.locs
     }
     out
-}
-
-#' Simulating two-plane whale survey data
-#'
-#' Simulates observed whale locations and plane IDs from a two-plane
-#' whale survey.
-#'
-#' @return A list containing observed whale locations and associated
-#' plane IDs.
-#'
-#' @param pars A named vector of parameter values. Required parameters
-#' are \code{D}, whale density, \code{sigma}, whale movement,
-#' \code{p01}, the probability that a whale is on the surface when the
-#' second plane flies over, given that it was submerged when the first
-#' plane flew over, and \code{10}, the probability that a whale is
-#' submerged with the second plane flies over, given that it was on
-#' the surface when the first plane flew over.
-#' @param lims The limits of the survey transect.
-#'
-#' @export
-sim.twoplane <- function(pars, lims){
-    ## Extracting parameters.
-    D <- pars["D"]
-    sigma <- pars["sigma"]
-    p01 <- pars["p01"]
-    p10 <- pars["p10"]
-    p11 <- 1 - p10
-    p00 <- 1 - p01
-    ## Simulating number of whales.
-    n.whales <- rpois(n = 1, lambda = D*diff(lims[1, ]))
-    ## Simulating whale locations for first flyover.
-    pos.plane1 <- runif(n.whales, min = lims[1, 1], max = lims[1, 2])
-    ## Simulating whale movement.
-    movement <- sample(c(-1, 1), size = n.whales, replace = TRUE)*
-        sigma*sqrt(2)*sqrt(rchisq(n.whales, 1))
-    ## Calculating whale locations for second flyover.
-    pos.plane2 <- pos.plane1 + movement
-    ## Simulating detections for first flyover.
-    det.plane1 <- sample(c(TRUE, FALSE), size = n.whales, replace = TRUE,
-                         prob = c(p01/(p10 + p01), p10/(p10 + p01)))
-    ## Simulating detections for second flyover.
-    det.plane2 <- logical(n.whales)
-    det.plane2[det.plane1] <- sample(c(TRUE, FALSE), size = sum(det.plane1),
-                                     replace = TRUE, prob = c(p11, p10))
-    det.plane2[!det.plane1] <- sample(c(TRUE, FALSE), size = sum(!det.plane1),
-                                      replace = TRUE, prob = c(p01, p00))
-    ## Concatenating detection locations.
-    points <- c(pos.plane1[det.plane1], pos.plane2[det.plane2])
-    ## Fixing points for periodic boundary conditions.
-    points <- pbc.fix(points, lims)
-    planes <- c(rep(1, sum(det.plane1)), rep(2, sum(det.plane2)))
-    list(points = points, planes = planes)
-}
-
-    
+}   
 
 #' Simulating two-dimensional two-plane whale survey data
 #'
 #' Simulates observed whale locations and plane IDs from a two-plane
 #' whale survey.
 #'
-#' @return A list containing observed whale locations and associated
+#' @return A list containing observed animal locations and associated
 #'     plane IDs.
 #'
-#' @param pars A named vector of parameter values. Required parameters
-#'     are \code{D}, whale density, \code{sigma}, whale movement,
-#'     \code{p.up.down}, the probability that a whale is on the
-#'     surface when the second plane flies over, given that it was
-#'     submerged when the first plane flew over, and \code{p.down.up},
-#'     the probability that a whale is submerged with the second plane
-#'     flies over, given that it was on the surface when the first
-#'     plane flew over.
-#' @param lims The one-dimensional limits of the transect.
-#' @param w The distance from the transect and the edge of the
-#'     detection zone.
-#' @param b The distance from the transect and the edge of the buffer
-#'     zone.
+#' @param D Animal density.
+#' @param sigma Animal dispersion between the passing of planes.
+#' @param S Mean duration of surface phase.
+#' @inheritParams fit.twoplane
 #'
 #' @export
-sim.twoplane.2D <- function(pars, lims, w, b){
-    D <- pars["D"]
-    sigma <- pars["sigma"]
-    p.up.down <- pars["p.up.down"]
-    p.down.up <- pars["p.down.up"]
-    names(D) <- NULL
-    names(sigma) <- NULL
-    names(p.up.down) <- NULL
-    names(p.down.up) <- NULL
+sim.twoplane <- function(D, sigma, S, l, w, b, t, C){
+    probs <- twoplane.probs(t, C, w, b, S, sigma)
+    p.up.down <- probs$p.up.down
+    p.down.up <- probs$p.down.up
     p.down.down <- 1 - p.up.down
     p.up.up <- 1 - p.down.up
     p.up <- p.up.down/(p.up.down + p.down.up)
     p.down <- 1 - p.up
     ## Area in which to simulate parents includes 3*sigma buffer.
+    lims <- c(0, l)
     parent.lims <- rbind(c(-b - 3*sigma, b + 3*sigma),
                          c(lims[1] - 3*sigma, lims[2] + 3*sigma))
     parent.area <- prod(apply(parent.lims, 1, diff))
@@ -229,16 +162,18 @@ sim.twoplane.2D <- function(pars, lims, w, b){
                            prob = c(p.up.up, p.down.up))
     p2.up[!p1.up] <- sample(c(TRUE, FALSE), size = sum(!p1.up), replace = TRUE,
                             prob = c(p.up.down, p.down.down))
-    points <- rbind(p1.locs[p1.up, ], p2.locs[p2.up, ])
-    in.buffer <- (points[, 2] > lims[1]) & (points[, 2] < lims[2]) &
-        (points[, 1] > -b) & (points[, 1] < b)
-    points.2D <- points[in.buffer, ]
-    planes <- c(rep(1, sum(p1.up)), rep(2, sum(p2.up)))
-    planes.2D <- planes[in.buffer]
-    in.zone <- (points[, 2] > lims[1]) & (points[, 2] < lims[2]) &
-        (points[, 1] > -w) & (points[, 1] < w)
-    points.1D <- points[in.zone, 2, drop = FALSE]
-    planes.1D <- planes[in.zone]
-    list(points.1D = points.1D, planes.1D = planes.1D,
-         points.2D = points.2D, planes.2D = planes.2D)
+    p1.in.buffer <- (p1.locs[, 2] > lims[1]) & (p1.locs[, 2] < lims[2]) &
+        (p1.locs[, 1] > -b) & (p1.locs[, 1] < b)
+    p2.in.buffer <- (p2.locs[, 2] > lims[1]) & (p2.locs[, 2] < lims[2]) &
+        (p2.locs[, 1] > -b) & (p2.locs[, 1] < b)
+    p1.in.zone <- (p1.locs[, 2] > lims[1]) & (p1.locs[, 2] < lims[2]) &
+        (p1.locs[, 1] > -w) & (p1.locs[, 1] < w)
+    p2.in.zone <- (p2.locs[, 2] > lims[1]) & (p2.locs[, 2] < lims[2]) &
+        (p2.locs[, 1] > -w) & (p2.locs[, 1] < w)
+    p1.in <- p1.up & p1.in.zone
+    p2.in <- p2.up & p2.in.zone
+    points <- rbind(p1.locs[p1.in, 2, drop = FALSE],
+                       p2.locs[p2.in, 2, drop = FALSE])
+    planes <- c(rep(1, sum(p1.in)), rep(2, sum(p2.in)))
+    list(points = points, planes = planes)
 }

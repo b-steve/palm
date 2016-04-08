@@ -146,3 +146,87 @@ dldsigma <- function(D, nu, sigma, n.points, dists, R){
         (n.points*D*nu + n.points*nu*exp(-dists^2/(4*sigma^2))/(4*pi*sigma^2))) +
         n.points*nu*(R^2)*exp(-R^2/(4*sigma^2))/(2*sigma^3)
 }
+
+## Calculation of two-plane detection probabilities.
+twoplane.probs <- function(t, C, w, b, S, sigma){
+    
+    ## Up/down probabilities.
+    
+    ## Marginal probabilities.
+    p.up <- S/C
+    p.down <- 1 - S/C
+    ## Conditional probabilities.
+    p.up.up <- S/C + ((C - S)/C)*exp(-t*(1/S + 1/(C - S)))
+    p.down.up <- 1 - p.up.up
+    p.up.down <- p.up*p.down.up/p.down
+    p.down.down <- 1 - p.up.down
+
+    ## In/out probabilities.
+    
+    ## Probability of being in the transect for second plane, given in
+    ## transect for first plane.
+    f.y2.cond.y1 <- function(y1, w, sigma){
+        F.pw <- pnorm(w, mean = y1, sd = sigma*sqrt(2))
+        F.nw <- pnorm(-w, mean = y1, sd = sigma*sqrt(2))
+        F.pw - F.nw
+    }
+    f.y1.cond.in <- function(y1, w){
+        ifelse(abs(y1) < w, 1/(2*w), 0)
+    }
+    ## Marginal probabilities.
+    p.in <- w/b
+    p.out <- 1 - w/b
+    ## Conditional probabilities.
+    p.in.in <- integrate(function(y1, w, sigma) f.y2.cond.y1(y1, w, sigma)*
+                             f.y1.cond.in(y1, w),
+                         lower = -b, upper = b, w = w, sigma = sigma)$value
+    p.out.in <- 1 - p.in.in
+    p.in.out <- p.out.in*p.in/p.out
+    p.out.out <- 1 - p.in.out
+
+    ## Detection probabilities.
+
+    ## Some inbetweeny stuff we need to calculate them.
+    p.out.or.down <- p.out + p.down - p.out*p.down
+    p.in.and.out.or.down <- (p.in.out*p.out*p.down +
+                                 p.in.out*p.out*p.up +
+                                     p.in.in*p.in*p.down)
+    p.in.out.or.down <- p.in.and.out.or.down/p.out.or.down
+    p.up.and.out.or.down <- (p.up.down*p.down*p.out +
+                                 p.up.up*p.up*p.out +
+                                     p.up.down*p.down*p.in)
+    p.up.out.or.down <- p.up.and.out.or.down/p.out.or.down
+
+    p.in.and.up.and.out.or.down <- (p.in.out*p.out*p.up.down*p.down +
+                                        p.in.out*p.out*p.up.up*p.up +
+                                            p.in.in*p.in*p.up.down*p.down)
+    p.in.up.and.out.or.down <- p.in.and.up.and.out.or.down/p.up.and.out.or.down
+    
+    ## Conditional probabilities.
+    p.11 <- p.up.up*p.in.in
+    p.01 <- 1 - p.11
+    ## Old
+    ##p.10.old <- p.in.out.or.down*p.up
+    ## New
+    p.10 <- p.in.up.and.out.or.down*p.up.out.or.down
+    p.00 <- 1 - p.10
+
+    ## Outputting conditional detection probabilities.
+    out <- list(p.11 = p.11, p.01 = p.01, p.10 = p.10, p.00 = p.00,
+                p.up.down = p.up.down, p.down.up = p.down.up,
+                p.in.out = p.in.out, p.out.in = p.out.in)
+    out
+}
+
+## Closurey function to make two-plane child.dist.
+make.twoplane.child.dist <- function(t, C, w, b){
+    mean.1D <- function(S, sigma){
+        probs <- twoplane.probs(t, C, w, b, S, sigma)
+        2*probs$p.10/(probs$p.10 + probs$p.01)
+    }
+    var.1D <- function(S, sigma){
+        probs <- twoplane.probs(t, C, w, b, S, sigma)
+        2*probs$p.10*probs$p.01*(2 - probs$p.10 - probs$p.01)/(probs$p.10 + probs$p.01)^2
+    }
+    list(mean = mean.1D, var = var.1D, sv = 0.5*C, bounds = c(1e-10, 0.999*C))  
+}
