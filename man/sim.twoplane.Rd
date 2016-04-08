@@ -2,24 +2,36 @@
 % Please edit documentation in R/sim-ns.r
 \name{sim.twoplane}
 \alias{sim.twoplane}
-\title{Simulating two-plane whale survey data}
+\title{Simulating two-dimensional two-plane whale survey data}
 \usage{
-sim.twoplane(pars, lims)
+sim.twoplane(D, sigma, S, l, w, b, t, C)
 }
 \arguments{
-\item{pars}{A named vector of parameter values. Required parameters
-are \code{D}, whale density, \code{sigma}, whale movement,
-\code{p01}, the probability that a whale is on the surface when the
-second plane flies over, given that it was submerged when the first
-plane flew over, and \code{10}, the probability that a whale is
-submerged with the second plane flies over, given that it was on
-the surface when the first plane flew over.}
+\item{D}{Animal density.}
 
-\item{lims}{The limits of the survey transect.}
+\item{sigma}{Animal dispersion between the passing of planes.}
+
+\item{S}{Mean duration of surface phase.}
+
+\item{l}{The length of the transect flown (in km).}
+
+\item{w}{The distance from the transect to which detection of
+individuals on the surface is certain. This is equivalent to the
+half-width of the detection zone.}
+
+\item{b}{The distance from the transect to the edge of the area of
+interest. Conceptually, the distance between the transect and the
+furthest distance a whale could be on the passing on the first
+plane and plausibly move into the detection zone by the passing of
+the second plane.}
+
+\item{t}{The lag between planes (in seconds).}
+
+\item{C}{Mean dive-cycle duration (in seconds).}
 }
 \value{
-A list containing observed whale locations and associated
-plane IDs.
+A list containing observed animal locations and associated
+    plane IDs.
 }
 \description{
 Simulates observed whale locations and plane IDs from a two-plane

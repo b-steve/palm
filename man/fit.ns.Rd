@@ -5,7 +5,7 @@
 \title{Fitting a model to a Neyman-Scott point process}
 \usage{
 fit.ns(points = NULL, lims = NULL, R, sigma.sv = 0.1 * R,
-  sigma.bounds = c(0, R), child.dist = list(mean = function(x) x, var =
+  sigma.bounds = c(1e-10, R), child.dist = list(mean = function(x) x, var =
   function(x) x, sv = 5, bounds = c(1e-08, 1e+08)), siblings = NULL,
   trace = FALSE)
 }
