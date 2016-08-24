@@ -199,6 +199,10 @@ fit.ns <- function(points = NULL, lims = NULL, R, sigma.sv = 0.1*R,
     child.par.optim <- function(child.par, child.dist, nu, sigma){
         (nu.fun(child.par, child.dist, sigma) - nu)^2
     }
+    ## Kludgey fix for parameter hitting 0 in secondary optimisation.
+    if (child.dist$bounds[1] == 0){
+        child.dist$bounds[1] <- .Machine$double.xmin
+    }
     child.par.optim <- optim(child.dist$sv, child.par.optim, child.dist = child.dist,
                        sigma = sigma.par, nu = nu.par, method = "L-BFGS-B",
                              lower = child.dist$bounds[1], upper = child.dist$bounds[2])
@@ -289,8 +293,11 @@ fit.twoplane <- function(points, planes = NULL, l, w, b, t, C, R, trace = FALSE)
 
 ## Roxygen code for NAMESPACE.
 #' @import Rcpp
+#' @importFrom graphics abline axis box lines par plot.new plot.window points
 #' @importFrom mvtnorm rmvnorm
 #' @importFrom optimx optimx
+#' @importFrom stats coef integrate optim pgamma pnorm printCoefmat qnorm quantile rnorm rpois runif sd var
+#' @importFrom utils setTxtProgressBar txtProgressBar
 #' @useDynLib nspp
 NULL
 
