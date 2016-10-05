@@ -11,40 +11,45 @@
 #' utility functions.
 #'
 #' @param points A matrix containing locations of observed points,
-#' where each row corresponds to a point and each column corresponds
-#' to a dimension.
+#'     where each row corresponds to a point and each column
+#'     corresponds to a dimension.
 #' @param lims A matrix with two columns, corresponding to the upper
-#' and lower limits of each dimension, respectively.
+#'     and lower limits of each dimension, respectively.
 #' @param R Truncation distance for the difference process.
 #' @param sigma.sv The start value for \code{sigma} in optimisation.
 #' @param sigma.bounds The bounds of the \code{sigma} parameter in
-#' optimisation.
+#'     optimisation.
 #' @param child.dist An argument describing the distribution
-#' generating the number of children per parent. It must be a list
-#' with four components: (1) A component named \code{mean} that
-#' provides a function returning the expectation of the distribution,
-#' with its only argument being the single parameter to be estimated,
-#' (2) A component named \code{var} that provides a function returning
-#' the variance of a distribution, with its only argument being the
-#' single parameter to be estimated, (3) A component named \code{sv}
-#' providing the start value for the parameter to be estimated, and
-#' (4) A component named \code{bounds} providing a vector of length
-#' two that gives the parameter bounds.
+#'     generating the number of children per parent. It must be a list
+#'     with four components: (1) A component named \code{mean} that
+#'     provides a function returning the expectation of the
+#'     distribution, with its only argument being the single parameter
+#'     to be estimated, (2) A component named \code{var} that provides
+#'     a function returning the variance of a distribution, with its
+#'     only argument being the single parameter to be estimated, (3) A
+#'     component named \code{sv} providing the start value for the
+#'     parameter to be estimated, and (4) A component named
+#'     \code{bounds} providing a vector of length two that gives the
+#'     parameter bounds.
+#' @param edge.correction The method used for the correction of edge
+#'     effects. Either \code{"pbc"} for periodic boundary conditions,
+#'     or \code{"buffer"} for a buffer-zone correction.
 #' @param siblings A named list, containing the following three
-#' components: (1) A component named \code{matrix}, where the jth
-#' element of the ith row is \code{TRUE} if the ith and jth observed
-#' points are known siblings, \code{FALSE} if they are known
-#' non-siblings, and \code{NA} if it is not known whether or not they
-#' are siblings, (2) A component named pT, containing a scalar
-#' providing the probability that the element (i, j) in the component
-#' \code{matrix} is \code{TRUE}, conditional on the ith and jth points
-#' being siblings, (3) A component named pF, containing a scalar
-#' providing the probability that the element (i, j) in the component
-#' \code{matrix} is \code{FALSE}, conditional on the ith and jth
-#' points not being siblings. Defaults to an argument representing a
-#' Poisson distribution.
+#'     components: (1) A component named \code{matrix}, where the jth
+#'     element of the ith row is \code{TRUE} if the ith and jth
+#'     observed points are known siblings, \code{FALSE} if they are
+#'     known non-siblings, and \code{NA} if it is not known whether or
+#'     not they are siblings, (2) A component named pT, containing a
+#'     scalar providing the probability that the element (i, j) in the
+#'     component \code{matrix} is \code{TRUE}, conditional on the ith
+#'     and jth points being siblings, (3) A component named pF,
+#'     containing a scalar providing the probability that the element
+#'     (i, j) in the component \code{matrix} is \code{FALSE},
+#'     conditional on the ith and jth points not being
+#'     siblings. Defaults to an argument representing a Poisson
+#'     distribution.
 #' @param trace Logical, if \code{TRUE}, parameter values are printed
-#' to the screen for each iteration of the optimisation procedure.
+#'     to the screen for each iteration of the optimisation procedure.
 #'
 #' @examples
 #'## Poisson number of children per parent.
@@ -60,7 +65,7 @@ fit.ns <- function(points = NULL, lims = NULL, R, sigma.sv = 0.1*R,
                    sigma.bounds = c(1e-10, R),
                    child.dist = list(mean = function(x) x, var = function(x) x,
                        sv = 5, bounds = c(1e-8, 1e8)),
-                   siblings = NULL, trace = FALSE){
+                   edge.correction = "pbc", siblings = NULL, trace = FALSE){
     ## Saving arguments.
     arg.names <- names(as.list(environment()))
     args <- vector(mode = "list", length = length(arg.names))
@@ -121,7 +126,11 @@ fit.ns <- function(points = NULL, lims = NULL, R, sigma.sv = 0.1*R,
     ## Calculating survey area.
     area <- prod(apply(lims, 1, diff))
     ## Calculating distances.
-    dists <- pbc_distances(points = points, lims = lims)
+    if (edge.correction == "pbc"){
+        dists <- pbc_distances(points = points, lims = lims)
+    } else if (edge.correction == "envelope"){
+        dists <- buffer_distances(points = points, lims = lims, R = R)
+    }
     ## Truncating distances.
     keep <- dists <= R
     dists <- dists[keep]
