@@ -11,7 +11,7 @@ test_that(
         fit.bin.1D <- fit.ns(points = example.1D, lims = rbind(c(0, 1)), R = 0.5,
                              child.dist = list(mean = function(x) 4*x,
                                  var = function(x) 4*x*(1 - x),
-                                 sv = 0.5, bounds = c(0, 1)), trace = TRUE)
+                                 sv = 0.5, bounds = c(0, 1)))
         expect_that(abs(coef(fit.bin.1D)[1] - 34.907561984) < 1e-4, is_true())
         ## Testing bootstrapping.
         set.seed(5432)
