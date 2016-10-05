@@ -12,6 +12,10 @@ buffer_distances <- function(points, lims, R) {
     .Call('nspp_buffer_distances', PACKAGE = 'nspp', points, lims, R)
 }
 
+buffer_keep <- function(points, lims, R) {
+    .Call('nspp_buffer_keep', PACKAGE = 'nspp', points, lims, R)
+}
+
 #' Calculating distances between points subject to periodic boundary constraints.
 #'
 #' Calculates pairwise distances between points subject to periodic boundary constraints.
