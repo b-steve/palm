@@ -26,7 +26,7 @@ NumericVector pbc_distances(const NumericMatrix& points, const NumericMatrix& li
   m = 0;
   for (i = 0; i < (n_points - 1); i++){
     for (j = i + 1; j < n_points; j++){
-      // Initialising variable between sum of squared differences.
+      // Initialising variable for sum of squared differences.
       dist_sq = 0;
       for (k = 0; k < n_dims; k++){
 	// Calculating difference on the kth dimension.
