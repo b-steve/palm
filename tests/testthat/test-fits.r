@@ -3,6 +3,7 @@ context("Testing model fits")
 test_that(
     "1D fitting",
     {
+        ## Testing fits with PBC edge correction.
         fit.pois.1D <- fit.ns(points = example.1D, lims = rbind(c(0, 1)), R = 0.5,
                               child.dist = list(mean = function(x) x,
                                                 var = function(x) x,
@@ -13,6 +14,13 @@ test_that(
                                  var = function(x) 4*x*(1 - x),
                                  sv = 0.5, bounds = c(0, 1)))
         expect_that(abs(coef(fit.bin.1D)[1] - 34.907561984) < 1e-4, is_true())
+        ## Testing fits with buffer-zone edge correction.
+        fit.pois.1D.buffer <- fit.ns(points = example.1D, lims = rbind(c(0, 1)), R = 0.1,
+                                     child.dist = list(mean = function(x) x,
+                                                       var = function(x) x,
+                                                       sv = 5, bounds = c(0, 1e8)),
+                                     edge.correction = "buffer")
+        expect_that(abs(coef(fit.pois.1D.buffer)[1] - 38.7933732) < 1e-4, is_true())
         ## Testing bootstrapping.
         set.seed(5432)
         fit.pois.1D.boot <- boot.ns(fit = fit.pois.1D,
