@@ -6,13 +6,13 @@
 \usage{
 fit.ns(points = NULL, lims = NULL, R, sigma.sv = 0.1 * R,
   sigma.bounds = c(1e-10, R), child.dist = list(mean = function(x) x, var =
-  function(x) x, sv = 5, bounds = c(1e-08, 1e+08)), siblings = NULL,
-  trace = FALSE)
+  function(x) x, sv = 5, bounds = c(1e-08, 1e+08)), edge.correction = "pbc",
+  siblings = NULL, trace = FALSE)
 }
 \arguments{
 \item{points}{A matrix containing locations of observed points,
-where each row corresponds to a point and each column corresponds
-to a dimension.}
+where each row corresponds to a point and each column
+corresponds to a dimension.}
 
 \item{lims}{A matrix with two columns, corresponding to the upper
 and lower limits of each dimension, respectively.}
@@ -27,28 +27,34 @@ optimisation.}
 \item{child.dist}{An argument describing the distribution
 generating the number of children per parent. It must be a list
 with four components: (1) A component named \code{mean} that
-provides a function returning the expectation of the distribution,
-with its only argument being the single parameter to be estimated,
-(2) A component named \code{var} that provides a function returning
-the variance of a distribution, with its only argument being the
-single parameter to be estimated, (3) A component named \code{sv}
-providing the start value for the parameter to be estimated, and
-(4) A component named \code{bounds} providing a vector of length
-two that gives the parameter bounds.}
+provides a function returning the expectation of the
+distribution, with its only argument being the single parameter
+to be estimated, (2) A component named \code{var} that provides
+a function returning the variance of a distribution, with its
+only argument being the single parameter to be estimated, (3) A
+component named \code{sv} providing the start value for the
+parameter to be estimated, and (4) A component named
+\code{bounds} providing a vector of length two that gives the
+parameter bounds.}
+
+\item{edge.correction}{The method used for the correction of edge
+effects. Either \code{"pbc"} for periodic boundary conditions,
+or \code{"buffer"} for a buffer-zone correction.}
 
 \item{siblings}{A named list, containing the following three
 components: (1) A component named \code{matrix}, where the jth
-element of the ith row is \code{TRUE} if the ith and jth observed
-points are known siblings, \code{FALSE} if they are known
-non-siblings, and \code{NA} if it is not known whether or not they
-are siblings, (2) A component named pT, containing a scalar
-providing the probability that the element (i, j) in the component
-\code{matrix} is \code{TRUE}, conditional on the ith and jth points
-being siblings, (3) A component named pF, containing a scalar
-providing the probability that the element (i, j) in the component
-\code{matrix} is \code{FALSE}, conditional on the ith and jth
-points not being siblings. Defaults to an argument representing a
-Poisson distribution.}
+element of the ith row is \code{TRUE} if the ith and jth
+observed points are known siblings, \code{FALSE} if they are
+known non-siblings, and \code{NA} if it is not known whether or
+not they are siblings, (2) A component named pT, containing a
+scalar providing the probability that the element (i, j) in the
+component \code{matrix} is \code{TRUE}, conditional on the ith
+and jth points being siblings, (3) A component named pF,
+containing a scalar providing the probability that the element
+(i, j) in the component \code{matrix} is \code{FALSE},
+conditional on the ith and jth points not being
+siblings. Defaults to an argument representing a Poisson
+distribution.}
 
 \item{trace}{Logical, if \code{TRUE}, parameter values are printed
 to the screen for each iteration of the optimisation procedure.}
