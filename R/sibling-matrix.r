@@ -7,7 +7,7 @@
 #' partial sibling information in that observations made by the same
 #' plane cannot be siblings.
 #'
-#' @return A list, a suitable object for the \code{siglings} argument
+#' @return A list, a suitable object for the \code{siblings} argument
 #' to \link{fit.ns}.
 #'
 #' @param plane.id A vector indicating which plane collected each
