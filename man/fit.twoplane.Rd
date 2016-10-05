@@ -4,32 +4,38 @@
 \alias{fit.twoplane}
 \title{Estimation of animal density from two-plane surveys.}
 \usage{
-fit.twoplane(points, planes = NULL, l, w, b, t, C, R, trace = FALSE)
+fit.twoplane(points, planes = NULL, l, w, b, t, C, R,
+  edge.correction = "pbc", trace = FALSE)
 }
 \arguments{
 \item{points}{A vector (or single-column matrix) containing the
 distance along the transect that each detection was made.}
 
 \item{planes}{A vector containing the plane ID (either \code{1} or
-\code{2}) that made the corresponding detection in \code{points}.}
+\code{2}) that made the corresponding detection in
+\code{points}.}
 
 \item{l}{The length of the transect flown (in km).}
 
 \item{w}{The distance from the transect to which detection of
-individuals on the surface is certain. This is equivalent to the
-half-width of the detection zone.}
+individuals on the surface is certain. This is equivalent to
+the half-width of the detection zone.}
 
 \item{b}{The distance from the transect to the edge of the area of
-interest. Conceptually, the distance between the transect and the
-furthest distance a whale could be on the passing on the first
-plane and plausibly move into the detection zone by the passing of
-the second plane.}
+interest. Conceptually, the distance between the transect and
+the furthest distance a whale could be on the passing on the
+first plane and plausibly move into the detection zone by the
+passing of the second plane.}
 
 \item{t}{The lag between planes (in seconds).}
 
 \item{C}{Mean dive-cycle duration (in seconds).}
 
 \item{R}{Truncation distance (see \link{fit.ns}).}
+
+\item{edge.correction}{The method used for the correction of edge
+effects. Either \code{"pbc"} for periodic boundary conditions,
+or \code{"buffer"} for a buffer-zone correction.}
 
 \item{trace}{Logical, if \code{TRUE}, parameter values are printed
 to the screen for each iteration of the optimisation procedure.}
