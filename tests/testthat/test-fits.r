@@ -63,7 +63,7 @@ test_that(
         fit <- fit.twoplane(points = points, planes = planes, l = l, w = w,
                             b = b, t = t, C = C, R = 1)
         ## coef(fit)[1]/(2*b) ## This is an estimate of D.2D.
-        expect_that(abs(coef(fit)[1] - 0.4958427) < 1e-4, is_true())
+        expect_that(abs(coef(fit, all = TRUE)[7] - 0.4958427) < 1e-4, is_true())
     })
 
 
