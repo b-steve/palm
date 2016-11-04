@@ -28,7 +28,7 @@ bootstrap procedure.
 }
 \description{
 Carries out a bootstrap for Neymann-Scott point process models
-fitted by \link{fit.ns}().
+fitted by \link{fit.ns}.
 }
 \details{
 The \code{rchild} function may only take a single distributional
