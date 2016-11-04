@@ -82,12 +82,15 @@ fit.ns <- function(points = NULL, lims = NULL, R, sigma.sv = 0.1*R,
     if (!is.matrix(lims)){
         lims <- matrix(lims, nrow = 1)
     }
-    ## Error for incompatible dimensions.
     error.dims(points, lims)
     n.points <- nrow(points)
     n.dims <- nrow(lims)
-    ## Vectorising siblings matrix, and setting intensity function.
-
+    ## Error for sibling matrix not matching.
+    if (!is.null(siblings)){
+        if (nrow(siblings$matrix) != nrow(points)){
+            stop("Sibling matrix does not have a row for every detection.")
+        }
+    }
     ## Declaring function to calculate nu.
     protect.child.var <- function(x, child.dist, sigma){
         if (any(names(formals(child.dist$var)) == "sigma")){
