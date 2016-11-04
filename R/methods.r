@@ -5,19 +5,65 @@
 #'
 #' @param object A fitted model from \link{fit.ns}.
 #' @param all Logical, if \code{TRUE} derived parameters are also
-#' included.
+#'     included.
+#' @param se Logical, if \code{TRUE} standard errors are presented (if
+#'     available) instead of parameter estimates.
 #' @param ... Other parameters (for S3 generic compatibility).
 #'
 #' @method coef nspp
 #'
 #' @export
-coef.nspp <- function(object, all = FALSE, ...){
+coef.nspp <- function(object, all = FALSE, se = FALSE,  ...){
     if (all){
         parm <- 1:6
     } else {
         parm <- 1:3
     }
-    object$pars[parm]
+    if (se){
+        if (is.null(object$se)){
+            out <- rep(NA, length(coef(object, all = all, se = FALSE)))
+        } else {
+            out <- object$se[parm]
+        }
+    } else {
+        out <- object$pars[parm]
+    }
+    out
+}
+
+#' Extract two-plane survey parameter estimates
+#'
+#' Extracts estimated and derived parameters for a model fitted using
+#' \link{fit.twoplane}.
+#'
+#' @param object A fitted model from \link{fit.twoplane}.
+#' @param all Logical, if code{TRUE} derived parameters are also
+#'     included.
+#' @param se Logical, if \code{TRUE} standard errors are presented (if
+#'     available) instead of parameter estimates.
+#' @param ... Other parameters (for S3 generic compatibility).
+#'
+#' @method coef twoplane.nspp
+#'
+#' @export
+coef.twoplane.nspp <- function(object, all = FALSE, se = FALSE, ...){
+    if (all){
+        parm <- c("D.2D", "sigma", "child.par",
+                  "Dc", "mu", "nu", "D")
+    } else {
+        parm <- c("D.2D", "sigma", "child.par")
+    }
+    if (se){
+        if (is.null(object$se)){
+            out <- rep(NA, length(coef(object, all = all, se = FALSE)))
+            names(out) <- names(coef(object, all = all, se = FALSE))
+        } else {
+            out <- object$se[parm]
+        }
+    } else {
+        out <- object$pars[parm]
+    }
+    out
 }
 
 #' Extracts Neyman-Scott point process parameter confidence intervals.
@@ -73,17 +119,8 @@ confint.boot.nspp <- function(object, parm = c("D", "sigma", "child.par"), level
 #'
 #' @export
 summary.nspp <- function(object, all = FALSE, ...){
-    if (all){
-        parm <- 1:6
-    } else {
-        parm <- 1:3
-    }
     coefs <- coef(object, all = all)
-    ses <- object$se[parm]
-    if (is.null(ses)){
-        ses <- rep(NA, length(coefs))
-        names(ses) <- names(coefs)[parm]
-    }
+    ses <- coef(object, all = all, se = TRUE)
     out <- list(coefs = coefs, ses = ses)
     class(out) <- c("summary.nspp", class(out))
     out
