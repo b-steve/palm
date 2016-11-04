@@ -78,7 +78,7 @@ summary.nspp <- function(object, all = FALSE, ...){
     } else {
         parm <- 1:3
     }
-    coefs <- coef(object)[parm]
+    coefs <- coef(object, all = all)
     ses <- object$se[parm]
     if (is.null(ses)){
         ses <- rep(NA, length(coefs))
