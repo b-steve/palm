@@ -4,13 +4,16 @@
 \alias{coef.nspp}
 \title{Extract Neyman-Scott point process parameter estimates}
 \usage{
-\method{coef}{nspp}(object, all = FALSE, ...)
+\method{coef}{nspp}(object, all = FALSE, se = FALSE, ...)
 }
 \arguments{
 \item{object}{A fitted model from \link{fit.ns}.}
 
 \item{all}{Logical, if \code{TRUE} derived parameters are also
 included.}
+
+\item{se}{Logical, if \code{TRUE} standard errors are presented (if
+available) instead of parameter estimates.}
 
 \item{...}{Other parameters (for S3 generic compatibility).}
 }
