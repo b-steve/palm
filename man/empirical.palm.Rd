@@ -8,8 +8,8 @@ empirical.palm(points, lims, breaks = 50, xlim = NULL, add = FALSE, ...)
 }
 \arguments{
 \item{points}{A matrix containing locations of observed points,
-where each row corresponds to a point and each column corresponds
-to a dimension.}
+where each row corresponds to a point and each column
+corresponds to a dimension.}
 
 \item{lims}{A matrix with two columns, corresponding to the upper
 and lower limits of each dimension, respectively.}

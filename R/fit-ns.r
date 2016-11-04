@@ -11,40 +11,45 @@
 #' utility functions.
 #'
 #' @param points A matrix containing locations of observed points,
-#' where each row corresponds to a point and each column corresponds
-#' to a dimension.
+#'     where each row corresponds to a point and each column
+#'     corresponds to a dimension.
 #' @param lims A matrix with two columns, corresponding to the upper
-#' and lower limits of each dimension, respectively.
+#'     and lower limits of each dimension, respectively.
 #' @param R Truncation distance for the difference process.
 #' @param sigma.sv The start value for \code{sigma} in optimisation.
 #' @param sigma.bounds The bounds of the \code{sigma} parameter in
-#' optimisation.
+#'     optimisation.
 #' @param child.dist An argument describing the distribution
-#' generating the number of children per parent. It must be a list
-#' with four components: (1) A component named \code{mean} that
-#' provides a function returning the expectation of the distribution,
-#' with its only argument being the single parameter to be estimated,
-#' (2) A component named \code{var} that provides a function returning
-#' the variance of a distribution, with its only argument being the
-#' single parameter to be estimated, (3) A component named \code{sv}
-#' providing the start value for the parameter to be estimated, and
-#' (4) A component named \code{bounds} providing a vector of length
-#' two that gives the parameter bounds.
+#'     generating the number of children per parent. It must be a list
+#'     with four components: (1) A component named \code{mean} that
+#'     provides a function returning the expectation of the
+#'     distribution, with its only argument being the single parameter
+#'     to be estimated, (2) A component named \code{var} that provides
+#'     a function returning the variance of a distribution, with its
+#'     only argument being the single parameter to be estimated, (3) A
+#'     component named \code{sv} providing the start value for the
+#'     parameter to be estimated, and (4) A component named
+#'     \code{bounds} providing a vector of length two that gives the
+#'     parameter bounds.
+#' @param edge.correction The method used for the correction of edge
+#'     effects. Either \code{"pbc"} for periodic boundary conditions,
+#'     or \code{"buffer"} for a buffer-zone correction.
 #' @param siblings A named list, containing the following three
-#' components: (1) A component named \code{matrix}, where the jth
-#' element of the ith row is \code{TRUE} if the ith and jth observed
-#' points are known siblings, \code{FALSE} if they are known
-#' non-siblings, and \code{NA} if it is not known whether or not they
-#' are siblings, (2) A component named pT, containing a scalar
-#' providing the probability that the element (i, j) in the component
-#' \code{matrix} is \code{TRUE}, conditional on the ith and jth points
-#' being siblings, (3) A component named pF, containing a scalar
-#' providing the probability that the element (i, j) in the component
-#' \code{matrix} is \code{FALSE}, conditional on the ith and jth
-#' points not being siblings. Defaults to an argument representing a
-#' Poisson distribution.
+#'     components: (1) A component named \code{matrix}, where the jth
+#'     element of the ith row is \code{TRUE} if the ith and jth
+#'     observed points are known siblings, \code{FALSE} if they are
+#'     known non-siblings, and \code{NA} if it is not known whether or
+#'     not they are siblings, (2) A component named pT, containing a
+#'     scalar providing the probability that the element (i, j) in the
+#'     component \code{matrix} is \code{TRUE}, conditional on the ith
+#'     and jth points being siblings, (3) A component named pF,
+#'     containing a scalar providing the probability that the element
+#'     (i, j) in the component \code{matrix} is \code{FALSE},
+#'     conditional on the ith and jth points not being
+#'     siblings. Defaults to an argument representing a Poisson
+#'     distribution.
 #' @param trace Logical, if \code{TRUE}, parameter values are printed
-#' to the screen for each iteration of the optimisation procedure.
+#'     to the screen for each iteration of the optimisation procedure.
 #'
 #' @examples
 #'## Poisson number of children per parent.
@@ -60,7 +65,7 @@ fit.ns <- function(points = NULL, lims = NULL, R, sigma.sv = 0.1*R,
                    sigma.bounds = c(1e-10, R),
                    child.dist = list(mean = function(x) x, var = function(x) x,
                        sv = 5, bounds = c(1e-8, 1e8)),
-                   siblings = NULL, trace = FALSE){
+                   edge.correction = "pbc", siblings = NULL, trace = FALSE){
     ## Saving arguments.
     arg.names <- names(as.list(environment()))
     args <- vector(mode = "list", length = length(arg.names))
@@ -82,13 +87,7 @@ fit.ns <- function(points = NULL, lims = NULL, R, sigma.sv = 0.1*R,
     n.points <- nrow(points)
     n.dims <- nrow(lims)
     ## Vectorising siblings matrix, and setting intensity function.
-    if (!is.null(siblings)){
-        v.siblings <- vectorise.siblings(siblings)
-        intensity.fun <- palm.intensity.siblings
-    } else {
-        v.siblings <- NULL
-        intensity.fun <- palm.intensity
-    }
+
     ## Declaring function to calculate nu.
     protect.child.var <- function(x, child.dist, sigma){
         if (any(names(formals(child.dist$var)) == "sigma")){
@@ -121,7 +120,23 @@ fit.ns <- function(points = NULL, lims = NULL, R, sigma.sv = 0.1*R,
     ## Calculating survey area.
     area <- prod(apply(lims, 1, diff))
     ## Calculating distances.
-    dists <- pbc_distances(points = points, lims = lims)
+    if (edge.correction == "pbc"){
+        buffer.keep <- NULL
+        dists <- pbc_distances(points = points, lims = lims)
+    } else if (edge.correction == "buffer"){
+        buffer.keep <- buffer_keep(points = points, lims = lims, R = R)
+        dists <- as.vector(as.matrix(dist(points))[buffer.keep])
+    } else {
+        stop("Edge correction method not recognised.")
+    }
+    ## Sorting out sibling stuff.
+    if (is.null(siblings)){
+        v.siblings <- NULL
+        intensity.fun <- palm.intensity
+    } else {
+        v.siblings <- vectorise.siblings(siblings, edge.correction, buffer.keep)
+        intensity.fun <- palm.intensity.siblings
+    }
     ## Truncating distances.
     keep <- dists <= R
     dists <- dists[keep]
@@ -257,26 +272,31 @@ ns.nll <- function(pars, n.points, dists, R, d, par.names, siblings,
 #' \code{fit.ns()}.
 #'
 #' @param points A vector (or single-column matrix) containing the
-#' distance along the transect that each detection was made.
+#'     distance along the transect that each detection was made.
 #' @param planes A vector containing the plane ID (either \code{1} or
-#' \code{2}) that made the corresponding detection in \code{points}.
+#'     \code{2}) that made the corresponding detection in
+#'     \code{points}.
 #' @param l The length of the transect flown (in km).
 #' @param w The distance from the transect to which detection of
-#' individuals on the surface is certain. This is equivalent to the
-#' half-width of the detection zone.
+#'     individuals on the surface is certain. This is equivalent to
+#'     the half-width of the detection zone.
 #' @param b The distance from the transect to the edge of the area of
-#' interest. Conceptually, the distance between the transect and the
-#' furthest distance a whale could be on the passing on the first
-#' plane and plausibly move into the detection zone by the passing of
-#' the second plane.
+#'     interest. Conceptually, the distance between the transect and
+#'     the furthest distance a whale could be on the passing on the
+#'     first plane and plausibly move into the detection zone by the
+#'     passing of the second plane.
 #' @param t The lag between planes (in seconds).
 #' @param C Mean dive-cycle duration (in seconds).
 #' @param R Truncation distance (see \link{fit.ns}).
+#' @param edge.correction The method used for the correction of edge
+#'     effects. Either \code{"pbc"} for periodic boundary conditions,
+#'     or \code{"buffer"} for a buffer-zone correction.
 #' @param trace Logical, if \code{TRUE}, parameter values are printed
-#' to the screen for each iteration of the optimisation procedure.
+#'     to the screen for each iteration of the optimisation procedure.
 #' 
 #' @export
-fit.twoplane <- function(points, planes = NULL, l, w, b, t, C, R, trace = FALSE){
+fit.twoplane <- function(points, planes = NULL, l, w, b, t, C, R,
+                         edge.correction = "pbc", trace = FALSE){
     if (!is.matrix(points)){
         points <- matrix(points, nrow = length(points), ncol = 1)
     }
@@ -287,7 +307,8 @@ fit.twoplane <- function(points, planes = NULL, l, w, b, t, C, R, trace = FALSE)
     }
     child.dist <- make.twoplane.child.dist(t, C, w, b)
     fit.ns(points = points, lims = rbind(c(0, l)), R, sigma.sv = b/5,
-           child.dist = child.dist, siblings = sibling.mat, trace = trace)
+           child.dist = child.dist, siblings = sibling.mat,
+           edge.correction = edge.correction, trace = trace)
 }
 
 
@@ -296,7 +317,8 @@ fit.twoplane <- function(points, planes = NULL, l, w, b, t, C, R, trace = FALSE)
 #' @importFrom graphics abline axis box lines par plot.new plot.window points
 #' @importFrom mvtnorm rmvnorm
 #' @importFrom optimx optimx
-#' @importFrom stats coef integrate optim pgamma pnorm printCoefmat qnorm quantile rnorm rpois runif sd var
+#' @importFrom spatstat crossdist
+#' @importFrom stats coef dist integrate optim pgamma pnorm printCoefmat qnorm quantile rnorm rpois runif sd var
 #' @importFrom utils setTxtProgressBar txtProgressBar
 #' @useDynLib nspp
 NULL

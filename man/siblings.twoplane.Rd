@@ -11,7 +11,7 @@ siblings.twoplane(plane.id)
 observed location.}
 }
 \value{
-A list, a suitable object for the \code{siglings} argument
+A list, a suitable object for the \code{siblings} argument
 to \link{fit.ns}.
 }
 \description{

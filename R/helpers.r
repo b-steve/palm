@@ -82,36 +82,55 @@ palm.intensity.siblings <- function(r, Dc, nu, sigma, d, siblings){
 
 ## Takes matrix component of siblings and turns it into a vector that
 ## matches up to the distances computed by pbc_distance().
-vectorise.siblings <- function(siblings){
+vectorise.siblings <- function(siblings, edge.correction, buffer.keep = NULL){
     if (nrow(siblings$matrix) != ncol(siblings$matrix)){
         stop("Sibling matrix is not square.")
     }
     n.points <- nrow(siblings$matrix)
-    n.comparisons <- n.points^2 - n.points
-    vec <- numeric(n.comparisons)
-    ns.multipliers <- numeric(n.comparisons)
-    s.multipliers <- numeric(n.comparisons)
-    k <- 1
-    for (i in 1:(n.points - 1)){
-        for (j in (i +1):n.points){
-            vec[k] <- vec[k + 1] <- siblings$matrix[i, j]
-            ## Multipliers for TRUE.
-            if (!is.na(siblings$matrix[i, j]) & siblings$matrix[i, j]){
-                ns.multipliers[k] <- ns.multipliers[k + 1] <- 0
-                s.multipliers[k] <- s.multipliers[k + 1] <- siblings$pT
+    if (edge.correction == "pbc"){
+        n.comparisons <- n.points^2 - n.points
+        vec <- numeric(n.comparisons)
+        ns.multipliers <- numeric(n.comparisons)
+        s.multipliers <- numeric(n.comparisons)
+        k <- 1
+        for (i in 1:(n.points - 1)){
+            for (j in (i + 1):n.points){
+                vec[k] <- vec[k + 1] <- siblings$matrix[i, j]
+                ## Multipliers for TRUE.
+                if (!is.na(siblings$matrix[i, j]) & siblings$matrix[i, j]){
+                    ns.multipliers[k] <- ns.multipliers[k + 1] <- 0
+                    s.multipliers[k] <- s.multipliers[k + 1] <- siblings$pT
+                }
+                ## Multipliers for FALSE.
+                if (!is.na(siblings$matrix[i, j]) & !siblings$matrix[i, j]){
+                    ns.multipliers[k] <- ns.multipliers[k + 1] <- siblings$pF
+                    s.multipliers[k] <- s.multipliers[k + 1] <- 0
+                }
+                ## Multipliers for NA.
+                if (is.na(siblings$matrix[i, j])){
+                    ns.multipliers[k] <- ns.multipliers[k + 1] <- 1 - siblings$pF
+                    s.multipliers[k] <- s.multipliers[k + 1] <- 1 - siblings$pT
+                }
+                k <- k + 2
             }
-            ## Multipliers for FALSE.
-            if (!is.na(siblings$matrix[i, j]) & !siblings$matrix[i, j]){
-                ns.multipliers[k] <- ns.multipliers[k + 1] <- siblings$pF
-                s.multipliers[k] <- s.multipliers[k + 1] <- 0
-            }
-            ## Multipliers for NA.
-            if (is.na(siblings$matrix[i, j])){
-                ns.multipliers[k] <- ns.multipliers[k + 1] <- 1 - siblings$pF
-                s.multipliers[k] <- s.multipliers[k + 1] <- 1 - siblings$pT
-            }
-            k <- k + 2
         }
+    } else if (edge.correction == "buffer"){
+        warning("Buffer edge correction with siblings is untested.")
+        ns.mat <- matrix(0, nrow = n.points, ncol = n.points)
+        s.mat <- matrix(0, nrow = n.points, ncol = n.points)
+        ## Matrices for TRUE.
+        ns.mat[!is.na(siblings$matrix) & siblings$matrix] <- 0
+        s.mat[!is.na(siblings$matrix) & siblings$matrix] <- siblings$pT
+        ## Matrices for FALSE.
+        ns.mat[!is.na(siblings$matrix) & !siblings$matrix] <- siblings$pF
+        s.mat[!is.na(siblings$matrix) & !siblings$matrix] <- 0
+        ## Matrices for NA.
+        ns.mat[is.na(siblings$matrix)] <- 1 - siblings$pF
+        s.mat[is.na(siblings$matrix)] <- 1 - siblings$pT
+        ## Turning into vectors.
+        vec <- as.vector(siblings$matrix[buffer.keep])
+        ns.multipliers <- as.vector(ns.mat[buffer.keep])
+        s.multipliers <- as.vector(s.mat[buffer.keep])
     }
     list(vector = vec, ns.multipliers = ns.multipliers, s.multipliers = s.multipliers)
 }
