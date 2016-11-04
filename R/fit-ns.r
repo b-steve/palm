@@ -306,9 +306,13 @@ fit.twoplane <- function(points, planes = NULL, l, w, b, t, C, R,
         sibling.mat <- siblings.twoplane(planes)
     }
     child.dist <- make.twoplane.child.dist(t, C, w, b)
-    fit.ns(points = points, lims = rbind(c(0, l)), R, sigma.sv = b/5,
-           child.dist = child.dist, siblings = sibling.mat,
-           edge.correction = edge.correction, trace = trace)
+    fit <- fit.ns(points = points, lims = rbind(c(0, l)), R, sigma.sv = b/5,
+                  child.dist = child.dist, siblings = sibling.mat,
+                  edge.correction = edge.correction, trace = trace)
+    fit$pars <- c(fit$pars, fit$pars[1]/(2*b))
+    names(fit$pars)[length(fit$pars)] <- "D.2D"
+    class(fit) <- c("twoplane.nspp", class(fit))
+    fit
 }
 
 
@@ -317,7 +321,6 @@ fit.twoplane <- function(points, planes = NULL, l, w, b, t, C, R,
 #' @importFrom graphics abline axis box lines par plot.new plot.window points
 #' @importFrom mvtnorm rmvnorm
 #' @importFrom optimx optimx
-#' @importFrom spatstat crossdist
 #' @importFrom stats coef dist integrate optim pgamma pnorm printCoefmat qnorm quantile rnorm rpois runif sd var
 #' @importFrom utils setTxtProgressBar txtProgressBar
 #' @useDynLib nspp
