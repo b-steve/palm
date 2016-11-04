@@ -1,7 +1,7 @@
 #' Bootstrapping a Neymann-Scott point process model
 #'
 #' Carries out a bootstrap for Neymann-Scott point process models
-#' fitted by \link{fit.ns}().
+#' fitted by \link{fit.ns}.
 #'
 #' The \code{rchild} function may only take a single distributional
 #' parameter. If the distribution for the number of children generated
@@ -32,31 +32,53 @@
 #' 
 #' @export
 boot.ns <- function(fit, rchild, N, prog = TRUE){
-    ## Extracting information.
-    args <- fit$args    
-    pars <- fit$pars
-    n.pars <- length(pars)
-    lims <- args$lims
-    ## Error for fits with known (non-)siblings.
-    if (!is.null(args$siblings)){
-        stop("Bootstrapping not implemented for models with known (non-)siblings.")
-    }
-    boots <- matrix(0, nrow = N, ncol = n.pars)
     ## Setting up progress bar.
     if (prog){
         pb <- txtProgressBar(min = 0, max = N, style = 3)
     }
-    for (i in 1:N){
-        args$points <- sim.ns(pars = pars[c("D", "sigma", "child.par")], lims = lims,
-                              rchild = rchild)
-        args$sigma.sv <- pars["sigma"]
-        args$child.dist$sv <- pars["child.par"]
-        args$trace <- FALSE
-        fit.boot <- do.call("fit.ns", args)
-        boots[i, ] <- coef(fit.boot)
-        ## Updating progress bar.
-        if (prog){
-            setTxtProgressBar(pb, i)
+    ## Shitty method dispatch.
+    if (class(fit)[1] == "nspp"){
+        args <- fit$args
+        lims <- args$lims
+        ## Error for fits with known (non-)siblings.
+        if (!is.null(args$siblings)){
+            stop("Bootstrapping not implemented for models with known (non-)siblings.")
+        }
+    } else if (class(fit)[1] == "twoplane.nspp"){
+        args <- fit$args.twoplane
+    } else {
+        stop("Model class not recognised.")
+    }
+    pars <- fit$pars
+    n.pars <- length(pars)
+    boots <- matrix(0, nrow = N, ncol = n.pars)
+    ## More shitty method dispatch.
+    if (class(fit)[1] == "nspp"){
+        for (i in 1:N){
+            args$points <- sim.ns(pars = pars[c("D", "sigma", "child.par")], lims = lims,
+                                  rchild = rchild)
+            args$sigma.sv <- pars["sigma"]
+            args$child.dist$sv <- pars["child.par"]
+            args$trace <- FALSE
+            fit.boot <- do.call("fit.ns", args)
+            boots[i, ] <- fit.boot$pars
+            ## Updating progress bar.
+            if (prog){
+                setTxtProgressBar(pb, i)
+            }
+        }
+    } else if (class(fit)[1] == "twoplane.nspp"){
+        for (i in 1:N){
+            sim.obj <- sim.twoplane(D = pars["D.2D"], sigma = pars["sigma"], S = pars["child.par"],
+                                    l = args$l, w = args$w, b = args$b, t = args$t, C = args$C)
+            args$points <- sim.obj$points
+            args$planes <- sim.obj$planes
+            fit.boot <- do.call("fit.twoplane", args)
+            boots[i, ] <- fit.boot$pars
+            ## Updating progress bar.
+            if (prog){
+                setTxtProgressBar(pb, i)
+            }
         }
     }
     if (prog){
@@ -68,3 +90,4 @@ boot.ns <- function(fit, rchild, N, prog = TRUE){
     class(fit) <- c("boot.nspp", class(fit))
     fit
 }
+

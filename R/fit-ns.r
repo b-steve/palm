@@ -303,6 +303,15 @@ fit.twoplane <- function(points, planes = NULL, l, w, b, t, C, R,
     if (!is.matrix(points)){
         points <- matrix(points, nrow = length(points), ncol = 1)
     }
+    ## Saving arguments.
+    arg.names <- names(as.list(environment()))
+    args <- vector(mode = "list", length = length(arg.names))
+    names(args) <- arg.names
+    for (i in arg.names){
+        if (!is.null(get(i))){
+            args[[i]] <- get(i)
+        }
+    }
     if (is.null(planes)){
         sibling.mat = NULL
     } else {
@@ -314,6 +323,7 @@ fit.twoplane <- function(points, planes = NULL, l, w, b, t, C, R,
                   edge.correction = edge.correction, trace = trace)
     fit$pars <- c(fit$pars, fit$pars[1]/(2*b))
     names(fit$pars)[length(fit$pars)] <- "D.2D"
+    fit$args.twoplane <- args
     class(fit) <- c("twoplane.nspp", class(fit))
     fit
 }
