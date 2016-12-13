@@ -4,10 +4,10 @@
 \alias{fit.ns}
 \title{Fitting a model to a Neyman-Scott point process}
 \usage{
-fit.ns(points = NULL, lims = NULL, R, sigma.sv = 0.1 * R,
-  sigma.bounds = c(1e-10, R), child.dist = list(mean = function(x) x, var =
-  function(x) x, sv = 5, bounds = c(1e-08, 1e+08)), edge.correction = "pbc",
-  siblings = NULL, trace = FALSE)
+fit.ns(points = NULL, lims = NULL, R, disp = "gaussian", sigma.sv = 0.1
+  * R, sigma.bounds = c(1e-10, R), child.dist = list(mean = function(x) x,
+  var = function(x) x, sv = 5, bounds = c(1e-08, 1e+08)),
+  edge.correction = "pbc", siblings = NULL, void = FALSE, trace = FALSE)
 }
 \arguments{
 \item{points}{A matrix containing locations of observed points,
@@ -18,6 +18,11 @@ corresponds to a dimension.}
 and lower limits of each dimension, respectively.}
 
 \item{R}{Truncation distance for the difference process.}
+
+\item{disp}{A character string, providing the distribution for the
+dispersion of points around the parents. This can either be
+\code{"gaussian"} for Gaussian dispersion, or \code{"matern"}
+for uniform dispersion (giving a matern process).}
 
 \item{sigma.sv}{The start value for \code{sigma} in optimisation.}
 
@@ -55,6 +60,10 @@ containing a scalar providing the probability that the element
 conditional on the ith and jth points not being
 siblings. Defaults to an argument representing a Poisson
 distribution.}
+
+\item{void}{Logical, if \code{TRUE}, a void process is fitted,
+whereby parents delete points from a homogeneous Poisson point
+process, rather than generate them.}
 
 \item{trace}{Logical, if \code{TRUE}, parameter values are printed
 to the screen for each iteration of the optimisation procedure.}
