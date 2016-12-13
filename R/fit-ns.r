@@ -16,6 +16,10 @@
 #' @param lims A matrix with two columns, corresponding to the upper
 #'     and lower limits of each dimension, respectively.
 #' @param R Truncation distance for the difference process.
+#' @param disp A character string, providing the distribution for the
+#'     dispersion of points around the parents. This can either be
+#'     \code{"gaussian"} for Gaussian dispersion, or \code{"matern"}
+#'     for uniform dispersion (giving a matern process).
 #' @param sigma.sv The start value for \code{sigma} in optimisation.
 #' @param sigma.bounds The bounds of the \code{sigma} parameter in
 #'     optimisation.
@@ -48,6 +52,9 @@
 #'     conditional on the ith and jth points not being
 #'     siblings. Defaults to an argument representing a Poisson
 #'     distribution.
+#' @param void Logical, if \code{TRUE}, a void process is fitted,
+#'     whereby parents delete points from a homogeneous Poisson point
+#'     process, rather than generate them.
 #' @param trace Logical, if \code{TRUE}, parameter values are printed
 #'     to the screen for each iteration of the optimisation procedure.
 #'
@@ -61,11 +68,12 @@
 #'                           sv = 0.5, bounds = c(0, 1)))
 #' 
 #' @export
-fit.ns <- function(points = NULL, lims = NULL, R, sigma.sv = 0.1*R,
-                   sigma.bounds = c(1e-10, R),
+fit.ns <- function(points = NULL, lims = NULL, R, disp = "gaussian",
+                   sigma.sv = 0.1*R, sigma.bounds = c(1e-10, R),
                    child.dist = list(mean = function(x) x, var = function(x) x,
                        sv = 5, bounds = c(1e-8, 1e8)),
-                   edge.correction = "pbc", siblings = NULL, trace = FALSE){
+                   edge.correction = "pbc", siblings = NULL,
+                   void = FALSE, trace = FALSE){
     ## Saving arguments.
     arg.names <- names(as.list(environment()))
     args <- vector(mode = "list", length = length(arg.names))
@@ -148,7 +156,7 @@ fit.ns <- function(points = NULL, lims = NULL, R, sigma.sv = 0.1*R,
     n.dists <- length(dists)
     ## Sorting out start values.
     nu.sv <- nu.fun(child.dist$sv, child.dist, sigma.sv)
-    Dc.sv <- analytic.Dc(nu.sv, sigma.sv, n.dists, n.points, R, n.dims)
+    Dc.sv <- analytic.Dc(nu.sv, sigma.sv, n.dists, n.points, R, n.dims, disp)
     if (Dc.sv <= 0){
         Dc.sv <- n.points/area
     }
@@ -190,7 +198,8 @@ fit.ns <- function(points = NULL, lims = NULL, R, sigma.sv = 0.1*R,
                    n.points = n.points, dists = dists, R = R,
                    d = n.dims,
                    par.names = names(sv), siblings = v.siblings,
-                   intensity.fun = intensity.fun, trace = trace)
+                   intensity.fun = intensity.fun, disp = disp,
+                   trace = trace)
     ## Estimation from system of partial derivatives.
     ## fit.system <- nleqslv(c(sv["Dc"]/sv["nu"], sv["nu"], sv["sigma"),
     ##                       function(x, n.points, dists, R) c(dldD(x[1], x[2], x[3], n.points, dists, R),
@@ -236,7 +245,9 @@ fit.ns <- function(points = NULL, lims = NULL, R, sigma.sv = 0.1*R,
 }
 
 ns.nll <- function(pars, n.points, dists, R, d, par.names, siblings,
-                   intensity.fun, trace){
+                   intensity.fun, disp, trace){
+    ## Gettind CDF of between-sibling distances.
+    Fd <- get.Fd(disp)
     ## Extracting parameters.
     names(pars) <- par.names
     pars <- exp(pars)

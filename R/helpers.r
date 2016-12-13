@@ -33,12 +33,14 @@ pbc.fix <- function(points, lims){
 }
 
 ## Analytic value for Dc given sigma and nu.
-analytic.Dc <- function(nu, sigma, n.dists, n.points, R, d){
+analytic.Dc <- function(nu, sigma, n.dists, n.points, R, d, disp){
+    Fd <- get.Fd(disp)
     (n.dists/n.points - nu*Fd(R, sigma, d))/Vd(R, d)
 }
 
 ## Analytic value for nu given Dc and sigma.
-analytic.nu <- function(Dc, sigma, n.dists, n.points, R, d){
+analytic.nu <- function(Dc, sigma, n.dists, n.points, R, d, disp){
+    Fd <- get.Fd(disp)
     (n.dists/n.points - Dc*Vd(R, d))/Fd(R, sigma, d)
 }
 
@@ -60,6 +62,21 @@ fd <- function(r, sigma, d){
 ## CDF of between-sibling distances.
 Fd <- function(r, sigma, d){
     pgamma(r^2/(4*sigma^2), d/2)
+}
+
+## Closure for Fd function.
+get.Fd <- function(disp){
+    if (disp == "gaussian"){
+        out <- function(r, sigma, d){
+            pgamma(r^2/(4*sigma^2), d/2)
+        }
+    }
+    else if (disp == "matern"){
+        out <- function(r, sigma, d){
+
+        }
+    }
+    out
 }
 
 ## Note that Dc + nu/Sd(r, d)*fd(r, sigma, d) is a correct
