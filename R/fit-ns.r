@@ -72,8 +72,7 @@ fit.ns <- function(points, lims = NULL, R, disp = "gaussian",
                    sigma.sv = 0.1*R, sigma.bounds = c(1e-10, R),
                    child.dist = list(mean = function(x) x, var = function(x) x,
                                      sv = 5, bounds = c(1e-8, 1e8)),
-                   edge.correction = "pbc", siblings = NULL,
-                   void = FALSE, trace = FALSE){
+                   edge.correction = "pbc", siblings = NULL, trace = FALSE){
     ## Saving arguments.
     arg.names <- names(as.list(environment()))
     args <- vector(mode = "list", length = length(arg.names))
@@ -272,7 +271,12 @@ ns.nll <- function(pars, n.points, dists, R, d, par.names, siblings,
         }
     }
     -ll
-} 
+}
+
+fit.void <- function(points, lims = NULL, R, edge.correction = "pbc",
+                     trace = FALSE){
+    stop("Fitting of void processes not yet implemented.")
+}
 
 #' Estimation of animal density from two-plane surveys.
 #'
