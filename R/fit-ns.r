@@ -68,10 +68,10 @@
 #'                           sv = 0.5, bounds = c(0, 1)))
 #' 
 #' @export
-fit.ns <- function(points = NULL, lims = NULL, R, disp = "gaussian",
+fit.ns <- function(points, lims = NULL, R, disp = "gaussian",
                    sigma.sv = 0.1*R, sigma.bounds = c(1e-10, R),
                    child.dist = list(mean = function(x) x, var = function(x) x,
-                       sv = 5, bounds = c(1e-8, 1e8)),
+                                     sv = 5, bounds = c(1e-8, 1e8)),
                    edge.correction = "pbc", siblings = NULL,
                    void = FALSE, trace = FALSE){
     ## Saving arguments.
@@ -272,7 +272,7 @@ ns.nll <- function(pars, n.points, dists, R, d, par.names, siblings,
         }
     }
     -ll
-}
+} 
 
 #' Estimation of animal density from two-plane surveys.
 #'
