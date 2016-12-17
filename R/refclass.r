@@ -9,11 +9,14 @@ base.class <- setRefClass("base", fields = c("points",
                                              "lims",
                                              "dim",
                                              "R",
-                                             "par.names",
                                              "par.links",
                                              "par.invlinks",
                                              "start.pars",
                                              "link.start.pars"))
+## Initialisation.
+base.class$methods(initialize = function(...){
+    n.points <<- nrow(points)
+})
 ## A method for converting functions to their link scale.
 base.class$methods(link.pars = function(pars){
     n.pars <- length(pars)
@@ -75,8 +78,8 @@ base.class$methods(fit = function(.self){
 pbc.class <- setRefClass("pbc", contains = "base")
 ## Creating contrasts.
 pbc.class$methods(get.contrasts = function(){
-    contrasts <- pbc_distances(points = points, lims = lims)
-    contrasts <<- contrasts[contrasts <= R]
+    contrasts.save <- pbc_distances(points = points, lims = lims)
+    contrasts <<- contrasts.save[contrasts.save <= R]
 })
 
 ######
