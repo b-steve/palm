@@ -243,6 +243,41 @@ fit.ns <- function(points, lims = NULL, R, disp = "gaussian",
     out
 }
 
+fit.ns_refclass <- function(points, lims, R, disp = "gaussian",
+                            child.dist = list(expectation = function(x) x, variance = function(x) x),
+                            edge.correction = "pbc", siblings = NULL, trace = FALSE){
+    ns.class$methods(child.expectation = function(pars) child.dist$expectation(pars["child.par"]),
+                     child.variance = function(pars) child.dist$variance(pars["child.par"]))
+    use.thomas.class <- FALSE
+    use.matern.class <- FALSE
+    if (disp == "gaussian"){
+        use.thomas.class <- TRUE
+    } else if (disp == "uniform"){
+        use.matern.class <- TRUE
+    } else {
+        stop("Dispersion type not recognised; use either 'gaussian' or 'uniform'.")
+    }
+    use.pbc.class <- FALSE
+    use.buffer.class <- FALSE
+    if (edge.correction == "pbc"){
+        use.pbc.class <- TRUE
+    } else if (edge.correction == "buffer"){
+        use.buffer.class <- TRUE
+    } else {
+        stop("Dispersion type not recognised; use either 'pbc' or 'buffer'.")
+    }
+    use.sibling.class <- FALSE
+    if (!is.null(siblings)){
+        use.sibling.class <- TRUE
+    }
+    final.contains <- c("thomas"[use.thomas.class],
+                        "matern"[use.matern.class],
+                        "pbc"[use.pbc.class],
+                        "buffer"[use.buffer.class],
+                        "sibling"[use.sibling.class])
+    final.class <- setRefClass("final", contains = final.contains)
+}
+
 ns.nll <- function(pars, n.points, dists, R, d, par.names, siblings,
                    intensity.fun, disp, trace){
     ## Gettind CDF of between-sibling distances.
