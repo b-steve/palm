@@ -244,10 +244,10 @@ fit.ns <- function(points, lims = NULL, R, disp = "gaussian",
 }
 
 fit.ns_refclass <- function(points, lims, R, disp = "gaussian",
-                            child.dist = list(expectation = function(x) x, variance = function(x) x),
+                            child.dist = list(child.expectation = function(x) x["child.par"],
+                                              child.variance = function(x) x["child.par"],
+                                              child.link = log),
                             edge.correction = "pbc", siblings = NULL, trace = FALSE){
-    ns.class$methods(child.expectation = function(pars) child.dist$expectation(pars["child.par"]),
-                     child.variance = function(pars) child.dist$variance(pars["child.par"]))
     use.thomas.class <- FALSE
     use.matern.class <- FALSE
     if (disp == "gaussian"){
@@ -276,6 +276,11 @@ fit.ns_refclass <- function(points, lims, R, disp = "gaussian",
                         "buffer"[use.buffer.class],
                         "sibling"[use.sibling.class])
     final.class <- setRefClass("final", contains = final.contains)
+    obj <- final.class$new(points = points, lims = lims, R = 0.5, child.dist = child.dist)
+    obj$get.invlinks()
+    obj$initialise.par.start.link()
+    obj$fit()
+    obj$par.fitted
 }
 
 ns.nll <- function(pars, n.points, dists, R, d, par.names, siblings,

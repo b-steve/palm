@@ -9,15 +9,46 @@ base.class <- setRefClass("base", fields = c("points",
                                              "lims",
                                              "dim",
                                              "R",
+                                             "child.dist",
+                                             "par.names",
+                                             "par.start",
+                                             "par.start.link",
                                              "par.links",
                                              "par.invlinks",
-                                             "start.pars",
-                                             "link.start.pars"))
-## Initialisation.
-base.class$methods(initialize = function(...){
+                                             "par.fitted",
+                                             "par.fitted.link"))
+## Initialisation method.
+base.class$methods(initialize = function(points, lims, R, ...){
+    callSuper(...)
+    points <<- points
     n.points <<- nrow(points)
+    lims <<- lims
+    dim <<- ncol(points)
+    R <<- R
+    n.points <<- nrow(points)
+    par.names <<- character(0)
+    par.start <<- numeric(0)
+    par.start.link <<- numeric(0)
+    par.links <<- list()
+    par.invlinks <<- list()
+    contrasts <<- .self$get.contrasts()
 })
-## A method for converting functions to their link scale.
+## A method for setting inverse links.
+base.class$methods(get.invlinks = function(){
+    par.invlinks.save <- vector(mode = "list", length = length(par.links))
+    names(par.invlinks.save) <- par.names
+    for (i in 1:length(par.links)){
+       if (identical(par.links[[i]], identity)){
+           par.invlinks.save[[i]] <- identity
+       } else if (identical(par.links[[i]], log)){
+           par.invlinks.save[[i]] <- exp
+       } else {
+           stop("Link functions must be either identity or log.")
+       }
+    }
+    par.invlinks <<- par.invlinks.save
+})
+## A method for converting parameters to their link scale.
 base.class$methods(link.pars = function(pars){
     n.pars <- length(pars)
     out <- numeric(n.pars)
@@ -27,7 +58,7 @@ base.class$methods(link.pars = function(pars){
     names(out) <- names(pars)
     out
 })
-## A method for converting functions to their real scale.
+## A method for converting parameters to their real scale.
 base.class$methods(invlink.pars = function(pars){
     n.pars <- length(pars)
     out <- numeric(n.pars)
@@ -37,9 +68,9 @@ base.class$methods(invlink.pars = function(pars){
     names(out) <- names(pars)
     out
 })
-## A method for generating link.start.pars.
-base.class$methods(initialise.link.start.pars = function(){
-    link.start.pars <<- link.pars(start.pars)
+## A method for generating par.start.link.
+base.class$methods(initialise.par.start.link = function(){
+    par.start.link <<- link.pars(par.start)
 })
 ## An empty method for the Palm intensity.
 base.class$methods(palm.intensity = function(r, pars){})
@@ -69,7 +100,8 @@ base.class$methods(link.neg.log.palm.likelihood = function(link.pars){
 })
 ## A method for model fitting.
 base.class$methods(fit = function(.self){
-    optim(.self$link.start.pars, .self$link.neg.log.palm.likelihood)
+    .self$par.fitted.link <- optim(.self$par.start.link, .self$link.neg.log.palm.likelihood)$par
+    .self$par.fitted <- .self$invlink.pars(.self$par.fitted.link)
 })
 
 ######
@@ -77,7 +109,7 @@ base.class$methods(fit = function(.self){
 ######
 pbc.class <- setRefClass("pbc", contains = "base")
 ## Creating contrasts.
-pbc.class$methods(get.contrasts = function(){
+pbc.class$methods(get.contrasts = function(...){
     contrasts.save <- pbc_distances(points = points, lims = lims)
     contrasts <<- contrasts.save[contrasts.save <= R]
 })
@@ -86,12 +118,28 @@ pbc.class$methods(get.contrasts = function(){
 ## Class for Neyman-Scott processes.
 ######
 ns.class <- setRefClass("ns", contains = "base")
+## Initialisation method.
+ns.class$methods(initialize = function(child.dist, ...){
+    callSuper(...)
+    par.names <<- c(par.names, "D", "child.par")
+    par.links[["D"]] <<- log
+    par.links[["child.par"]] <<- child.dist$child.link
+    vol <- prod(apply(lims, 1, diff))
+    par.start.save <- c(par.start, sqrt(n.points/vol), sqrt(n.points/vol))
+    names(par.start.save) <- par.names
+    par.start <<- par.start.save
+    child.dist <<- child.dist
+})
 ## Overwriting method for the Palm intensity.
 ns.class$methods(palm.intensity = function(r, pars) sibling.pi(r, pars) + nonsibling.pi(pars))
-## An empty method for the expectation of the child distribution (filled by fit.ns()).
-ns.class$methods(child.expectation = function(pars){})
-## An empty method for the variance of the child distribution (filled by fit.ns()).
-ns.class$methods(child.variance = function(pars){})
+## Method for the expectation of the child distribution.
+ns.class$methods(child.expectation = function(pars){
+    child.dist$child.expectation(pars)
+})
+## Method for the variance of the child distribution.
+ns.class$methods(child.variance = function(pars){
+    child.dist$child.variance(pars)
+})
 ## A method for the expected number of siblings from a randomly chosen point.
 ns.class$methods(sibling.expectation = function(pars){
     (child.variance(pars) + child.expectation(pars)^2)/child.expectation(pars) - 1
@@ -111,6 +159,15 @@ ns.class$methods(sibling.pi = function(r, pars) sibling.expectation(pars)*q.over
 ## Class for Thomas processes.
 ######
 thomas.class <- setRefClass("thomas", contains = "ns")
+## Initialisation method.
+thomas.class$methods(initialize = function(...){
+    callSuper(...)
+    par.names <<- c(par.names, "sigma")
+    par.links[["sigma"]] <<- log
+    par.start.save <- c(par.start, 0.1*R)
+    names(par.start.save) <- par.names
+    par.start <<- par.start.save
+})
 ## Overwriting method for the PDF of Q.
 thomas.class$methods(fq = function(r, pars){
     2^(1 - dim/2)*r^(dim - 1)*exp(-r^2/(4*pars["sigma"]^2))/((pars["sigma"]*sqrt(2))^dim*gamma(dim/2))
