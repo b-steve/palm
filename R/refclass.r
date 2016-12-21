@@ -185,6 +185,25 @@ thomas.class$methods(q.over.s = function(r, pars){
 ## Class for Matern processes.
 ######
 matern.class <- setRefClass("matern", contains = "ns")
+## Initialisation method.
+matern.class$methods(initialize = function(...){
+    callSuper(...)
+    par.names <<- c(par.names, "tau")
+    par.links[["tau"]] <<- log
+    par.start.save <- c(par.start, 0.1*R)
+    names(par.start.save) <- par.names
+    par.start <<- par.start.save
+}
+## Overwriting method for the PDF Of Q.
+## CAN WRITE IN CLOSED FORM USING HYPERGEOMETRIC FUNCTIONS INSTEAD.
+thomas.class$methods(fq = function(r, pars){
+    f.integrand <- function(x, pars, dim){
+        (pars["tau"]^2 - x^2)^((dim - 1)/2)
+    }
+    f.integral <- integrate(f = f.integrand, lower = r/2, upper = pars["tau"],
+                            pars = pars, dim = dim)$value
+    2*dim*r^(d - 1)*f.integral/(beta(dim/2 + 0.5, 0.5)*pars["tau"]^(2*dim))
+}
 
 ######
 ## Class for sibling models.
