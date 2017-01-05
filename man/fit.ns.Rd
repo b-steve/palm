@@ -4,10 +4,10 @@
 \alias{fit.ns}
 \title{Fitting a model to a Neyman-Scott point process}
 \usage{
-fit.ns(points = NULL, lims = NULL, R, disp = "gaussian", sigma.sv = 0.1
-  * R, sigma.bounds = c(1e-10, R), child.dist = list(mean = function(x) x,
-  var = function(x) x, sv = 5, bounds = c(1e-08, 1e+08)),
-  edge.correction = "pbc", siblings = NULL, void = FALSE, trace = FALSE)
+fit.ns(points, lims = NULL, R, disp = "gaussian", sigma.sv = 0.1 * R,
+  sigma.bounds = c(1e-10, R), child.dist = list(mean = function(x) x, var =
+  function(x) x, sv = 5, bounds = c(1e-08, 1e+08)), edge.correction = "pbc",
+  siblings = NULL, trace = FALSE)
 }
 \arguments{
 \item{points}{A matrix containing locations of observed points,
@@ -60,10 +60,6 @@ containing a scalar providing the probability that the element
 conditional on the ith and jth points not being
 siblings. Defaults to an argument representing a Poisson
 distribution.}
-
-\item{void}{Logical, if \code{TRUE}, a void process is fitted,
-whereby parents delete points from a homogeneous Poisson point
-process, rather than generate them.}
 
 \item{trace}{Logical, if \code{TRUE}, parameter values are printed
 to the screen for each iteration of the optimisation procedure.}

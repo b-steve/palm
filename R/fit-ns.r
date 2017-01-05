@@ -52,9 +52,6 @@
 #'     conditional on the ith and jth points not being
 #'     siblings. Defaults to an argument representing a Poisson
 #'     distribution.
-#' @param void Logical, if \code{TRUE}, a void process is fitted,
-#'     whereby parents delete points from a homogeneous Poisson point
-#'     process, rather than generate them.
 #' @param trace Logical, if \code{TRUE}, parameter values are printed
 #'     to the screen for each iteration of the optimisation procedure.
 #'
@@ -385,7 +382,7 @@ fit.twoplane <- function(points, planes = NULL, l, w, b, t, C, R,
 
 
 ## Roxygen code for NAMESPACE.
-#' @import Rcpp
+#' @import methods Rcpp
 #' @importFrom graphics abline axis box lines par plot.new plot.window points
 #' @importFrom mvtnorm rmvnorm
 #' @importFrom optimx optimx

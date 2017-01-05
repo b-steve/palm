@@ -9,6 +9,7 @@ Depends:
     R (>= 3.0.0),
     Rcpp (>= 0.11.5)
 Imports:
+    methods,
     mvtnorm,
     optimx
 LinkingTo: Rcpp
