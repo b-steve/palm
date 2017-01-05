@@ -202,7 +202,7 @@ matern.class$methods(fq = function(r, pars){
     }
     f.integral <- integrate(f = f.integrand, lower = r/2, upper = pars["tau"],
                             pars = pars, dim = dim)$value
-    2*dim*r^(d - 1)*f.integral/(beta(dim/2 + 0.5, 0.5)*pars["tau"]^(2*dim))
+    2*dim*r^(dim - 1)*f.integral/(beta(dim/2 + 0.5, 0.5)*pars["tau"]^(2*dim))
 })
 
 ######
