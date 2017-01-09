@@ -26,7 +26,6 @@ base.class$methods(initialize = function(points, lims, R, ...){
     lims <<- lims
     dim <<- ncol(points)
     R <<- R
-    n.points <<- nrow(points)
     par.names <<- character(0)
     par.start <<- numeric(0)
     par.start.link <<- numeric(0)
