@@ -2,7 +2,7 @@
 ## General base class.
 ######
 
-base.class <- R6Class("base",
+base.class.R6 <- R6Class("base",
                       public = list(
                           ## Setting fields.
                           points = NULL,
@@ -34,26 +34,27 @@ base.class <- R6Class("base",
                               #self$par.start.link <- self$link.pars(self$par.start)
                           },
                           ## An empty method for getting contrasts.
-                          get.contrasts = function(){},
+                          get.contrasts = function(){
+                          },
                           ## An empty method for setting start values.
                           get.start = function(){},
                           ## An empty method for getting link functions.
                           get.links = function(){},
                           ## A method for setting inverse links.
-                          get.invlinks = function(){
-                              par.invlinks.save <- vector(mode = "list", length = length(self$par.links))
-                              names(par.invlinks.save) <- self$par.names
-                              for (i in 1:length(self$par.links)){
-                                  if (identical(self$par.links[[i]], identity)){
-                                      par.invlinks.save[[i]] <- identity
-                                  } else if (identical(self$par.links[[i]], log)){
-                                      par.invlinks.save[[i]] <- exp
-                                  } else {
-                                      stop("Link functions must be either identity or log.")
-                                  }
-                              }
-                              par.invlinks.save
-                          },
+                          ## get.invlinks = function(){
+                          ##     par.invlinks.save <- vector(mode = "list", length = length(self$par.links))
+                          ##     names(par.invlinks.save) <- self$par.names
+                          ##     for (i in 1:length(self$par.links)){
+                          ##         if (identical(self$par.links[[i]], identity)){
+                          ##             par.invlinks.save[[i]] <- identity
+                          ##         } else if (identical(self$par.links[[i]], log)){
+                          ##             par.invlinks.save[[i]] <- exp
+                          ##         } else {
+                          ##             stop("Link functions must be either identity or log.")
+                          ##         }
+                          ##     }
+                          ##     par.invlinks.save
+                          ## },
                           ## A method for converting parameters to their link scales.
                           link.pars = function(pars){
                               n.pars <- length(pars)
@@ -111,9 +112,11 @@ base.class <- R6Class("base",
 ## Class for periodic boundary conditions.
 ######
 
-use.pbc.class <- function(class){
+use.pbc.class <- function(class, class.env){
+    ## Saving inherited class to environment of creat.obj().
+    assign("pbc.inherit", class, envir = class.env)
     R6Class("nspp-r6",
-            inherit = "regeclass",
+            inherit = class.env$pbc.inherit,
             public = list(
                 ## A method to generate contrasts.
                 get.contrasts = function(){
@@ -124,24 +127,12 @@ use.pbc.class <- function(class){
 }
 
 create.obj <- function(classes, points, lims, R){
-    class0 <- base.class
+    class <- base.class.R6
     n.classes <- length(classes)
+    class.env <- new.env()
     for (i in 1:n.classes){
         use.class <- get(paste("use", classes[i], "class", sep = "."))
-        browser()
-        assign(paste("class", i, sep = ""),
-               use.class(get(paste("class", i - 1, sep = ""))))
+        class <- use.class(class, class.env)
     }
-    class.final <- get(paste("class", n.classes, sep = ""))
-    class.final$new(points, lims, R)
+    class$new(example.1D, rbind(c(0, 1)), 0.5)
 }
-
-
-
-## ## Test bit.
-## classes <- "pbc"
-## points <- example.1D
-## lims <- rbind(c(0, 1))
-## R <- 0.5
-
-## create.obj("pbc", example.1D, rbind(c(0, 1)), 0.5)

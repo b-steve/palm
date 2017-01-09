@@ -415,7 +415,7 @@ fit.twoplane <- function(points, planes = NULL, l, w, b, t, C, R,
 
 
 ## Roxygen code for NAMESPACE.
-#' @import methods Rcpp
+#' @import methods Rcpp R6
 #' @importFrom graphics abline axis box lines par plot.new plot.window points
 #' @importFrom gsl hyperg_2F1
 #' @importFrom mvtnorm rmvnorm
