@@ -305,6 +305,14 @@ fit.ns_refclass <- function(points, lims, R, disp = "gaussian",
     obj$par.fitted
 }
 
+fit.ns_refclass <- function(points, lims, R, disp = "gaussian",
+                            child.dist = list(child.expectation = function(x) x["child.par"],
+                                              child.variance = function(x) x["child.par"],
+                                              child.link = log),
+                            edge.correction = "pbc", siblings = NULL, trace = FALSE){
+    
+}
+
 ns.nll <- function(pars, n.points, dists, R, d, par.names, siblings,
                    intensity.fun, disp, trace){
     ## Gettind CDF of between-sibling distances.
