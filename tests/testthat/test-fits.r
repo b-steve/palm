@@ -57,6 +57,15 @@ test_that(
     })
 
 test_that(
+    "Matern fitting",
+    {
+        fit.matern <- fit.ns_refclass(example.2D, lims = rbind(c(0, 1), c(0, 1)),
+                                      R = 0.5, disp = "uniform")
+        names(fit.matern) <- NULL
+        expect_equal(fit.matern, c(39.1713858732101, 0.728127375451379, 0.0524411384182911), tolerance = 0.001)
+    })
+
+test_that(
     "Two-plane simulation and model fitting.",
     {
         set.seed(4321)
