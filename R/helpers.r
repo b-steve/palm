@@ -44,7 +44,7 @@ analytic.nu <- function(Dc, sigma, n.dists, n.points, R, d, disp){
     (n.dists/n.points - Dc*Vd(R, d))/Fd(R, sigma, d)
 }
 
-## Surface area of d-dimensional hypersphere with radius r.
+## Surface volume of d-dimensional hypersphere with radius r.
 Sd <- function(r, d){
     d*pi^(d/2)*r^(d - 1)/gamma(d/2 + 1)
 }
@@ -265,4 +265,9 @@ make.twoplane.child.dist <- function(t, C, w, b){
         2*probs$p.10*probs$p.01*(2 - probs$p.10 - probs$p.01)/(probs$p.10 + probs$p.01)^2
     }
     list(mean = mean.1D, var = var.1D, sv = 0.5*C, bounds = c(1e-10, 0.999*C))  
+}
+
+## The incomplete beta function.
+incomplete.beta <- function(x, a, b){
+    pbeta(x, a, b)*beta(a, b)
 }

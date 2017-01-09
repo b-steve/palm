@@ -3,6 +3,7 @@
 ######
 ## Overall class containing base stuff.
 ######
+
 base.class <- setRefClass("base", fields = c("points",
                                              "n.points",
                                              "contrasts",
@@ -107,6 +108,7 @@ base.class$methods(fit = function(.self){
 ######
 ## Class for periodic boundary conditions.
 ######
+
 pbc.class <- setRefClass("pbc", contains = "base")
 ## Creating contrasts.
 pbc.class$methods(get.contrasts = function(...){
@@ -117,6 +119,7 @@ pbc.class$methods(get.contrasts = function(...){
 ######
 ## Class for Neyman-Scott processes.
 ######
+
 ns.class <- setRefClass("ns", contains = "base")
 ## Initialisation method.
 ns.class$methods(initialize = function(child.dist, ...){
@@ -149,15 +152,16 @@ ns.class$methods(fq = function(r, pars){})
 ## An empty method for the CDF of Q.
 ns.class$methods(Fq = function(r, pars){})
 ## A default method for the quotient of the PDF of Q and the surface volume.
-ns.class$methods(q.over.s = function(r, pars) fq(r, pars)/Sd(r, dim))
+ns.class$methods(fq.over.s = function(r, pars) fq(r, pars)/Sd(r, dim))
 ## A method for the PI of nonsibling points.
 ns.class$methods(nonsibling.pi = function(pars) pars["D"]*child.expectation(pars))
 ## A method for the PI of sibling points.
-ns.class$methods(sibling.pi = function(r, pars) sibling.expectation(pars)*q.over.s(r, pars))
+ns.class$methods(sibling.pi = function(r, pars) sibling.expectation(pars)*fq.over.s(r, pars))
 
 ######
 ## Class for Thomas processes.
 ######
+
 thomas.class <- setRefClass("thomas", contains = "ns")
 ## Initialisation method.
 thomas.class$methods(initialize = function(...){
@@ -177,13 +181,14 @@ thomas.class$methods(Fq = function(r, pars){
     pgamma(r^2/(4*pars["sigma"]^2), dim/2)
 })
 ## Overwriting method for the quotient of the PDF of Q and the surface volume.
-thomas.class$methods(q.over.s = function(r, pars){
+thomas.class$methods(fq.over.s = function(r, pars){
     exp(-r^2/(4*pars["sigma"]^2))/((2*pars["sigma"])^dim*pi^(dim/2))
 })
 
 ######
 ## Class for Matern processes.
 ######
+
 matern.class <- setRefClass("matern", contains = "ns")
 ## Initialisation method.
 matern.class$methods(initialize = function(...){
@@ -194,23 +199,37 @@ matern.class$methods(initialize = function(...){
     names(par.start.save) <- par.names
     par.start <<- par.start.save
 })
-## Overwriting method for the PDF Of Q.
-## CAN WRITE IN CLOSED FORM USING HYPERGEOMETRIC FUNCTIONS INSTEAD.
+## Overwriting method for the PDF of Q.
 matern.class$methods(fq = function(r, pars){
-    f.integrand <- function(x, pars, dim){
-        (pars["tau"]^2 - x^2)^((dim - 1)/2)
-    }
-    f.integral <- integrate(f = f.integrand, lower = r/2, upper = pars["tau"],
-                            pars = pars, dim = dim)$value
-    2*dim*r^(dim - 1)*f.integral/(beta(dim/2 + 0.5, 0.5)*pars["tau"]^(2*dim))
+    ifelse(r > 2*pars["tau"], 0, 2*dim*r^(dim - 1)*(pars["tau"]*hyperg_2F1(0.5, 0.5 - dim/2, 1.5, 1) -
+                                                    r/2*hyperg_2F1(0.5, 0.5 - dim/2, 1.5, r^2/(4*pars["tau"]^2)))/
+                                         (beta(dim/2 + 0.5, 0.5)*pars["tau"]^(dim + 1)))
+})
+## Overwriting method for the CDF of Q.
+matern.class$methods(Fq = function(r, pars){
+    alpha <- r^2/(4*pars["tau"]^2)
+    r^2/pars["tau"]^2*(1 - pbeta(alpha, 0.5, dim/2 + 0.5)) +
+                        2^dim*incomplete.beta(alpha, dim/2 + 0.5, dim/2 + 0.5)/beta(0.5, dim/2 + 0.5)
+})
+## Overwriting method for the quotient of the PDF Of Q and the surface volume.
+matern.class$methods(fq.over.s = function(r, pars){
+    ifelse(r > 2*pars["tau"], 0, 2*(pars["tau"]*hyperg_2F1(0.5, 0.5 - dim/2, 1.5, 1) -
+                  r/2*hyperg_2F1(0.5, 0.5 - dim/2, 1.5, r^2/(4*pars["tau"]^2)))*gamma(dim/2 + 1)/
+            (beta(dim/2 + 0.5, 0.5)*pars["tau"]^(dim + 1)*pi^(dim/2)))
 })
 
 ######
 ## Class for sibling models.
 ######
+
 sibling.class <- setRefClass("sibling", fields = c("sibling.mat",
                                                    "sibling.pT",
                                                    "sibling.fF"),
                              contains = "ns")
 
 
+
+#D <- 2
+#nu <- 10
+#Dc <- 2*10
+#((2)/(child.disp^(d+1)))*((gamma(d/2 +1))/(pi^(d/2 + 0.5)))*(child.disp*hyperg_2F1(1/2,(1/2)-(d/2),3/2,1)-((r/2)*hyperg_2F1(1/2,(1/2)-(d/2),3/2,r^2/(4*child.disp^2)))),Dc)
