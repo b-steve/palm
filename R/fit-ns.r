@@ -240,6 +240,31 @@ fit.ns <- function(points, lims = NULL, R, disp = "gaussian",
     out
 }
 
+#' Fitting a model to a Neyman-Scott point process
+#'
+#' Estimates parameters for a Neyman-Scott point process using the
+#' approach of Tanaka (2008).
+#'
+#' @references Tanaka, U., Ogata, Y., and Stoyan, D. (2008) Parameter
+#' estimation and model selection for Neyman-Scott point
+#' processes. \emph{Biometrical Journal}, \strong{50}: 43--57.
+#'
+#' @param child.dist An argument describing the distribution
+#'     generating the number of children per parent. It must be a list
+#'     with four components: (1) A component named
+#'     \code{child.expectation} that provides a function returning the
+#'     expectation of the distribution, with its only argument being
+#'     the single parameter to be estimated, (2) A component named
+#'     \code{child.variance} that provides a function returning the variance of a
+#'     distribution, with its only argument being the single parameter
+#'     to be estimated, and (3) A component named \code{child.link} providing the
+#'     link funcion for the parameter to be estimated.
+#'
+#' @inheritParams fit.ns
+#' 
+#' @return An R5 reference class object.
+#'
+#' @export
 fit.ns_refclass <- function(points, lims, R, disp = "gaussian",
                             child.dist = list(child.expectation = function(x) x["child.par"],
                                               child.variance = function(x) x["child.par"],
@@ -384,6 +409,7 @@ fit.twoplane <- function(points, planes = NULL, l, w, b, t, C, R,
 ## Roxygen code for NAMESPACE.
 #' @import methods Rcpp
 #' @importFrom graphics abline axis box lines par plot.new plot.window points
+#' @importFrom gsl hyperg_2F1
 #' @importFrom mvtnorm rmvnorm
 #' @importFrom optimx optimx
 #' @importFrom stats coef dist integrate optim pgamma pnorm printCoefmat qnorm quantile rnorm rpois runif sd var
