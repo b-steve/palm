@@ -225,10 +225,3 @@ sibling.class <- setRefClass("sibling", fields = c("sibling.mat",
                                                    "sibling.pT",
                                                    "sibling.fF"),
                              contains = "ns")
-
-
-
-#D <- 2
-#nu <- 10
-#Dc <- 2*10
-#((2)/(child.disp^(d+1)))*((gamma(d/2 +1))/(pi^(d/2 + 0.5)))*(child.disp*hyperg_2F1(1/2,(1/2)-(d/2),3/2,1)-((r/2)*hyperg_2F1(1/2,(1/2)-(d/2),3/2,r^2/(4*child.disp^2)))),Dc)
