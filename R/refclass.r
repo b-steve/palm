@@ -2,7 +2,7 @@
 ## General base class.
 ######
 
-base.class.R6 <- R6Class("nspp-r6",
+base.class.R6 <- R6Class("nspp_r6",
                       public = list(
                           ## Setting fields.
                           points = NULL,
@@ -125,7 +125,7 @@ base.class.R6 <- R6Class("nspp-r6",
 set.CLASSNAME.class <- function(class, class.env){
     ## Saving inherited class to class.env.
     assign("CLASSNAME.inherit", class, envir = class.env)
-    R6Class("nspp-r6",
+    R6Class("nspp_r6",
             inherit = class.env$CLASSNAME.inherit,
             public = list(
 
@@ -204,7 +204,7 @@ set.ns.class <- function(class, class.env){
 set.poischild.class <- function(class, class.env){
     ## Saving inherited class to class.env.
     assign("poischild.inherit", class, envir = class.env)
-    R6Class("nspp-r6",
+    R6Class("nspp_r6",
             inherit = class.env$poischild.inherit,
             public = list(
                 ## Adding lambda parameter.
@@ -231,7 +231,7 @@ set.poischild.class <- function(class, class.env){
 set.thomas.class <- function(class, class.env){
     ## Saving inherited class to class.env.
     assign("thomas.inherit", class, envir = class.env)
-    R6Class("nspp-r6",
+    R6Class("nspp_r6",
             inherit = class.env$thomas.inherit,
             public = list(
                 ## Adding sigma paremter.
@@ -263,7 +263,7 @@ set.thomas.class <- function(class, class.env){
 set.matern.class <- function(class, class.env){
     ## Saving inherited class to class.env.
     assign("matern.inherit", class, envir = class.env)
-    R6Class("nspp-r6",
+    R6Class("nspp_r6",
             inherit = class.env$matern.inherit,
             public = list(
                 ## Adding tau parameter.

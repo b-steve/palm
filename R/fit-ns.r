@@ -298,7 +298,7 @@ fit.ns_r6 <- function(points, lims, R, disp = "gaussian", child.dist = "pois", e
                        "matern"[use.matern.class])
     obj <- create.obj(final.classes, points, lims, R)
     obj$fit()
-    obj$par.fitted      
+    obj
 }
 
 ns.nll <- function(pars, n.points, dists, R, d, par.names, siblings,

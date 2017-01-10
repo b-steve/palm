@@ -31,6 +31,21 @@ coef.nspp <- function(object, all = FALSE, se = FALSE,  ...){
     out
 }
 
+#' Extract parameter estimates.
+#'
+#' Extracts estimated parameters from an object returned by
+#' \link{fit.ns_r6}.
+#'
+#' @param object A fitted model object returned by \link{fit.ns_r6}.
+#' @param ... Other parameters (for S3 generic compatibility).
+#'
+#' @method coef nspp_r6
+#' 
+#'@export
+coef.nspp_r6 <- function(object, ...){
+    object$par.fitted
+}
+
 #' Extract two-plane survey parameter estimates
 #'
 #' Extracts estimated and derived parameters for a model fitted using
