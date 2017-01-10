@@ -68,9 +68,13 @@ test_that(
     "Matern fitting",
     {
         #fit.matern <- fit.ns_refclass(example.2D, lims = rbind(c(0, 1), c(0, 1)),
-        #                              R = 0.5, disp = "uniform")
+        #                             R = 0.5, disp = "uniform")
         #names(fit.matern) <- NULL
         #expect_equal(fit.matern, c(39.1713858732101, 0.728127375451379, 0.0524411384182911), tolerance = 0.001)
+        fit.matern.r6 <- fit.ns_r6(example.2D, lims = rbind(c(0, 1), c(0, 1)), R = 0.5, disp = "uniform")
+        names(fit.matern.r6) <- NULL
+        expect_equal(fit.matern.r6, c(39.1713858732101, 0.728127375451379, 0.0524411384182911), tolerance = 0.001)
+
     })
 
 test_that(

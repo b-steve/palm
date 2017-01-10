@@ -352,7 +352,6 @@ fit.ns_r6 <- function(points, lims, R, disp = "gaussian", child.dist = "pois", e
         use.thomas.class <- TRUE
     } else if (disp == "uniform"){
         use.matern.class <- TRUE
-        stop("Dispersion type 'uniform' is not yet implemented.")
     } else {
         stop("Dispersion type not recognised; use either 'gaussian' or 'uniform'.")
     }

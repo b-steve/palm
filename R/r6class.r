@@ -255,6 +255,47 @@ set.thomas.class <- function(class, class.env){
             ))
 }
 
+######
+## Class for Matern processes.
+######
+
+## Replace CLASSNAME with class name, then add fields and methods.
+set.matern.class <- function(class, class.env){
+    ## Saving inherited class to class.env.
+    assign("matern.inherit", class, envir = class.env)
+    R6Class("nspp-r6",
+            inherit = class.env$matern.inherit,
+            public = list(
+                ## Adding tau parameter.
+                fetch.pars = function(){
+                    super$fetch.pars()
+                    self$add.pars("tau", log, 0.1*self$R)
+                },
+                ## Overwriting method for the PDF of Q.
+                fq = function(r, pars){
+                    ifelse(r > 2*pars["tau"], 0,
+                           2*self$dim*r^(self$dim - 1)*(pars["tau"]*hyperg_2F1(0.5, 0.5 - self$dim/2, 1.5, 1) -
+                                              r/2*hyperg_2F1(0.5, 0.5 - self$dim/2, 1.5, r^2/(4*pars["tau"]^2)))/
+                                   (beta(self$dim/2 + 0.5, 0.5)*pars["tau"]^(self$dim + 1)))
+                },
+                ## Overwriting method for the CDF of Q.
+                Fq = function(r, pars){
+                    alpha <- r^2/(4*pars["tau"]^2)
+                    r^2/pars["tau"]^2*(1 - pbeta(alpha, 0.5, self$dim/2 + 0.5)) +
+                                        2^self$dim*incomplete.beta(alpha, self$dim/2 + 0.5, self$dim/2 + 0.5)/
+                                              beta(0.5, self$dim/2 + 0.5)
+                },
+                ## Overwriting method for the quotient of the PDF of Q and the surface volume.
+                fq.over.s = function(r, pars){
+                    ifelse(r > 2*pars["tau"], 0,
+                           2*(pars["tau"]*hyperg_2F1(0.5, 0.5 - self$dim/2, 1.5, 1) -
+                              r/2*hyperg_2F1(0.5, 0.5 - self$dim/2, 1.5, r^2/(4*pars["tau"]^2)))*gamma(self$dim/2 + 1)/
+                           (beta(self$dim/2 + 0.5, 0.5)*pars["tau"]^(self$dim + 1)*pi^(self$dim/2)))
+                }
+            ))
+}
+
+## Function to create R6 object with correct class hierarchy.
 create.obj <- function(classes, points, lims, R){
     class <- base.class.R6
     n.classes <- length(classes)
