@@ -259,7 +259,6 @@ set.thomas.class <- function(class, class.env){
 ## Class for Matern processes.
 ######
 
-## Replace CLASSNAME with class name, then add fields and methods.
 set.matern.class <- function(class, class.env){
     ## Saving inherited class to class.env.
     assign("matern.inherit", class, envir = class.env)
@@ -294,6 +293,21 @@ set.matern.class <- function(class, class.env){
                 }
             ))
 }
+
+######
+## Class for void processes.
+######
+
+set.void.class <- function(class, class.env){
+    ## Saving inherited class to class.env.
+    assign("void.inherit", class, envir = class.env)
+    R6Class("nspp_r6",
+            inherit = class.env$void.inherit,
+            public = list(
+
+            ))
+}
+
 
 ## Function to create R6 object with correct class hierarchy.
 create.obj <- function(classes, points, lims, R){
