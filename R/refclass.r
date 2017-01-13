@@ -9,6 +9,7 @@ base.class.R6 <- R6Class("nspp_r6",
                           n.points = NULL,
                           contrasts = NULL,
                           lims = NULL,
+                          vol = NULL,
                           dim = NULL,
                           R = NULL,
                           child.dist = NULL,
@@ -24,6 +25,7 @@ base.class.R6 <- R6Class("nspp_r6",
                               self$points <- points
                               self$n.points <- nrow(points)
                               self$lims <- lims
+                              self$vol <- prod(apply(self$lims, 1, diff))
                               self$dim <- ncol(points)
                               self$R <- R
                               self$get.contrasts()
@@ -83,6 +85,16 @@ base.class.R6 <- R6Class("nspp_r6",
                               }
                               names(out) <- names(pars)
                               out
+                          },
+                          ## An empty method for simulation.
+                          simulate = function(pars){},
+                          ## A method to trip points to the observation window.
+                          trim.points = function(points){
+                              in.window <- rep(TRUE, nrow(points))
+                              for (i in 1:self$dim){
+                                  in.window <- in.window & (self$lims[i, 1] <= points[, i] & self$lims[i, 2] >= points[, i])
+                              }
+                              points[in.window, , drop = FALSE]
                           },
                           ## An empty method for the Palm intensity.
                           palm.intensity = function(r, pars){},
@@ -162,9 +174,28 @@ set.ns.class <- function(class, class.env){
             public = list(
                 ## Adding density parameter.
                 fetch.pars = function(){
-                    super$fetch.pars()
-                    vol <- prod(apply(self$lims, 1, diff))
-                    self$add.pars("D", log, sqrt(self$n.points/vol))
+                    super$fetch.pars() 
+                    self$add.pars("D", log, sqrt(self$n.points/self$vol))
+                },
+                ## Overwriting simulation method.
+                simulate = function(pars = self$par.fitted){
+                    expected.parents <- pars["D"]*self$vol
+                    n.parents <- rpois(1, expected.parents)
+                    parent.locs <- matrix(0, nrow = n.parents, ncol = self$dim)
+                    for (i in 1:self$dim){
+                        parent.locs[, i] <- runif(n.parents, self$lims[i, 1], self$lims[i, 2])
+                    }
+                    n.children <- self$simulate.n.children(n.parents, pars)
+                    child.locs <- matrix(0, nrow = sum(n.children), ncol = self$dim)
+                    j <- 0
+                    for (i in 1:n.parents){
+                        if (n.children[i] > 0){
+                            child.locs[(j + 1):(j + n.children[i]), ] <-
+                                self$simulate.children(n.children[i], parent.locs[i, ], pars)
+                            j <- j + n.children[i]
+                        }
+                    }
+                    self$trim.points(child.locs)
                 },
                 ## Overwriting method for the Palm intensity.
                 palm.intensity = function(r, pars){
@@ -210,8 +241,11 @@ set.poischild.class <- function(class, class.env){
                 ## Adding lambda parameter.
                 fetch.pars = function(){
                     super$fetch.pars()
-                    vol <- prod(apply(self$lims, 1, diff))
-                    self$add.pars("lambda", log, sqrt(self$n.points/vol))
+                    self$add.pars("lambda", log, sqrt(self$n.points/self$vol))
+                },
+                ## Simulation method for the number of children per parent.
+                simulate.n.children = function(n, pars){
+                    rpois(n, pars["lambda"])
                 },
                 ## An method for the expectation of the child distribution.
                 child.expectation = function(pars){
@@ -238,6 +272,10 @@ set.thomas.class <- function(class, class.env){
                 fetch.pars = function(){
                     super$fetch.pars()
                     self$add.pars("sigma", log, 0.1*self$R)
+                },
+                ## Simulation method for children locations.
+                simulate.children = function(n, parent.loc, pars){
+                    rmvnorm(n, parent.loc, pars["sigma"]^2*diag(self$dim))
                 },
                 ## Overwriting method for the PDF of Q.
                 fq = function(r, pars){
@@ -269,6 +307,22 @@ set.matern.class <- function(class, class.env){
                 fetch.pars = function(){
                     super$fetch.pars()
                     self$add.pars("tau", log, 0.1*self$R)
+                },
+                ## Simulation method for children locations via rejection.
+                simulate.children = function(n, parent.loc, pars){
+                    out <- matrix(0, nrow = n, ncol = self$dim)
+                    for (i in 1:n){
+                        keep <- FALSE
+                        while (!keep){
+                            proposal <- runif(self$dim, -pars["tau"], pars["tau"])
+                            if (sqrt(sum(proposal^2)) <= pars["tau"]){
+                                proposal <- proposal + parent.loc
+                                out[i, ] <- proposal
+                                keep <- TRUE
+                            }
+                        }
+                    }
+                    out
                 },
                 ## Overwriting method for the PDF of Q.
                 fq = function(r, pars){
@@ -324,3 +378,4 @@ create.obj <- function(classes, points, lims, R){
 ## Some objects to get around R CMD check.
 super <- NULL
 self <- NULL
+
