@@ -9,8 +9,9 @@ test_that(
                                                 var = function(x) x,
                                                 sv = 5, bounds = c(0, 1e8)))
         expect_that(abs(coef(fit.pois.1D)[1] - 46.530524823) < 1e-4, is_true())
-        fit.pois.1D.r6 <- coef(fit.ns_r6(example.1D, lims = rbind(c(0, 1)), R = 0.5))
-        diff.ratio.1D <- fit.pois.1D.r6[c(1, 3, 2)]/coef(fit.pois.1D)
+        fit.pois.1D.r6 <- fit.ns_r6(example.1D, lims = rbind(c(0, 1)), R = 0.5)
+        par.pois.1D.r6 <- coef(fit.pois.1D.r6)
+        diff.ratio.1D <- par.pois.1D.r6[c(1, 3, 2)]/coef(fit.pois.1D)
         names(diff.ratio.1D) <- NULL
         expect_equal(diff.ratio.1D, expected = rep(1, 3), tolerance = 0.01)
         fit.bin.1D <- fit.ns(points = example.1D, lims = rbind(c(0, 1)), R = 0.5,
