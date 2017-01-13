@@ -40,14 +40,14 @@ test_that(
 test_that(
     "2D fitting",
     {
-        fit.pois.2D <- fit.ns(points = example.2D, lims = rbind(c(0, 1), c(0, 1)), R = 0.5,
-                              child.dist = list(mean = function(x) x, var = function(x) x,
-                                  sv = 20, bounds = c(1e-6, nrow(example.2D))))
-        expect_that(abs(coef(fit.pois.2D)[1] - 41.10442073) < 1e-4, is_true())
-        fit.pois.2D.r6 <- coef(fit.ns_r6(example.2D, lims = rbind(c(0, 1), c(0, 1)), R = 0.5))
-        diff.ratio.2D <- fit.pois.2D.r6[c(1, 3, 2)]/coef(fit.pois.2D)
-        names(diff.ratio.2D) <- NULL
-        expect_equal(diff.ratio.2D, expected = rep(1, 3), tolerance = 0.01)
+        ## With Poisson response (in R6).
+        fit.pois.2D <- fit.ns_r6(example.2D, lims = rbind(c(0, 1), c(0, 1)), R = 0.5)
+        pars.fit.pois.2D <- coef(fit.pois.2D)
+        names(pars.fit.pois.2D) <- NULL
+        expect_equal(pars.fit.pois.2D,
+                     c(41.1579245303134, 0.694235909141885, 0.0270400534209158),
+                     tolerance = 0.01)
+        ## With binomial response (not yet in R6).             
         fit.bin.2D <- fit.ns(points = example.2D, lims = rbind(c(0, 1), c(0, 1)), R = 0.5,
                              child.dist = list(mean = function(x) 2*x,
                                  var = function(x) 2*x*(1 - x),
@@ -58,9 +58,10 @@ test_that(
 test_that(
     "Matern fitting",
     {
-        fit.matern.r6 <- coef(fit.ns_r6(example.2D, lims = rbind(c(0, 1), c(0, 1)), R = 0.5, disp = "uniform"))
-        names(fit.matern.r6) <- NULL
-        expect_equal(fit.matern.r6, c(39.1713858732101, 0.728127375451379, 0.0524411384182911), tolerance = 0.001)
+        fit.matern <- fit.ns_r6(example.2D, lims = rbind(c(0, 1), c(0, 1)), R = 0.5, disp = "uniform")
+        par.fit.matern <- coef(fit.matern)
+        names(par.fit.matern) <- NULL
+        expect_equal(par.fit.matern, c(39.1713858732101, 0.728127375451379, 0.0524411384182911), tolerance = 0.001)
 
     })
 
