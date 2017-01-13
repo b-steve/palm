@@ -13,6 +13,8 @@ base.class.R6 <- R6Class("nspp_r6",
                           dim = NULL,
                           R = NULL,
                           child.dist = NULL,
+                          boots = NULL,
+                          n.par = NULL,
                           par.names = NULL,
                           par.start = NULL,
                           par.start.link = NULL,
@@ -20,8 +22,10 @@ base.class.R6 <- R6Class("nspp_r6",
                           par.invlinks = NULL,
                           par.fitted = NULL,
                           par.fitted.link = NULL,
+                          conv.code = NULL,
+                          classes = NULL,
                           ## Initialisation method.
-                          initialize = function(points, lims, R){
+                          initialize = function(points, lims, R, classes){
                               self$points <- points
                               self$n.points <- nrow(points)
                               self$lims <- lims
@@ -32,6 +36,7 @@ base.class.R6 <- R6Class("nspp_r6",
                               self$get.pars()
                               self$get.invlinks()
                               self$par.start.link <- self$link.pars(self$par.start)
+                              self$classes <- classes
                           },
                           ## An empty method for getting contrasts.
                           get.contrasts = function(){
@@ -124,8 +129,26 @@ base.class.R6 <- R6Class("nspp_r6",
                           },
                           ## A method for model fitting.
                           fit = function(){
-                              self$par.fitted.link <- optim(self$par.start.link, self$link.neg.log.palm.likelihood)$par
+                              self$n.par <- length(self$par.start)
+                              optim.obj <- nlminb(self$par.start.link, self$link.neg.log.palm.likelihood)
+                              self$par.fitted.link <- optim.obj$par
                               self$par.fitted <- self$invlink.pars(self$par.fitted.link)
+                              self$conv.code <- optim.obj$convergence
+                          },
+                          ## A method for bootstrapping.
+                          boot = function(N, prog = TRUE){
+                              boots <- matrix(0, nrow = N, ncol = self$n.par)
+                              for (i in 1:N){
+                                  points.boot <- self$simulate()
+                                  obj.boot <- create.obj(self$classes, points.boot, self$lims, self$R)
+                                  obj.boot$fit()
+                                  if (obj.boot$conv.code != 0){
+                                      boots[i, ] <- rep(NA, self$n.par)
+                                  } else {
+                                      boots[i, ] <- coef(obj.boot)
+                                  }
+                              }
+                              self$boots <- boots
                           }
                       ))
 
@@ -277,6 +300,11 @@ set.thomas.class <- function(class, class.env){
                 simulate.children = function(n, parent.loc, pars){
                     rmvnorm(n, parent.loc, pars["sigma"]^2*diag(self$dim))
                 },
+                ## Overwriting method for the integral in the Palm likelihood.
+                palm.likelihood.integral = function(pars){
+                    -self$n.points*(pars["D"]*self$child.expectation(pars) +
+                self$sibling.expectation(pars)*self$Fq(self$R, pars))
+                },
                 ## Overwriting method for the PDF of Q.
                 fq = function(r, pars){
                     2^(1 - self$dim/2)*r^(self$dim - 1)*exp(-r^2/(4*pars["sigma"]^2))/
@@ -372,7 +400,7 @@ create.obj <- function(classes, points, lims, R){
         set.class <- get(paste("set", classes[i], "class", sep = "."))
         class <- set.class(class, class.env)
     }
-    class$new(points, lims, 0.5)
+    class$new(points, lims, 0.5, classes)
 }
 
 ## Some objects to get around R CMD check.
