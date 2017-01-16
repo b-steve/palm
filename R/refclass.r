@@ -22,10 +22,13 @@ base.class.R6 <- R6Class("nspp_r6",
                           par.invlinks = NULL,
                           par.fitted = NULL,
                           par.fitted.link = NULL,
+                          par.lower = NULL,
+                          par.upper = NULL,
+                          trace = NULL,
                           conv.code = NULL,
                           classes = NULL,
                           ## Initialisation method.
-                          initialize = function(points, lims, R, classes){
+                          initialize = function(points, lims, R, trace, classes){
                               self$points <- points
                               self$n.points <- nrow(points)
                               self$lims <- lims
@@ -34,8 +37,10 @@ base.class.R6 <- R6Class("nspp_r6",
                               self$R <- R
                               self$get.contrasts()
                               self$get.pars()
+                              self$n.par <- length(self$par.start)
                               self$get.invlinks()
                               self$par.start.link <- self$link.pars(self$par.start)
+                              self$trace <- trace
                               self$classes <- classes
                           },
                           ## An empty method for getting contrasts.
@@ -58,24 +63,31 @@ base.class.R6 <- R6Class("nspp_r6",
                           },
                           ## A method for setting inverse links.
                           get.invlinks = function(){
-                              par.invlinks <- vector(mode = "list", length = length(self$par.links))
+                              par.invlinks <- vector(mode = "list", length = self$n.par)
+                              par.lower <-  numeric(self$n.par)
+                              par.upper <-  numeric(self$n.par)
                               names(par.invlinks) <- self$par.names
                               for (i in 1:length(self$par.links)){
                                   if (identical(self$par.links[[i]], identity)){
                                       par.invlinks[[i]] <- identity
+                                      par.lower[i] <- -Inf
+                                      par.upper[i] <- Inf
                                   } else if (identical(self$par.links[[i]], log)){
                                       par.invlinks[[i]] <- exp
+                                      par.lower <- .Machine$double.eps
+                                      par.upper <- Inf
                                   } else {
                                       stop("Link functions must be either identity or log.")
                                   }
                               }
                               self$par.invlinks <- par.invlinks
+                              self$par.lower <- par.lower
+                              self$par.upper <- par.upper
                           },
                           ## A method for converting parameters to their link scales.
                           link.pars = function(pars){
-                              n.pars <- length(pars)
-                              out <- numeric(n.pars)
-                              for (i in 1:n.pars){
+                              out <- numeric(self$n.par)
+                              for (i in 1:self$n.par){
                                   out[i] <- self$par.links[[i]](pars[i])
                               }
                               names(out) <- names(pars)
@@ -83,9 +95,8 @@ base.class.R6 <- R6Class("nspp_r6",
                           },
                           ## A method for converting parameters to their real scale.
                           invlink.pars = function(pars){
-                              n.pars <- length(pars)
-                              out <- numeric(n.pars)
-                              for (i in 1:n.pars){
+                              out <- numeric(self$n.par)
+                              for (i in 1:self$n.par){
                                   out[i] <- self$par.invlinks[[i]](pars[i])
                               }
                               names(out) <- names(pars)
@@ -93,7 +104,7 @@ base.class.R6 <- R6Class("nspp_r6",
                           },
                           ## An empty method for simulation.
                           simulate = function(pars){},
-                          ## A method to trip points to the observation window.
+                          ## A method to trim points to the observation window.
                           trim.points = function(points){
                               in.window <- rep(TRUE, nrow(points))
                               for (i in 1:self$dim){
@@ -116,7 +127,15 @@ base.class.R6 <- R6Class("nspp_r6",
                           },
                           ## A default method for the log of the Palm likelihood function.
                           log.palm.likelihood = function(pars){
-                              self$sum.log.intensities(pars) + self$palm.likelihood.integral(pars)
+                              out <- self$sum.log.intensities(pars) + self$palm.likelihood.integral(pars)
+                              if (self$trace){
+                                  for (i in 1:self$n.par){
+                                      cat(self$par.names[i], ": ", sep = "")
+                                      cat(pars[i], ", ", sep = "")
+                                  }
+                                  cat("Log-lik: ", out, "\n", sep = "")
+                              }
+                              out
                           },
                           ## A method for the negative Palm likelihood function.
                           neg.log.palm.likelihood = function(pars){
@@ -129,8 +148,10 @@ base.class.R6 <- R6Class("nspp_r6",
                           },
                           ## A method for model fitting.
                           fit = function(){
-                              self$n.par <- length(self$par.start)
                               optim.obj <- nlminb(self$par.start.link, self$link.neg.log.palm.likelihood)
+                              if (optim.obj$convergence != 0){
+                                  warning("Failed convergence.")
+                              }
                               self$par.fitted.link <- optim.obj$par
                               self$par.fitted <- self$invlink.pars(self$par.fitted.link)
                               self$conv.code <- optim.obj$convergence
@@ -140,7 +161,7 @@ base.class.R6 <- R6Class("nspp_r6",
                               boots <- matrix(0, nrow = N, ncol = self$n.par)
                               for (i in 1:N){
                                   points.boot <- self$simulate()
-                                  obj.boot <- create.obj(self$classes, points.boot, self$lims, self$R)
+                                  obj.boot <- create.obj(self$classes, points.boot, self$lims, self$R, FALSE)
                                   obj.boot$fit()
                                   if (obj.boot$conv.code != 0){
                                       boots[i, ] <- rep(NA, self$n.par)
@@ -195,6 +216,14 @@ set.ns.class <- function(class, class.env){
     R6Class("ns",
             inherit = class.env$ns.inherit,
             public = list(
+                par.link.names = NULL,
+                par.name.child = NULL,
+                initialize = function(points, lims, R, trace, classes){
+                    self$get.par.name.child()
+                    super$initialize(points, lims, R, trace, classes)
+                },
+                ## An empty method for getting the name of the child parameter.
+                get.par.name.child = function(){},
                 ## Adding density parameter.
                 fetch.pars = function(){
                     super$fetch.pars() 
@@ -219,6 +248,34 @@ set.ns.class <- function(class, class.env){
                         }
                     }
                     self$trim.points(child.locs)
+                },
+                ## Overwriting link and inverse link functions for better parameterisation.
+                link.pars = function(pars){
+                    out <- numeric(self$n.par)
+                    par.link.names <- self$par.names
+                    par.link.names[par.link.names %in% c("D", self$par.name.child)] <- c("Dc", "nu")
+                    names(out) <- par.link.names
+                    ## Calculating Dc and nu.
+                    out["Dc"] <- log(pars["D"]*self$child.expectation(pars))
+                    out["nu"] <- log(self$sibling.expectation(pars))
+                    ## Linking the rest of the parameters.
+                    for (i in (1:self$n.par)[par.link.names != "Dc" & par.link.names != "nu"]){
+                        out[i] <- self$par.links[[i]](pars[i])
+                    }
+                    out
+                },
+                invlink.pars = function(pars){
+                    out <- numeric(self$n.par)
+                    names(out) <- self$par.names
+                    ## Calculating the child parameter. NEEDS TO DEPEND ON CHILD DISTRIBUTION.
+                    out[self$par.name.child] <- exp(pars["nu"])
+                    ## Calculating density.
+                    out["D"] <- exp(pars["Dc"])/exp(pars["nu"])
+                    ## Unlinking the rest of the parameters.
+                    for (i in (1:self$n.par)[self$par.names != "D" & self$par.names != self$par.name.child]){
+                          out[i] <- self$par.invlinks[[i]](pars[i])
+                    }
+                    out
                 },
                 ## Overwriting method for the Palm intensity.
                 palm.intensity = function(r, pars){
@@ -261,6 +318,10 @@ set.poischild.class <- function(class, class.env){
     R6Class("nspp_r6",
             inherit = class.env$poischild.inherit,
             public = list(
+                ## A method for getting the parameter name.
+                get.par.name.child = function(){
+                    self$par.name.child <- "lambda"
+                },
                 ## Adding lambda parameter.
                 fetch.pars = function(){
                     super$fetch.pars()
@@ -302,7 +363,7 @@ set.thomas.class <- function(class, class.env){
                 },
                 ## Overwriting method for the integral in the Palm likelihood.
                 palm.likelihood.integral = function(pars){
-                    -self$n.points*(pars["D"]*self$child.expectation(pars) +
+                    -self$n.points*(pars["D"]*self$child.expectation(pars)*Vd(self$R, self$dim) +
                 self$sibling.expectation(pars)*self$Fq(self$R, pars))
                 },
                 ## Overwriting method for the PDF of Q.
@@ -392,7 +453,7 @@ set.void.class <- function(class, class.env){
 
 
 ## Function to create R6 object with correct class hierarchy.
-create.obj <- function(classes, points, lims, R){
+create.obj <- function(classes, points, lims, R, trace){
     class <- base.class.R6
     n.classes <- length(classes)
     class.env <- new.env()
@@ -400,7 +461,7 @@ create.obj <- function(classes, points, lims, R){
         set.class <- get(paste("set", classes[i], "class", sep = "."))
         class <- set.class(class, class.env)
     }
-    class$new(points, lims, 0.5, classes)
+    class$new(points, lims, 0.5, trace, classes)
 }
 
 ## Some objects to get around R CMD check.

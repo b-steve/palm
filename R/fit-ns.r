@@ -296,7 +296,7 @@ fit.ns_r6 <- function(points, lims, R, disp = "gaussian", child.dist = "pois", e
                        "poischild"[use.poischild.class],
                        "thomas"[use.thomas.class],
                        "matern"[use.matern.class])
-    obj <- create.obj(final.classes, points, lims, R)
+    obj <- create.obj(final.classes, points, lims, R, trace)
     obj$fit()
     obj
 }
