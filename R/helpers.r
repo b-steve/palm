@@ -241,9 +241,6 @@ twoplane.probs <- function(t, C, w, b, S, sigma){
     ## Conditional probabilities.
     p.11 <- p.up.up*p.in.in
     p.01 <- 1 - p.11
-    ## Old
-    ##p.10.old <- p.in.out.or.down*p.up
-    ## New
     p.10 <- p.in.up.and.out.or.down*p.up.out.or.down
     p.00 <- 1 - p.10
 

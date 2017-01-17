@@ -415,6 +415,60 @@ set.binomchild.class <- function(class, class.env){
 }
 
 ######
+## Class for two-plane children distribution.
+######
+set.twoplanechild.class <- function(class, class.env){
+    ## Saving inherited class to class.env.
+    assign("twoplanechild.inherit", class, envir = class.env)
+    R6Class("nspp_r6",
+            inherit = class.env$twoplanechild.inherit,
+            public = list(
+                ## Detection zone halfwidth.
+                twoplane.w = NULL,
+                ## Survey area halfwidth.
+                twoplane.b = NULL,
+                ## Lag between planes.
+                twoplane.l = NULL,
+                ## Mean dive-cycle duration.
+                twoplane.tau = NULL,
+                initialize = function(points, lims, R, child.list, trace, classes, start = NULL){
+                    self$twoplane.w <- child.list$twoplane.w
+                    self$twoplane.b <- child.list$twoplane.b
+                    self$twoplane.l <- child.list$twoplane.l
+                    self$twoplane.tau <- child.list$twoplane.tau
+                    super$initialize(points, lims, R, child.list, trace, classes, start)
+                    if (!any(classes == "thomas")){
+                        stop("Analysis of two-plane surveys is only implemented for Thomas processes.")
+                    }
+                    if (self$dim != 1){
+                        stop("Analysis of two-plane surveys is only implemented for one-dimensional processes.")
+                    }
+                },
+                ## Adding kappa parameter.
+                fetch.pars = function(){
+                    super$fetch.pars()
+                    self$add.pars("kappa", log, 0.1*self$twoplane.tau, 0, self$twoplane.tau)
+                },
+                ## Simulation method for the number of children per parent.
+                simulate.n.children = function(n, pars){
+                    stop("Not yet implemented.")
+                },
+                ## A method for the expectation of the child distribution.
+                child.expectation = function(pars){
+                    probs <- twoplane.probs(self$twoplane.l, self$twoplane.tau, self$twoplane.w,
+                                            self$twoplane.b, pars["kappa"], pars["sigma"])
+                    2*probs$p.10/(probs$p.10 + probs$p.01)
+                },
+                ## A method for the variance of the child distribution.
+                child.variance = function(pars){
+                    probs <- twoplane.probs(self$twoplane.l, self$twoplane.tau, self$twoplane.w,
+                                            self$twoplane.b, pars["kappa"], pars["sigma"])
+                    2*probs$p.10*probs$p.01*(2 - probs$p.10 - probs$p.01)/(probs$p.10 + probs$p.01)^2
+                }
+            ))
+}
+
+######
 ## Class for Thomas processes.
 ######
 
