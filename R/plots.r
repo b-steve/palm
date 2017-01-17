@@ -97,11 +97,11 @@ plot.nspp <- function(x, plot.empirical = FALSE, breaks = NULL,
 #' \link{fit.ns_r6}().
 #'
 #' @param x A fitted model from \link{fit.ns_r6}.
-#' @method plot nspp_r6
+#' @param ... Other parameters (for S3 generic compatibility).
 #'
 #' @export
-plot.nspp_r6 <- function(object, ...){
-    object$plot()
+plot.nspp_r6 <- function(x, ...){
+    x$plot(...)
 }
 
 
