@@ -48,12 +48,12 @@ test_that(
         expect_equal(pars.fit.pois.2D,
                      c(41.1579245303134, 0.694235909141885, 0.0270400534209158),
                      tolerance = 0.01)
-        ## With binomial response (not yet in R6).             
-        fit.bin.2D <- fit.ns(points = example.2D, lims = rbind(c(0, 1), c(0, 1)), R = 0.5,
-                             child.dist = list(mean = function(x) 2*x,
-                                 var = function(x) 2*x*(1 - x),
-                                 sv = 0.5, bounds = c(0, 1)))
-        expect_that(abs(coef(fit.bin.2D)[1] - 20.54872790) < 1e-4, is_true())
+        ## With binomial response (in R6).             
+        fit.bin.2D <- fit.ns_r6(example.2D, lims = rbind(c(0, 1), c(0, 1)), R = 0.5,
+                                child.dist = "binom2")
+        par.fit.bin.2D <- coef(fit.bin.2D)
+        names(par.fit.bin.2D) <- NULL
+        expect_equal(par.fit.bin.2D, c(20.54872790, 0.69515914, 0.02698736), tolerance = 0.001)
     })
 
 test_that(
