@@ -272,6 +272,10 @@ incomplete.beta <- function(x, a, b){
     pbeta(x, a, b)*beta(a, b)
 }
 
+logit <- function(p){
+    log(p/(1 - p))
+}
+
 invlogit <- function(y){
     1/(1 + exp(-y))
 }
