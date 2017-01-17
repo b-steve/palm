@@ -91,6 +91,20 @@ plot.nspp <- function(x, plot.empirical = FALSE, breaks = NULL,
     }
 }
 
+#' Plotting an estimated Palm intensity function.
+#'
+#' Plots a fitted Palm intensity function from an object returned by
+#' \link{fit.ns_r6}().
+#'
+#' @param x A fitted model from \link{fit.ns_r6}.
+#' @method plot nspp_r6
+#'
+#' @export
+plot.nspp_r6 <- function(object, ...){
+    object$plot()
+}
+
+
 ## Plots the analytic Palm intensity.
 analytic.palm <- function(Dc, nu, sigma, n.dims, xlim = c(0, 1), ylim = NULL, add = FALSE, ...){
     xx <- seq(xlim[1], xlim[2], length.out = 500)

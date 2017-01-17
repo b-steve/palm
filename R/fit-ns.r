@@ -303,6 +303,31 @@ fit.ns_r6 <- function(points, lims, R, disp = "gaussian", child.dist = "pois", e
     obj
 }
 
+fit.void_r6 <- function(points, lims, R, edge.correction = "pbc", start = NULL, trace = FALSE){
+    ## Sorting out boundary condition class.
+    use.pbc.class <- FALSE
+    use.buffer.class <- FALSE
+    if (edge.correction == "pbc"){
+        use.pbc.class <- TRUE
+    } else if (edge.correction == "buffer"){
+        use.buffer.class <- TRUE
+        stop("Edge correction type 'buffer' is not yet implemented.")
+    } else {
+        stop("Edge correction method not recognised; use either 'pbc' or 'buffer'.")
+    }
+    ## Manually setting void class.
+    use.void.class <- TRUE
+    ## Manually setting total deletetion class.
+    use.totaldeletion.class <- TRUE
+    final.classes <- c("pbc"[use.pbc.class],
+                       "buffer"[use.buffer.class],
+                       "void"[use.void.class],
+                       "totaldeletion"[use.totaldeletion.class])
+    obj <- create.obj(final.classes, points, lims, R, trace, start)
+    obj$fit()
+    obj
+}
+
 ns.nll <- function(pars, n.points, dists, R, d, par.names, siblings,
                    intensity.fun, disp, trace){
     ## Gettind CDF of between-sibling distances.
@@ -410,6 +435,7 @@ fit.twoplane <- function(points, planes = NULL, l, w, b, t, C, R,
 #' @importFrom gsl hyperg_2F1
 #' @importFrom mvtnorm rmvnorm
 #' @importFrom optimx optimx
+#' @importFrom spatstat crossdist
 #' @importFrom stats coef dist integrate optim pbeta pgamma pnorm printCoefmat qnorm quantile rnorm rpois runif sd var
 #' @importFrom utils setTxtProgressBar txtProgressBar
 #' @useDynLib nspp

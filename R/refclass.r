@@ -123,10 +123,6 @@ base.class.R6 <- R6Class("nspp_r6",
                               names(out) <- self$par.names
                               out
                           },
-                          ## A method for the empirical Palm intensity function.
-                          empirical.palm = function(){
-                              
-                          },
                           ## An empty method for simulation.
                           simulate = function(pars){},
                           ## A method to trim points to the observation window.
@@ -177,9 +173,6 @@ base.class.R6 <- R6Class("nspp_r6",
                               optim.obj <- nlminb(self$par.start.link, self$link.neg.log.palm.likelihood,
                                                   control = list(eval.max = 2000, iter.max = 1500),
                                                   lower = self$par.lower.link, upper = self$par.upper.link)
-                              #optim.obj <- optim(self$par.start.link, self$link.neg.log.palm.likelihood,
-                              #                   lower = self$par.lower.link, upper = self$par.upper.link)
-                              #optim.obj <- nlm(self$link.neg.log.palm.likelihood, self$par.start.link)
                               if (optim.obj$convergence != 0){
                                   warning("Failed convergence.")
                               }
@@ -203,6 +196,56 @@ base.class.R6 <- R6Class("nspp_r6",
                                   }
                               }
                               self$boots <- boots
+                          },
+                          ## A method for plotting.
+                          plot = function(xlim = NULL, show.empirical = TRUE, breaks = 50){
+                              if (is.null(xlim)){
+                                  xlim <- self$get.xlim()
+                              }
+                              xx <- seq(xlim[1], xlim[2], length.out = 1000)
+                              yy <- self$palm.intensity(xx, self$par.fitted)
+                              if (show.empirical){
+                                  emp <- self$empirical(xlim, breaks)
+                                  ylim <- c(0, max(c(emp$y, yy)))
+                              } else {
+                                  ylim <- c(0, max(yy))
+                              }
+                              par(xaxs = "i")
+                              plot.new()
+                              plot.window(xlim = range(xx), ylim = ylim)
+                              box()
+                              axis(1)
+                              axis(2)
+                              abline(h = 0, col = "grey")
+                              title(xlab = "r", ylab = "Palm intensity")
+                              lines(xx, yy)
+                              if (show.empirical){
+                                  lines(emp$x, emp$y, lty = "dashed")
+                              }
+                          },
+                          ## A method for default xlim.
+                          get.xlim = function(){
+                              c(0, self$R)
+                          },
+                          ## A method for empirical Palm intensity.
+                          empirical = function(xlim = NULL, breaks = 50){
+                              if (is.null(xlim)){
+                                  xlim <- self$get.xlim()
+                              }
+                              dists <- pbc_distances(self$points, self$lims)
+                              midpoints <- seq(0, xlim[2], length.out = breaks)
+                              midpoints <- midpoints[-length(midpoints)]
+                              h <- diff(midpoints[c(1, 2)])
+                              midpoints[1] <- midpoints[1] + h/2
+                              intensities <- numeric(length(midpoints))
+                              for (i in 1:length(midpoints)){
+                                  halfwidth <- ifelse(i == 1, 0.25*h, 0.5*h)
+                                  n.interval <- sum(dists <= (midpoints[i] + halfwidth)) -
+                                      sum(dists <= (midpoints[i] - halfwidth))
+                                  area <- Vd(midpoints[i] + halfwidth, self$dim) -  Vd(midpoints[i] - halfwidth, self$dim)
+                                  intensities[i] <- n.interval/(self$n.points*area)
+                              }
+                              list(x = midpoints, y = intensities)
                           }
                       ))
 
@@ -217,7 +260,7 @@ set.CLASSNAME.class <- function(class, class.env){
     R6Class("nspp_r6",
             inherit = class.env$CLASSNAME.inherit,
             public = list(
-
+                
             ))
 }
 
@@ -249,15 +292,6 @@ set.ns.class <- function(class, class.env){
     R6Class("ns",
             inherit = class.env$ns.inherit,
             public = list(
-                par.name.child = NULL,
-                initialize = function(points, lims, R, trace, classes, start = NULL){
-                    self$get.par.name.child()
-                    super$initialize(points, lims, R, trace, classes, start)
-                    self$par.link.names[self$par.link.names %in%
-                                        c("D", self$par.name.child)] <- c("Dc", "nu")
-                },
-                ## An empty method for getting the name of the child parameter.
-                get.par.name.child = function(){},
                 ## Adding density parameter.
                 fetch.pars = function(){
                     super$fetch.pars()
@@ -324,10 +358,6 @@ set.poischild.class <- function(class, class.env){
     R6Class("nspp_r6",
             inherit = class.env$poischild.inherit,
             public = list(
-                ## A method for getting the parameter name.
-                get.par.name.child = function(){
-                    self$par.name.child <- "lambda"
-                },
                 ## Adding lambda parameter.
                 fetch.pars = function(){
                     super$fetch.pars()
@@ -384,6 +414,10 @@ set.thomas.class <- function(class, class.env){
                 ## Overwriting method for the quotient of the PDF of Q and the surface volume.
                 fq.over.s = function(r, pars){
                     exp(-r^2/(4*pars["sigma"]^2))/((2*pars["sigma"])^self$dim*pi^(self$dim/2))
+                },
+                ## A method for xlim.
+                get.xlim = function(){
+                    c(0, min(self$R, 10*self$par.fitted["sigma"]))
                 }
             ))
 }
@@ -439,6 +473,10 @@ set.matern.class <- function(class, class.env){
                            2*(pars["tau"]*hyperg_2F1(0.5, 0.5 - self$dim/2, 1.5, 1) -
                               r/2*hyperg_2F1(0.5, 0.5 - self$dim/2, 1.5, r^2/(4*pars["tau"]^2)))*gamma(self$dim/2 + 1)/
                            (beta(self$dim/2 + 0.5, 0.5)*pars["tau"]^(self$dim + 1)*pi^(self$dim/2)))
+                },
+                ## A method for xlim.
+                get.xlim = function(){
+                    c(0, min(self$R, 10*self$par.fitted["tau"]))
                 }
             ))
 }
@@ -453,10 +491,62 @@ set.void.class <- function(class, class.env){
     R6Class("nspp_r6",
             inherit = class.env$void.inherit,
             public = list(
-
+                ## Adding children and parent density parameters.
+                fetch.pars = function(){
+                    super$fetch.pars()
+                    self$add.pars("Dp", log, 10/self$vol, 0, Inf)
+                    self$add.pars("Dc", log, self$n.points/self$vol, 0, Inf)
+                },
+                ## Overwriting simulation method.
+                simulate = function(pars = self$par.fitted){
+                    ## Generating children.
+                    expected.children <- pars["Dc"]*self$vol
+                    n.children <- rpois(1, expected.children)
+                    child.locs <- matrix(0, nrow = n.children, ncol = self$dim)
+                    for (i in 1:self$dim){
+                        child.locs[, i] <- runif(n.children, self$lims[i, 1], self$lims[i, 2])
+                    }
+                    ## Generating parents.
+                    expected.parents <- pars["Dp"]*self$vol
+                    n.parents <- rpois(1, expected.parents)
+                    parent.locs <- matrix(0, nrow = n.parents, ncol = self$dim)
+                    for (i in 1:self$dim){
+                        parent.locs[, i] <- runif(n.parents, self$lims[i, 1], self$lims[i, 2])
+                    }
+                    delete.points(child.locs, parent.locs, pars)
+                },
+                ## Overwriting method for the Palm intensity.
+                palm.intensity = function(r, pars){
+                    pars["Dc"]*self$prob.safe(r, pars)
+                }
             ))
 }
 
+set.totaldeletion.class <- function(class, class.env){
+    ## Saving inherited class to class.env.
+    assign("totaldeletion.inherit", class, envir = class.env)
+    R6Class("nspp_r6",
+            inherit = class.env$totaldeletion.inherit,
+            public = list(
+                fetch.pars = function(){
+                    super$fetch.pars()
+                    self$add.pars("tau", log, 0.1*self$R, 0, self$R)
+                },
+                ## Probability of being safe, given distance r from a known point.
+                prob.safe = function(r, pars){
+                    exp(-pars["Dp"]*Vd(pars["tau"], self$dim)*(1 - pbeta(1 - (r/(2*pars["tau"])), (self$dim + 1)/2, 0.5)))
+                },
+                ## Function to delete children, given children and parent locations.
+                delete.points = function(child.locs, parent.locs, pars){
+                    dists <- crossdist(child.locs[, 1], child.locs[, 2], parent.locs[, 1], parent.locs[, 2])
+                    child.locs[apply(dists, 1, min) > pars["tau"], ]
+                },
+                ## A method for xlim.
+                get.xlim = function(){
+                    c(0, min(self$R, 10*self$par.fitted["tau"]))
+                }
+            ))
+}
 
 ## Function to create R6 object with correct class hierarchy.
 create.obj <- function(classes, points, lims, R, trace, start){
@@ -467,7 +557,7 @@ create.obj <- function(classes, points, lims, R, trace, start){
         set.class <- get(paste("set", classes[i], "class", sep = "."))
         class <- set.class(class, class.env)
     }
-    class$new(points, lims, 0.5, trace, classes, start)
+    class$new(points, lims, R, trace, classes, start)
 }
 
 ## Some objects to get around R CMD check.
