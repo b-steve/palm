@@ -9,7 +9,7 @@ test_that(
                                                 var = function(x) x,
                                                 sv = 5, bounds = c(0, 1e8)))
         expect_that(abs(coef(fit.pois.1D)[1] - 46.530524823) < 1e-4, is_true())
-        fit.pois.1D.r6 <- fit.ns_r6(example.1D, lims = rbind(c(0, 1)), R = 0.5)
+        fit.pois.1D.r6 <- fit.ns_r6(example.1D, lims = rbind(c(0, 1)), R = 0.5, trace = FALSE)
         par.pois.1D.r6 <- coef(fit.pois.1D.r6)
         diff.ratio.1D <- par.pois.1D.r6[c(1, 3, 2)]/coef(fit.pois.1D)
         names(diff.ratio.1D) <- NULL
@@ -62,7 +62,7 @@ test_that(
         fit.matern <- fit.ns_r6(example.2D, lims = rbind(c(0, 1), c(0, 1)), R = 0.5, disp = "uniform")
         par.fit.matern <- coef(fit.matern)
         names(par.fit.matern) <- NULL
-        expect_equal(par.fit.matern, c(39.1713858732101, 0.728127375451379, 0.0524411384182911), tolerance = 0.001)
+        expect_equal(par.fit.matern, c(39.163600, 0.7284017, 0.0524428), tolerance = 0.001)
 
     })
 
@@ -84,5 +84,3 @@ test_that(
         ## coef(fit)[1]/(2*b) ## This is an estimate of D.2D.
         expect_that(abs(coef(fit, all = TRUE)[7] - 0.4958427) < 1e-4, is_true())
     })
-
-
