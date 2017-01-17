@@ -5,7 +5,7 @@
 \title{Fitting a model to a Neyman-Scott point process}
 \usage{
 fit.ns_r6(points, lims, R, disp = "gaussian", child.dist = "pois",
-  edge.correction = "pbc", siblings = NULL, trace = FALSE)
+  edge.correction = "pbc", start = NULL, siblings = NULL, trace = FALSE)
 }
 \arguments{
 \item{points}{A matrix containing locations of observed points,
@@ -29,6 +29,9 @@ distribution, use \code{"pois"}.}
 \item{edge.correction}{The method used for the correction of edge
 effects. Either \code{"pbc"} for periodic boundary conditions,
 or \code{"buffer"} for a buffer-zone correction.}
+
+\item{start}{A named vector of starting values for the model
+parameters.}
 
 \item{siblings}{A named list, containing the following three
 components: (1) A component named \code{matrix}, where the jth
