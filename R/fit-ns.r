@@ -443,7 +443,7 @@ fit.twoplane <- function(points, planes = NULL, l, w, b, t, C, R,
 #' @importFrom mvtnorm rmvnorm
 #' @importFrom optimx optimx
 #' @importFrom spatstat crossdist
-#' @importFrom stats coef dist integrate optim pbeta pgamma pnorm printCoefmat qnorm quantile rnorm rpois runif sd var
+#' @importFrom stats coef dist integrate optim pbeta pgamma pnorm printCoefmat qnorm quantile rbinom rnorm rpois runif sd var
 #' @importFrom utils setTxtProgressBar txtProgressBar
 #' @useDynLib nspp
 NULL
