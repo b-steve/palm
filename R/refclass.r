@@ -33,7 +33,7 @@ base.class.R6 <- R6Class("nspp_r6",
                           conv.code = NULL,
                           classes = NULL,
                           ## Initialisation method.
-                          initialize = function(points, lims, R, trace, classes, start = NULL){
+                          initialize = function(points, lims, R, child.list, trace, classes, start = NULL){
                               self$points <- points
                               self$n.points <- nrow(points)
                               self$lims <- lims
@@ -94,8 +94,10 @@ base.class.R6 <- R6Class("nspp_r6",
                                       par.invlinks[[i]] <- identity
                                   } else if (identical(self$par.links[[i]], log)){
                                       par.invlinks[[i]] <- exp
+                                  } else if (identical(self$par.links[[i]], logit)){
+                                      par.invlinks[[i]] <- invlogit
                                   } else {
-                                      stop("Link functions must be either identity or log.")
+                                      stop("Link functions must be identity, log, or logit.")
                                   }
                               }
                               self$par.invlinks <- par.invlinks
@@ -367,13 +369,47 @@ set.poischild.class <- function(class, class.env){
                 simulate.n.children = function(n, pars){
                     rpois(n, pars["lambda"])
                 },
-                ## An method for the expectation of the child distribution.
+                ## A method for the expectation of the child distribution.
                 child.expectation = function(pars){
                     pars["lambda"]
                 },
-                ## An method for the variance of the child distribution.
+                ## A method for the variance of the child distribution.
                 child.variance = function(pars){
                     pars["lambda"]
+                }
+            ))
+}
+
+######
+## Class for binomial number of children.
+######
+set.binomchild.class <- function(class, class.env){
+    ## Saving inherited class to class.env.
+    assign("binomchild.inherit", class, envir = class.env)
+    R6Class("nspp_r6",
+            inherit = class.env$binomchild.inherit,
+            public = list(
+                binom.size = NULL,
+                initialize = function(points, lims, R, child.list, trace, classes, start = NULL){
+                    self$binom.size <- child.list$size
+                    super$initialize(points, lims, R, child.list, trace, classes, start)
+                },
+                ## Adding p parameter.
+                fetch.pars = function(){
+                    super$fetch.pars()
+                    self$add.pars("p", logit, 0.5, 0, 1)
+                },
+                ## Simulation method for the number of children per parent.
+                simulate.n.children = function(n, pars){
+                    rbinom(n, self$binom.size, pars["p"])
+                },
+                ## A method for the expectation of the child distribution.
+                child.expectation = function(pars){
+                    self$binom.size*pars["p"]
+                },
+                ## A method for the variance of the child distribution.
+                child.variance = function(pars){
+                    self$binom.size*pars["p"]*(1 - pars["p"])
                 }
             ))
 }
@@ -513,7 +549,7 @@ set.void.class <- function(class, class.env){
                     for (i in 1:self$dim){
                         parent.locs[, i] <- runif(n.parents, self$lims[i, 1], self$lims[i, 2])
                     }
-                    delete.points(child.locs, parent.locs, pars)
+                    self$delete.points(child.locs, parent.locs, pars)
                 },
                 ## Overwriting method for the Palm intensity.
                 palm.intensity = function(r, pars){
@@ -549,7 +585,7 @@ set.totaldeletion.class <- function(class, class.env){
 }
 
 ## Function to create R6 object with correct class hierarchy.
-create.obj <- function(classes, points, lims, R, trace, start){
+create.obj <- function(classes, points, lims, R, child.list, trace, start){
     class <- base.class.R6
     n.classes <- length(classes)
     class.env <- new.env()
@@ -557,7 +593,7 @@ create.obj <- function(classes, points, lims, R, trace, start){
         set.class <- get(paste("set", classes[i], "class", sep = "."))
         class <- set.class(class, class.env)
     }
-    class$new(points, lims, R, trace, classes, start)
+    class$new(points, lims, R, child.list, trace, classes, start)
 }
 
 ## Some objects to get around R CMD check.

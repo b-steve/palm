@@ -277,8 +277,14 @@ fit.ns_r6 <- function(points, lims, R, disp = "gaussian", child.dist = "pois", e
     use.ns.class <- TRUE
     ## Sorting out child distribution class.
     use.poischild.class <- FALSE
+    use.binomchild.class <- FALSE
     if (child.dist == "pois"){
         use.poischild.class <- TRUE
+        child.list <- NULL
+    } else if (substr(child.dist, 1, 5) == "binom"){
+        use.binomchild.class <- TRUE
+        n <- as.numeric(substr(child.dist, 6, nchar(child.dist)))
+        child.list <- list(size = n)
     } else {
         stop("Only 'pois' can currently be used for 'child.dist'.")
     }
@@ -296,9 +302,10 @@ fit.ns_r6 <- function(points, lims, R, disp = "gaussian", child.dist = "pois", e
                        "buffer"[use.buffer.class],
                        "ns"[use.ns.class],
                        "poischild"[use.poischild.class],
+                       "binomchild"[use.binomchild.class],
                        "thomas"[use.thomas.class],
                        "matern"[use.matern.class])
-    obj <- create.obj(final.classes, points, lims, R, trace, start)
+    obj <- create.obj(final.classes, points, lims, R, child.list, trace, start)
     obj$fit()
     obj
 }

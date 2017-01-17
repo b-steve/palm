@@ -271,3 +271,7 @@ make.twoplane.child.dist <- function(t, C, w, b){
 incomplete.beta <- function(x, a, b){
     pbeta(x, a, b)*beta(a, b)
 }
+
+invlogit <- function(y){
+    1/(1 + exp(-y))
+}
