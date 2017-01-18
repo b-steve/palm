@@ -475,6 +475,54 @@ fit.twoplane <- function(points, planes = NULL, l, w, b, t, C, R,
     fit
 }
 
+#' Estimation of animal density from two-plane surveys.
+#'
+#' Estimates animal density (amongst other parameters) from two-plane
+#' aerial surveys. This conceptualises sighting locations as a
+#' Neyman-Scott point pattern---estimation is carried out via
+#' \code{fit.ns_r6()}.
+#'
+#' @return An object of class \code{"nspp_r6"} that can be extracted via
+#' the same utility functions fit for objects created using
+#' \code{fit.ns_6()}.
+#'
+#' @param points A vector (or single-column matrix) containing the
+#'     distance along the transect that each detection was made.
+#' @param planes A vector containing the plane ID (either \code{1} or
+#'     \code{2}) that made the corresponding detection in
+#'     \code{points}.
+#' @param d The length of the transect flown (in km).
+#' @param w The distance from the transect to which detection of
+#'     individuals on the surface is certain. This is equivalent to
+#'     the half-width of the detection zone.
+#' @param b The distance from the transect to the edge of the area of
+#'     interest. Conceptually, the distance between the transect and
+#'     the furthest distance a whale could be on the passing on the
+#'     first plane and plausibly move into the detection zone by the
+#'     passing of the second plane.
+#' @param l The lag between planes (in seconds).
+#' @param tau Mean dive-cycle duration (in seconds).
+#' @param R Truncation distance (see \link{fit.ns}).
+#' @param edge.correction The method used for the correction of edge
+#'     effects. Either \code{"pbc"} for periodic boundary conditions,
+#'     or \code{"buffer"} for a buffer-zone correction.
+#' @param trace Logical, if \code{TRUE}, parameter values are printed
+#'     to the screen for each iteration of the optimisation procedure.
+#' 
+#' @export
+fit.twoplane_r6 <- function(points, planes, d, w, b, l, tau, R,
+                            edge.correction = "pbc", trace = FALSE){
+    if (is.null(planes)){
+        sibling.list <- NULL
+    } else {
+        sibling.list <- siblings.twoplane_r6(planes)
+    }
+    fit.ns_r6(points = points, lims = rbind(c(0, d)), R = 1,
+              child.dist = "twoplane",
+              child.info = list(w = w, b = b, l = l, tau = tau),
+              sibling.list = sibling.list, trace = trace)
+}
+
 
 ## Roxygen code for NAMESPACE.
 #' @import methods Rcpp R6
