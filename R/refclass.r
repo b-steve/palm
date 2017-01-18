@@ -8,6 +8,8 @@ base.class.R6 <- R6Class("nspp_r6",
                           points = NULL,
                           n.points = NULL,
                           contrasts = NULL,
+                          n.contrasts = NULL,
+                          contrast.pairs = NULL,
                           lims = NULL,
                           vol = NULL,
                           dim = NULL,
@@ -33,7 +35,7 @@ base.class.R6 <- R6Class("nspp_r6",
                           conv.code = NULL,
                           classes = NULL,
                           ## Initialisation method.
-                          initialize = function(points, lims, R, child.list, trace, classes, start = NULL){
+                          initialize = function(points, lims, R, trace, classes, start, ...){
                               self$points <- points
                               self$n.points <- nrow(points)
                               self$lims <- lims
@@ -53,6 +55,7 @@ base.class.R6 <- R6Class("nspp_r6",
                           },
                           ## An empty method for getting contrasts.
                           get.contrasts = function(){
+                              self$n.contrasts <- length(self$contrasts)
                           },
                           ## A method for getting the parameters across all classes.
                           get.pars = function(){
@@ -278,8 +281,21 @@ set.pbc.class <- function(class, class.env){
             public = list(
                 ## A method to generate contrasts.
                 get.contrasts = function(){
+                    ## Saving which contrast applies to which pair of observations.
+                    contrast.pairs <- matrix(0, nrow = self$n.points^2 -
+                                                     self$n.points, ncol = 2)
+                    k <- 1
+                    for (i in 1:(self$n.points - 1)){
+                        for (j in (i + 1):self$n.points){
+                            contrast.pairs[k, ] <- c(i, j)
+                            contrast.pairs[k + 1, ] <- c(i, j)
+                            k <- k + 2
+                        }
+                    }
                     contrasts <- pbc_distances(points = self$points, lims = self$lims)
+                    self$contrast.pairs <- contrast.pairs[contrasts <= self$R, ]
                     self$contrasts <- contrasts[contrasts <= self$R]
+                    super$get.contrasts()
                 }
             ))
 }
@@ -352,6 +368,59 @@ set.ns.class <- function(class, class.env){
 }
 
 ######
+## Class for known sibling relationships.
+######
+
+set.sibling.class <- function(class, class.env){
+    ## Saving inherited class to class.env.
+    assign("sibling.inherit", class, envir = class.env)
+    R6Class("nspp_r6",
+            inherit = class.env$sibling.inherit,
+            public = list(
+                siblings = NULL,
+                sibling.mat = NULL,
+                sibling.alpha = NULL,
+                sibling.beta = NULL,
+                initialize = function(sibling.list, ...){
+                    self$sibling.mat <- sibling.list$sibling.mat
+                    self$sibling.alpha <- sibling.list$alpha
+                    self$sibling.beta <- sibling.list$beta
+                    super$initialize(...)
+                    self$get.siblings()
+                },
+                ## A method to get vector of sibling relationships
+                ## that matches with the contrasts.
+                get.siblings = function(){
+                    siblings <- numeric(self$n.contrasts)
+                    for (i in 1:self$n.contrasts){
+                        pair <- self$contrast.pairs[i, ]
+                        siblings[i] <- self$sibling.mat[pair[1], pair[2]]
+                    }
+                    ## 0 for known nonsiblings.
+                    ## 1 for known siblings.
+                    ## 2 for unknown sibling status.
+                    siblings <- as.numeric(siblings)
+                    siblings[is.na(siblings)] <- 2
+                    self$siblings <- siblings
+                },
+                ## Overwriting the sum of the log intensities.
+                sum.log.intensities = function(pars){
+                    all.palm.intensities <- numeric(self$n.contrasts)
+                    all.palm.intensities[self$siblings == 0] <-
+                        self$sibling.beta*self$nonsibling.pi(pars)
+                    all.palm.intensities[self$siblings == 1] <-
+                        self$sibling.alpha*
+                        self$sibling.pi(self$contrasts[self$siblings == 1], pars)
+                    all.palm.intensities[self$siblings == 2] <-
+                        (1 - self$sibling.beta)*self$nonsibling.pi(pars) +
+                        (1 - self$sibling.alpha)*
+                        self$sibling.pi(self$contrasts[self$siblings == 2], pars)
+                    sum(log(self$n.points*all.palm.intensities))
+                }
+            ))
+}
+
+######
 ## Class for Poisson number of children.
 ######
 set.poischild.class <- function(class, class.env){
@@ -390,9 +459,9 @@ set.binomchild.class <- function(class, class.env){
             inherit = class.env$binomchild.inherit,
             public = list(
                 binom.size = NULL,
-                initialize = function(points, lims, R, child.list, trace, classes, start = NULL){
+                initialize = function(child.list, ...){
                     self$binom.size <- child.list$size
-                    super$initialize(points, lims, R, child.list, trace, classes, start)
+                    super$initialize(...)
                 },
                 ## Adding p parameter.
                 fetch.pars = function(){
@@ -431,15 +500,12 @@ set.twoplanechild.class <- function(class, class.env){
                 twoplane.l = NULL,
                 ## Mean dive-cycle duration.
                 twoplane.tau = NULL,
-                initialize = function(points, lims, R, child.list, trace, classes, start = NULL){
+                initialize = function(child.list, ...){
                     self$twoplane.w <- child.list$twoplane.w
                     self$twoplane.b <- child.list$twoplane.b
                     self$twoplane.l <- child.list$twoplane.l
                     self$twoplane.tau <- child.list$twoplane.tau
-                    super$initialize(points, lims, R, child.list, trace, classes, start)
-                    if (!any(classes == "thomas")){
-                        stop("Analysis of two-plane surveys is only implemented for Thomas processes.")
-                    }
+                    super$initialize(...)
                     if (self$dim != 1){
                         stop("Analysis of two-plane surveys is only implemented for one-dimensional processes.")
                     }
@@ -639,7 +705,7 @@ set.totaldeletion.class <- function(class, class.env){
 }
 
 ## Function to create R6 object with correct class hierarchy.
-create.obj <- function(classes, points, lims, R, child.list, trace, start){
+create.obj <- function(classes, points, lims, R, child.list, sibling.list, trace, start){
     class <- base.class.R6
     n.classes <- length(classes)
     class.env <- new.env()
@@ -647,7 +713,11 @@ create.obj <- function(classes, points, lims, R, child.list, trace, start){
         set.class <- get(paste("set", classes[i], "class", sep = "."))
         class <- set.class(class, class.env)
     }
-    class$new(points, lims, R, child.list, trace, classes, start)
+    if (any(classes == "twoplanechild") & !any(classes == "thomas")){
+        stop("Analysis of two-plane surveys is only implemented for Thomas processes.")
+    }
+    class$new(points = points, lims = lims, R = R, child.list = child.list,
+              sibling.list = sibling.list, trace = trace, classes = classes, start = start)
 }
 
 ## Some objects to get around R CMD check.
