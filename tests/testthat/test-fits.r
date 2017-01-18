@@ -83,13 +83,10 @@ test_that(
         ## coef(fit)[1]/(2*b) ## This is an estimate of D.2D.
         expect_that(abs(coef(fit, all = TRUE)[7] - 0.4958427) < 1e-4, is_true())
         ## Test using R6.
-
         sibling.list <- siblings.twoplane(planes)
         names(sibling.list) <- c("sibling.mat", "alpha", "beta")
-        
-        fit.r6 <- fit.ns_r6(points = points, lims = rbind(c(0, l)), R = 1, child.dist = "twoplane",
-                            child.info = list(w = w, b = b, l = t, tau = C),
-                            sibling.list = sibling.list, trace = TRUE)
+        fit.r6 <- fit.twoplane_r6(points = points, planes = planes, d = l, w = w,
+                                           b = b, l = t, tau = C, R = 1)
         pars.old <- coef(fit)[c(1, 3, 2)]
         pars.new <- coef(fit.r6)
         pars.new[1] <- pars.new[1]/(2*b)
