@@ -511,16 +511,17 @@ fit.twoplane <- function(points, planes = NULL, l, w, b, t, C, R,
 #' 
 #' @export
 fit.twoplane_r6 <- function(points, planes, d, w, b, l, tau, R,
-                            edge.correction = "pbc", trace = FALSE){
+                            edge.correction = "pbc", start = NULL,
+                            trace = FALSE){
     if (is.null(planes)){
         sibling.list <- NULL
     } else {
         sibling.list <- siblings.twoplane_r6(planes)
     }
-    fit.ns_r6(points = points, lims = rbind(c(0, d)), R = 1,
+    fit.ns_r6(points = points, lims = rbind(c(0, d)), R = R,
               child.dist = "twoplane",
               child.info = list(w = w, b = b, l = l, tau = tau),
-              sibling.list = sibling.list, trace = trace)
+              sibling.list = sibling.list, start = start, trace = trace)
 }
 
 
