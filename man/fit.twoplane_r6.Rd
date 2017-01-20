@@ -5,7 +5,7 @@
 \title{Estimation of animal density from two-plane surveys.}
 \usage{
 fit.twoplane_r6(points, planes, d, w, b, l, tau, R, edge.correction = "pbc",
-  trace = FALSE)
+  start = NULL, trace = FALSE)
 }
 \arguments{
 \item{points}{A vector (or single-column matrix) containing the
