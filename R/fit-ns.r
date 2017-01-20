@@ -508,6 +508,7 @@ fit.twoplane <- function(points, planes = NULL, l, w, b, t, C, R,
 #'     or \code{"buffer"} for a buffer-zone correction.
 #' @param trace Logical, if \code{TRUE}, parameter values are printed
 #'     to the screen for each iteration of the optimisation procedure.
+#' @inheritParams fit.ns_r6
 #' 
 #' @export
 fit.twoplane_r6 <- function(points, planes, d, w, b, l, tau, R,
