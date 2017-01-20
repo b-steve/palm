@@ -19,9 +19,12 @@ base.class.R6 <- R6Class("nspp_r6",
                           n.par = NULL,
                           set.start = NULL,
                           par.names = NULL,
+                          fixed.names = NULL,
                           par.link.names = NULL,
                           par.start = NULL,
                           par.start.link = NULL,
+                          par.fixed = NULL,
+                          par.fixed.link = NULL,
                           par.links = NULL,
                           par.invlinks = NULL,
                           par.fitted = NULL,
@@ -42,6 +45,7 @@ base.class.R6 <- R6Class("nspp_r6",
                               self$vol <- prod(apply(self$lims, 1, diff))
                               self$dim <- ncol(points)
                               self$R <- R
+                              self$trace <- trace
                               self$set.start <- start
                               self$get.contrasts()
                               self$get.pars()
@@ -50,7 +54,6 @@ base.class.R6 <- R6Class("nspp_r6",
                               self$get.invlinks()
                               self$par.start.link <- self$link.pars(self$par.start)
                               self$get.link.bounds()
-                              self$trace <- trace
                               self$classes <- classes
                           },
                           ## An empty method for getting contrasts.
@@ -82,6 +85,8 @@ base.class.R6 <- R6Class("nspp_r6",
                               self$par.lower <- c(self$par.lower, lower)
                               names(self$par.lower) <- self$par.names
                           },
+                          ## An empty method for a clever way of choosing start parameters.
+                          recalc.start = function(){},
                           ## A default method for getting the names of the link parameters.
                           get.link.names = function(){
                               self$par.link.names <- self$par.names
@@ -168,14 +173,19 @@ base.class.R6 <- R6Class("nspp_r6",
                               -self$log.palm.likelihood(pars)
                           },
                           ## A method for the negative Palm likelihood function with linked parameters.
-                          link.neg.log.palm.likelihood = function(link.pars){
-                              names(link.pars) <- names(self$par.start.link)
+                          link.neg.log.palm.likelihood = function(link.pars, fixed.link.pars = NULL,
+                                                                  est.names = NULL, fixed.names = NULL){
+                              combined.pars <- c(link.pars, fixed.link.pars)
+                              names(combined.pars) <- c(est.names, fixed.names)
+                              link.pars <- combined.pars[self$par.names]
                               pars <- self$invlink.pars(link.pars)
                               self$neg.log.palm.likelihood(pars)
                           },
                           ## A method for model fitting.
                           fit = function(){
                               optim.obj <- nlminb(self$par.start.link, self$link.neg.log.palm.likelihood,
+                                                  fixed.link.pars = self$par.fixed.link,
+                                                  est.names = self$par.names, fixed.names = self$fixed.names,
                                                   control = list(eval.max = 2000, iter.max = 1500),
                                                   lower = self$par.lower.link, upper = self$par.upper.link)
                               if (optim.obj$convergence != 0){
@@ -310,10 +320,12 @@ set.ns.class <- function(class, class.env){
     R6Class("ns",
             inherit = class.env$ns.inherit,
             public = list(
+                par.name.disp = NULL,
+                par.name.child = NULL,
                 ## Adding density parameter.
                 fetch.pars = function(){
                     super$fetch.pars()
-                    self$add.pars("D", log, 1/(4*pi*(0.1*self$R)^2), 0, Inf)
+                    self$add.pars("D", log, sqrt(self$n.points/self$vol), 0, Inf)
                 },
                 ## Overwriting simulation method.
                 simulate = function(pars = self$par.fitted){
@@ -432,7 +444,8 @@ set.poischild.class <- function(class, class.env){
                 ## Adding lambda parameter.
                 fetch.pars = function(){
                     super$fetch.pars()
-                    self$add.pars("lambda", log, 4*pi*(0.1*self$R)^2*self$n.points/self$vol, 0, self$n.points)
+                    self$par.name.child <- "lambda"
+                    self$add.pars("lambda", log, sqrt(self$n.points/self$vol), 0, self$n.points)
                 },
                 ## Simulation method for the number of children per parent.
                 simulate.n.children = function(n, pars){
@@ -466,7 +479,11 @@ set.binomchild.class <- function(class, class.env){
                 ## Adding p parameter.
                 fetch.pars = function(){
                     super$fetch.pars()
-                    self$add.pars("p", logit, 0.5, 0, 1)
+                    self$par.name.child = "p"
+                    p.start <- sqrt(self$n.points/self$vol)/self$binom.size
+                    p.start <- ifelse(p.start > 1, 0.9, p.start)
+                    p.start <- ifelse(p.start < 0, 0.1, p.start)
+                    self$add.pars("p", logit, p.start, 0, 1)
                 },
                 ## Simulation method for the number of children per parent.
                 simulate.n.children = function(n, pars){
@@ -513,6 +530,7 @@ set.twoplanechild.class <- function(class, class.env){
                 ## Adding kappa parameter.
                 fetch.pars = function(){
                     super$fetch.pars()
+                    self$par.name.child = "kappa"
                     self$add.pars("kappa", log, 0.1*self$twoplane.tau, 0, self$twoplane.tau)
                 },
                 ## Simulation method for the number of children per parent.
@@ -547,6 +565,7 @@ set.thomas.class <- function(class, class.env){
                 ## Adding sigma paremter.
                 fetch.pars = function(){
                     super$fetch.pars()
+                    self$par.name.disp <- "sigma"
                     self$add.pars("sigma", log, 0.1*self$R, 0, self$R)
                 },
                 ## Simulation method for children locations.
@@ -591,6 +610,7 @@ set.matern.class <- function(class, class.env){
                 ## Adding tau parameter.
                 fetch.pars = function(){
                     super$fetch.pars()
+                    self$par.name.disp <- "tau"
                     self$add.pars("tau", log, 0.1*self$R, 0, self$R)
                 },
                 ## Simulation method for children locations via rejection.
