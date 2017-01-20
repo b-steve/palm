@@ -62,7 +62,7 @@ test_that(
         fit.matern <- fit.ns_r6(example.2D, lims = rbind(c(0, 1), c(0, 1)), R = 0.5, disp = "uniform")
         par.fit.matern <- coef(fit.matern)
         names(par.fit.matern) <- NULL
-        expect_equal(par.fit.matern, c(39.163600, 0.7284017, 0.0524428), tolerance = 0.001)
+        expect_equal(par.fit.matern, c(38.8893761, 0.7333653, 0.0529803), tolerance = 0.001)
     })
 
 test_that(
