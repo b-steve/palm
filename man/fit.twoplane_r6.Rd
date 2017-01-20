@@ -37,6 +37,9 @@ passing of the second plane.}
 effects. Either \code{"pbc"} for periodic boundary conditions,
 or \code{"buffer"} for a buffer-zone correction.}
 
+\item{start}{A named vector of starting values for the model
+parameters.}
+
 \item{trace}{Logical, if \code{TRUE}, parameter values are printed
 to the screen for each iteration of the optimisation procedure.}
 }
