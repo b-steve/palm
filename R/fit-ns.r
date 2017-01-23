@@ -287,7 +287,7 @@ fit.ns <- function(points, lims = NULL, R, disp = "gaussian",
 #'
 #' @export
 fit.ns_r6 <- function(points, lims, R, disp = "gaussian", child.dist = "pois", child.info = NULL,
-                      sibling.list = NULL, edge.correction = "pbc", start = NULL, trace = FALSE){
+                      sibling.list = NULL, edge.correction = "pbc", start = NULL, bounds = NULL, trace = FALSE){
     ## Sorting out boundary condition class.
     use.pbc.class <- FALSE
     use.buffer.class <- FALSE
@@ -345,7 +345,7 @@ fit.ns_r6 <- function(points, lims, R, disp = "gaussian", child.dist = "pois", c
                        "twoplanechild"[use.twoplanechild.class],
                        "thomas"[use.thomas.class],
                        "matern"[use.matern.class])
-    obj <- create.obj(final.classes, points, lims, R, child.list, sibling.list, trace, start)
+    obj <- create.obj(final.classes, points, lims, R, child.list, sibling.list, trace, start, bounds)
     obj$fit()
     obj
 }
@@ -513,16 +513,17 @@ fit.twoplane <- function(points, planes = NULL, l, w, b, t, C, R,
 #' @export
 fit.twoplane_r6 <- function(points, planes, d, w, b, l, tau, R,
                             edge.correction = "pbc", start = NULL,
-                            trace = FALSE){
+                            bounds = NULL, trace = FALSE){
     if (is.null(planes)){
         sibling.list <- NULL
     } else {
         sibling.list <- siblings.twoplane_r6(planes)
     }
+    bounds <- list(sigma = c(0, min(R, b/3)))
     fit.ns_r6(points = points, lims = rbind(c(0, d)), R = R,
               child.dist = "twoplane",
               child.info = list(w = w, b = b, l = l, tau = tau),
-              sibling.list = sibling.list, start = start, trace = trace)
+              sibling.list = sibling.list, start = start, bounds = bounds, trace = trace)
 }
 
 

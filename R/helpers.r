@@ -187,16 +187,21 @@ dldsigma <- function(D, nu, sigma, n.points, dists, R){
 twoplane.probs <- function(t, C, w, b, S, sigma){
     
     ## Up/down probabilities.
-    
+
     ## Marginal probabilities.
     p.up <- S/C
     p.down <- 1 - S/C
     ## Conditional probabilities.
     p.up.up <- S/C + ((C - S)/C)*exp(-t*(1/S + 1/(C - S)))
     p.down.up <- 1 - p.up.up
-    p.up.down <- p.up*p.down.up/p.down
-    p.down.down <- 1 - p.up.down
-
+    ## Workaround for an edge case. 
+    if (S == C){
+        p.up.down <- 1
+        p.down.down <- 0
+    } else {
+        p.up.down <- p.up*p.down.up/p.down
+        p.down.down <- 1 - p.up.down
+    }
     ## In/out probabilities.
     
     ## Probability of being in the transect for second plane, given in
@@ -235,9 +240,13 @@ twoplane.probs <- function(t, C, w, b, S, sigma){
 
     p.in.and.up.and.out.or.down <- (p.in.out*p.out*p.up.down*p.down +
                                         p.in.out*p.out*p.up.up*p.up +
-                                            p.in.in*p.in*p.up.down*p.down)
-    p.in.up.and.out.or.down <- p.in.and.up.and.out.or.down/p.up.and.out.or.down
-    
+                                        p.in.in*p.in*p.up.down*p.down)
+    ## Workaround for an edge case.
+    if (S == 0){
+        p.in.up.and.out.or.down <- 0
+    } else {
+        p.in.up.and.out.or.down <- p.in.and.up.and.out.or.down/p.up.and.out.or.down
+    }
     ## Conditional probabilities.
     p.11 <- p.up.up*p.in.in
     p.01 <- 1 - p.11

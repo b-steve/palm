@@ -18,9 +18,10 @@ base.class.R6 <- R6Class("nspp_r6",
                           boots = NULL,
                           n.par = NULL,
                           set.start = NULL,
+                          set.bounds = NULL,
                           par.names = NULL,
                           fixed.names = NULL,
-                          par.link.names = NULL,
+                          par.names.link = NULL,
                           par.start = NULL,
                           par.start.link = NULL,
                           par.fixed = NULL,
@@ -38,7 +39,7 @@ base.class.R6 <- R6Class("nspp_r6",
                           conv.code = NULL,
                           classes = NULL,
                           ## Initialisation method.
-                          initialize = function(points, lims, R, trace, classes, start, ...){
+                          initialize = function(points, lims, R, trace, classes, start, bounds, ...){
                               self$points <- points
                               self$n.points <- nrow(points)
                               self$lims <- lims
@@ -47,11 +48,10 @@ base.class.R6 <- R6Class("nspp_r6",
                               self$R <- R
                               self$trace <- trace
                               self$set.start <- start
+                              self$set.bounds <- bounds
                               self$get.contrasts()
                               self$get.pars()
-                              self$get.link.names()
                               self$n.par <- length(self$par.start)
-                              self$get.invlinks()
                               self$par.start.link <- self$link.pars(self$par.start)
                               self$get.link.bounds()
                               self$classes <- classes
@@ -68,47 +68,57 @@ base.class.R6 <- R6Class("nspp_r6",
                           fetch.pars = function(){
                           },
                           ## A method for adding new parameters.
-                          add.pars = function(names, links, start, lower, upper){
-                              self$par.names <- c(self$par.names, names)
-                              self$par.link.names <- self$par.names
-                              self$par.links <- c(self$par.links, links)
-                              names(self$par.links) <- self$par.names
-                              for (i in 1:length(names)){
-                                  if (any(names == names(self$set.start))){
-                                      start[i] <- self$set.start[names[i]]
+                          add.pars = function(name, link.name = NULL, link, invlink = NULL,
+                                              start, lower, upper){
+                              self$par.names <- c(self$par.names, name)
+                              ## Sorting out inverse link.
+                              if (identical(link, log)){
+                                  full.link <- function(pars) log(pars[name])
+                                  ## Default name and inverse for log link.
+                                  if (is.null(link.name)){
+                                      link.name <- paste("log", name, sep = ".")
                                   }
+                                  if (is.null(invlink)){
+                                      full.invlink <- function(pars) exp(pars[link.name])
+                                  }
+                              } else if (identical(link, logit)){
+                                  full.link <- function(pars) link(pars[name])
+                                  ## Default name and inverse for logit link.
+                                  if (is.null(link.name)){
+                                      link.name <- paste("logit", name, sep = ".")
+                                  }
+                                  if (is.null(invlink)){
+                                      full.invlink <- function(pars) invlogit(pars[link.name])
+                                  }
+                              } else {
+                                  if (is.null(link.name)){
+                                      stop("Please provide link name.")
+                                  }
+                                  if (is.null(invlink)){
+                                      stop("Please provide inverse link function.")
+                                  }
+                                  full.link <- link
+                                  full.invlink <- invlink
+                              }
+                              self$par.links <- c(self$par.links, full.link)
+                              names(self$par.links) <- self$par.names
+                              self$par.invlinks <- c(self$par.invlinks, full.invlink)
+                              names(self$par.invlinks) <- self$par.names
+                              self$par.names.link <- c(self$par.names.link, link.name)
+                              ## Overwriting start parameter, if one provided.
+                              if (any(name == names(self$set.start))){
+                                  start <- self$set.start[name]
                               }
                               self$par.start <- c(self$par.start, start)
                               names(self$par.start) <- self$par.names
+                              if (any(name == names(self$set.bounds))){
+                                  lower <- self$set.bounds[[name]][1]
+                                  upper <- self$set.bounds[[name]][2]
+                              }
                               self$par.upper <- c(self$par.upper, upper)
                               names(self$par.upper) <- self$par.names
                               self$par.lower <- c(self$par.lower, lower)
                               names(self$par.lower) <- self$par.names
-                          },
-                          ## An empty method for a clever way of choosing start parameters.
-                          recalc.start = function(){},
-                          ## A default method for getting the names of the link parameters.
-                          get.link.names = function(){
-                              self$par.link.names <- self$par.names
-                          },
-                          ## A method for setting inverse links.
-                          get.invlinks = function(){
-                              par.invlinks <- vector(mode = "list", length = self$n.par)
-                              par.lower <-  numeric(self$n.par)
-                              par.upper <-  numeric(self$n.par)
-                              names(par.invlinks) <- self$par.names
-                              for (i in 1:length(self$par.links)){
-                                  if (identical(self$par.links[[i]], identity)){
-                                      par.invlinks[[i]] <- identity
-                                  } else if (identical(self$par.links[[i]], log)){
-                                      par.invlinks[[i]] <- exp
-                                  } else if (identical(self$par.links[[i]], logit)){
-                                      par.invlinks[[i]] <- invlogit
-                                  } else {
-                                      stop("Link functions must be identity, log, or logit.")
-                                  }
-                              }
-                              self$par.invlinks <- par.invlinks
                           },
                           ## A method to set the upper and lower parameter bounds on the link scale.
                           get.link.bounds = function(){
@@ -119,16 +129,16 @@ base.class.R6 <- R6Class("nspp_r6",
                           link.pars = function(pars){
                               out <- numeric(self$n.par)
                               for (i in 1:self$n.par){
-                                  out[i] <- self$par.links[[i]](pars[i])
+                                  out[i] <- self$par.links[[i]](pars)
                               }
-                              names(out) <- self$par.link.names
+                              names(out) <- self$par.names.link
                               out
                           },
                           ## A method for converting parameters to their real scale.
                           invlink.pars = function(pars){
                               out <- numeric(self$n.par)
                               for (i in 1:self$n.par){
-                                  out[i] <- self$par.invlinks[[i]](pars[i])
+                                  out[i] <- self$par.invlinks[[i]](pars)
                               }
                               names(out) <- self$par.names
                               out
@@ -177,7 +187,7 @@ base.class.R6 <- R6Class("nspp_r6",
                                                                   est.names = NULL, fixed.names = NULL){
                               combined.pars <- c(link.pars, fixed.link.pars)
                               names(combined.pars) <- c(est.names, fixed.names)
-                              link.pars <- combined.pars[self$par.names]
+                              link.pars <- combined.pars[self$par.names.link]
                               pars <- self$invlink.pars(link.pars)
                               self$neg.log.palm.likelihood(pars)
                           },
@@ -185,14 +195,18 @@ base.class.R6 <- R6Class("nspp_r6",
                           fit = function(){
                               optim.obj <- nlminb(self$par.start.link, self$link.neg.log.palm.likelihood,
                                                   fixed.link.pars = self$par.fixed.link,
-                                                  est.names = self$par.names, fixed.names = self$fixed.names,
+                                                  est.names = self$par.names.link, fixed.names = self$fixed.names.link,
                                                   control = list(eval.max = 2000, iter.max = 1500),
                                                   lower = self$par.lower.link, upper = self$par.upper.link)
+                              ##optim.obj <- nmkb(self$par.start.link, self$link.neg.log.palm.likelihood,
+                              ##                    lower = self$par.lower.link, upper = self$par.upper.link,
+                              ##                    fixed.link.pars = self$par.fixed.link,
+                              ##                    est.names = self$par.names.link, fixed.names = self$fixed.names.link)
                               if (optim.obj$convergence != 0){
                                   warning("Failed convergence.")
                               }
                               self$par.fitted.link <- optim.obj$par
-                              names(self$par.fitted.link) <- self$par.link.names
+                              names(self$par.fitted.link) <- self$par.names.link
                               self$par.fitted <- self$invlink.pars(self$par.fitted.link)
                               self$conv.code <- optim.obj$convergence
                           },
@@ -320,12 +334,29 @@ set.ns.class <- function(class, class.env){
     R6Class("ns",
             inherit = class.env$ns.inherit,
             public = list(
-                par.name.disp = NULL,
-                par.name.child = NULL,
                 ## Adding density parameter.
                 fetch.pars = function(){
                     super$fetch.pars()
-                    self$add.pars("D", log, sqrt(self$n.points/self$vol), 0, Inf)
+                    link <- function(pars){
+                        log(pars["D"]*self$child.expectation(pars))
+                    }
+                    ## An inverse link that uses the other unlinked paramters.
+                    invlink <- function(pars, out){
+                        exp(pars["log.Dc"])/self$child.expectation(out)
+                    }
+                    self$add.pars(name = "D", link.name = "log.Dc", link = link, invlink = invlink,
+                                  start = sqrt(self$n.points/self$vol), lower = 0, upper = Inf)
+                },
+                ## Overwriting the method for converting parameters to their real scale.
+                invlink.pars = function(pars){
+                    out <- numeric(self$n.par)
+                    names(out) <- self$par.names
+                    which.D <- which(self$par.names == "D")
+                    for (i in (1:self$n.par)[-which.D]){
+                        out[i] <- self$par.invlinks[[i]](pars)
+                    }
+                    out[which.D] <- self$par.invlinks[[which.D]](pars, out)
+                    out
                 },
                 ## Overwriting simulation method.
                 simulate = function(pars = self$par.fitted){
@@ -444,8 +475,8 @@ set.poischild.class <- function(class, class.env){
                 ## Adding lambda parameter.
                 fetch.pars = function(){
                     super$fetch.pars()
-                    self$par.name.child <- "lambda"
-                    self$add.pars("lambda", log, sqrt(self$n.points/self$vol), 0, self$n.points)
+                    self$add.pars(name = "lambda", link = log, start = sqrt(self$n.points/self$vol),
+                                  lower = 0, upper = self$n.points)
                 },
                 ## Simulation method for the number of children per parent.
                 simulate.n.children = function(n, pars){
@@ -479,11 +510,10 @@ set.binomchild.class <- function(class, class.env){
                 ## Adding p parameter.
                 fetch.pars = function(){
                     super$fetch.pars()
-                    self$par.name.child = "p"
                     p.start <- sqrt(self$n.points/self$vol)/self$binom.size
                     p.start <- ifelse(p.start > 1, 0.9, p.start)
                     p.start <- ifelse(p.start < 0, 0.1, p.start)
-                    self$add.pars("p", logit, p.start, 0, 1)
+                    self$add.pars(name = "p", link = logit, start = p.start, lower = 0, upper = 1)
                 },
                 ## Simulation method for the number of children per parent.
                 simulate.n.children = function(n, pars){
@@ -530,8 +560,8 @@ set.twoplanechild.class <- function(class, class.env){
                 ## Adding kappa parameter.
                 fetch.pars = function(){
                     super$fetch.pars()
-                    self$par.name.child = "kappa"
-                    self$add.pars("kappa", log, 0.1*self$twoplane.tau, 0, self$twoplane.tau)
+                    self$add.pars(name = "kappa", link = log, start = 0.1*self$twoplane.tau, lower = 0,
+                                  upper = self$twoplane.tau)
                 },
                 ## Simulation method for the number of children per parent.
                 simulate.n.children = function(n, pars){
@@ -565,8 +595,8 @@ set.thomas.class <- function(class, class.env){
                 ## Adding sigma paremter.
                 fetch.pars = function(){
                     super$fetch.pars()
-                    self$par.name.disp <- "sigma"
-                    self$add.pars("sigma", log, 0.1*self$R, 0, self$R)
+                    self$add.pars(name = "sigma", link = log, start = 0.1*self$R, lower = 0,
+                                  upper = self$R)
                 },
                 ## Simulation method for children locations.
                 simulate.children = function(n, parent.loc, pars){
@@ -610,8 +640,7 @@ set.matern.class <- function(class, class.env){
                 ## Adding tau parameter.
                 fetch.pars = function(){
                     super$fetch.pars()
-                    self$par.name.disp <- "tau"
-                    self$add.pars("tau", log, 0.1*self$R, 0, self$R)
+                    self$add.pars(name = "tau", link = log, start = 0.1*self$R, lower = 0, upper = self$R)
                 },
                 ## Simulation method for children locations via rejection.
                 simulate.children = function(n, parent.loc, pars){
@@ -670,8 +699,8 @@ set.void.class <- function(class, class.env){
                 ## Adding children and parent density parameters.
                 fetch.pars = function(){
                     super$fetch.pars()
-                    self$add.pars("Dp", log, 10/self$vol, 0, Inf)
-                    self$add.pars("Dc", log, self$n.points/self$vol, 0, Inf)
+                    self$add.pars(name = "Dp", link = log, start = 10/self$vol, lower = 0, upper = Inf)
+                    self$add.pars(name = "Dc", link = log, start = self$n.points/self$vol, lower = 0, upper = Inf)
                 },
                 ## Overwriting simulation method.
                 simulate = function(pars = self$par.fitted){
@@ -706,7 +735,7 @@ set.totaldeletion.class <- function(class, class.env){
             public = list(
                 fetch.pars = function(){
                     super$fetch.pars()
-                    self$add.pars("tau", log, 0.1*self$R, 0, self$R)
+                    self$add.pars(name = "tau", link = log, start = 0.1*self$R, lower = 0, upper = self$R)
                 },
                 ## Probability of being safe, given distance r from a known point.
                 prob.safe = function(r, pars){
@@ -725,7 +754,7 @@ set.totaldeletion.class <- function(class, class.env){
 }
 
 ## Function to create R6 object with correct class hierarchy.
-create.obj <- function(classes, points, lims, R, child.list, sibling.list, trace, start){
+create.obj <- function(classes, points, lims, R, child.list, sibling.list, trace, start, bounds){
     class <- base.class.R6
     n.classes <- length(classes)
     class.env <- new.env()
@@ -737,7 +766,7 @@ create.obj <- function(classes, points, lims, R, child.list, sibling.list, trace
         stop("Analysis of two-plane surveys is only implemented for Thomas processes.")
     }
     class$new(points = points, lims = lims, R = R, child.list = child.list,
-              sibling.list = sibling.list, trace = trace, classes = classes, start = start)
+              sibling.list = sibling.list, trace = trace, classes = classes, start = start, bounds = bounds)
 }
 
 ## Some objects to get around R CMD check.
