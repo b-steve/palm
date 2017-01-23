@@ -62,7 +62,7 @@ test_that(
         fit.matern <- fit.ns_r6(example.2D, lims = rbind(c(0, 1), c(0, 1)), R = 0.5, disp = "uniform")
         par.fit.matern <- coef(fit.matern)
         names(par.fit.matern) <- NULL
-        expect_equal(par.fit.matern, c(38.8893761, 0.7333653, 0.0529803), tolerance = 0.001)
+        expect_equal(par.fit.matern, c(38.76459565, 0.73561864, 0.05327295), tolerance = 0.001)
     })
 
 test_that(
@@ -86,7 +86,7 @@ test_that(
         sibling.list <- siblings.twoplane(planes)
         names(sibling.list) <- c("sibling.mat", "alpha", "beta")
         fit.r6 <- fit.twoplane_r6(points = points, planes = planes, d = l, w = w,
-                                           b = b, l = t, tau = C, R = 1)
+                                  b = b, l = t, tau = C, R = 1)
         pars.old <- coef(fit)[c(1, 3, 2)]
         pars.new <- coef(fit.r6)
         pars.new[1] <- pars.new[1]/(2*b)
