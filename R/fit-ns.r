@@ -280,6 +280,9 @@ fit.ns <- function(points, lims = NULL, R, disp = "gaussian",
 #'     nonsibling.
 #' @param start A named vector of starting values for the model
 #'     parameters.
+#' @param bounds A list with named components. Each component should
+#'     be a vector of length two, giving the upper and lower bounds
+#'     for the named parameter.
 #'
 #' @inheritParams fit.ns
 #' 
