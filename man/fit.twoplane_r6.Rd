@@ -5,7 +5,7 @@
 \title{Estimation of animal density from two-plane surveys.}
 \usage{
 fit.twoplane_r6(points, planes, d, w, b, l, tau, R, edge.correction = "pbc",
-  start = NULL, trace = FALSE)
+  start = NULL, bounds = NULL, trace = FALSE)
 }
 \arguments{
 \item{points}{A vector (or single-column matrix) containing the
@@ -39,6 +39,10 @@ or \code{"buffer"} for a buffer-zone correction.}
 
 \item{start}{A named vector of starting values for the model
 parameters.}
+
+\item{bounds}{A list with named components. Each component should
+be a vector of length two, giving the upper and lower bounds
+for the named parameter.}
 
 \item{trace}{Logical, if \code{TRUE}, parameter values are printed
 to the screen for each iteration of the optimisation procedure.}

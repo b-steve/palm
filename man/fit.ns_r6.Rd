@@ -6,7 +6,7 @@
 \usage{
 fit.ns_r6(points, lims, R, disp = "gaussian", child.dist = "pois",
   child.info = NULL, sibling.list = NULL, edge.correction = "pbc",
-  start = NULL, trace = FALSE)
+  start = NULL, bounds = NULL, trace = FALSE)
 }
 \arguments{
 \item{points}{A matrix containing locations of observed points,
@@ -53,6 +53,10 @@ or \code{"buffer"} for a buffer-zone correction.}
 
 \item{start}{A named vector of starting values for the model
 parameters.}
+
+\item{bounds}{A list with named components. Each component should
+be a vector of length two, giving the upper and lower bounds
+for the named parameter.}
 
 \item{trace}{Logical, if \code{TRUE}, parameter values are printed
 to the screen for each iteration of the optimisation procedure.}
