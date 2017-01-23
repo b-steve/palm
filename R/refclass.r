@@ -202,7 +202,7 @@ base.class.R6 <- R6Class("nspp_r6",
                               ##                    lower = self$par.lower.link, upper = self$par.upper.link,
                               ##                    fixed.link.pars = self$par.fixed.link,
                               ##                    est.names = self$par.names.link, fixed.names = self$fixed.names.link)
-                              if (optim.obj$convergence != 0){
+                              if (optim.obj$convergence > 1){
                                   warning("Failed convergence.")
                               }
                               self$par.fitted.link <- optim.obj$par
@@ -218,7 +218,7 @@ base.class.R6 <- R6Class("nspp_r6",
                                   obj.boot <- create.obj(self$classes, points.boot, self$lims,
                                                          self$R, FALSE, self$par.fitted)
                                   obj.boot$fit()
-                                  if (obj.boot$conv.code != 0){
+                                  if (obj.boot$conv.code > 1){
                                       boots[i, ] <- rep(NA, self$n.par)
                                   } else {
                                       boots[i, ] <- coef(obj.boot)
