@@ -72,7 +72,9 @@ boot.ns <- function(fit, rchild, N, prog = TRUE){
             sim.obj <- sim.twoplane(D = pars["D.2D"], sigma = pars["sigma"], S = pars["child.par"],
                                     l = args$l, w = args$w, b = args$b, t = args$t, C = args$C)
             args$points <- sim.obj$points
-            args$planes <- sim.obj$planes
+            if (!is.null(args$planes)){
+                args$planes <- sim.obj$planes
+            }
             fit.boot <- do.call("fit.twoplane", args)
             boots[i, ] <- fit.boot$pars
             ## Updating progress bar.

@@ -14,7 +14,6 @@ base.class.R6 <- R6Class("nspp_r6",
                           vol = NULL,
                           dim = NULL,
                           R = NULL,
-                          child.dist = NULL,
                           boots = NULL,
                           n.par = NULL,
                           set.start = NULL,
@@ -213,15 +212,25 @@ base.class.R6 <- R6Class("nspp_r6",
                           ## A method for bootstrapping.
                           boot = function(N, prog = TRUE){
                               boots <- matrix(0, nrow = N, ncol = self$n.par)
+                              ## Setting up progress bar.
+                              if (prog){
+                                  pb <- txtProgressBar(min = 0, max = N, style = 3)
+                              }
                               for (i in 1:N){
-                                  points.boot <- self$simulate()
-                                  obj.boot <- create.obj(self$classes, points.boot, self$lims,
-                                                         self$R, FALSE, self$par.fitted)
+                                  sim.obj <- self$simulate()
+                                  obj.boot <- create.obj(classes = self$classes, points = sim.obj$points, lims = self$lims,
+                                                         R = self$R, child.list = self$child.list,
+                                                         sibling.list = sim.obj$sibling.list, trace = FALSE,
+                                                         start = self$par.fitted, bounds = self$bounds)
                                   obj.boot$fit()
                                   if (obj.boot$conv.code > 1){
                                       boots[i, ] <- rep(NA, self$n.par)
                                   } else {
                                       boots[i, ] <- coef(obj.boot)
+                                  }
+                                  ## Updating progress bar.
+                                  if (prog){
+                                      setTxtProgressBar(pb, i)
                                   }
                               }
                               self$boots <- boots
@@ -334,6 +343,7 @@ set.ns.class <- function(class, class.env){
     R6Class("ns",
             inherit = class.env$ns.inherit,
             public = list(
+                child.list = NULL,
                 ## Adding density parameter.
                 fetch.pars = function(){
                     super$fetch.pars()
@@ -366,7 +376,9 @@ set.ns.class <- function(class, class.env){
                     for (i in 1:self$dim){
                         parent.locs[, i] <- runif(n.parents, self$lims[i, 1], self$lims[i, 2])
                     }
-                    n.children <- self$simulate.n.children(n.parents, pars)
+                    sim.n.children <- self$simulate.n.children(n.parents, pars)
+                    n.children <- sim.n.children$n.children
+                    sibling.list <- sim.n.children$sibling.list
                     child.locs <- matrix(0, nrow = sum(n.children), ncol = self$dim)
                     j <- 0
                     for (i in 1:n.parents){
@@ -376,7 +388,7 @@ set.ns.class <- function(class, class.env){
                             j <- j + n.children[i]
                         }
                     }
-                    self$trim.points(child.locs)
+                    list(points = self$trim.points(child.locs), sibling.list = sibling.list)
                 },
                 ## Overwriting method for the Palm intensity.
                 palm.intensity = function(r, pars){
@@ -480,7 +492,7 @@ set.poischild.class <- function(class, class.env){
                 },
                 ## Simulation method for the number of children per parent.
                 simulate.n.children = function(n, pars){
-                    rpois(n, pars["lambda"])
+                    list(n.children = rpois(n, pars["lambda"]))
                 },
                 ## A method for the expectation of the child distribution.
                 child.expectation = function(pars){
@@ -504,6 +516,7 @@ set.binomchild.class <- function(class, class.env){
             public = list(
                 binom.size = NULL,
                 initialize = function(child.list, ...){
+                    self$child.list <- child.list
                     self$binom.size <- child.list$size
                     super$initialize(...)
                 },
@@ -517,7 +530,7 @@ set.binomchild.class <- function(class, class.env){
                 },
                 ## Simulation method for the number of children per parent.
                 simulate.n.children = function(n, pars){
-                    rbinom(n, self$binom.size, pars["p"])
+                    list(n.children = rbinom(n, self$binom.size, pars["p"]))
                 },
                 ## A method for the expectation of the child distribution.
                 child.expectation = function(pars){
@@ -548,6 +561,7 @@ set.twoplanechild.class <- function(class, class.env){
                 ## Mean dive-cycle duration.
                 twoplane.tau = NULL,
                 initialize = function(child.list, ...){
+                    self$child.list <- child.list
                     self$twoplane.w <- child.list$twoplane.w
                     self$twoplane.b <- child.list$twoplane.b
                     self$twoplane.l <- child.list$twoplane.l
@@ -565,7 +579,28 @@ set.twoplanechild.class <- function(class, class.env){
                 },
                 ## Simulation method for the number of children per parent.
                 simulate.n.children = function(n, pars){
-                    stop("Not yet implemented.")
+                    probs <- twoplane.probs(self$twoplane.l, self$twoplane.tau, self$twoplane.w,
+                                            self$twoplane.b, pars["kappa"], pars["sigma"])
+                    plane1.in <- sample(c(TRUE, FALSE), n, replace = TRUE, prob = c(probs$p.in, probs$p.out))
+                    plane1.up <- sample(c(TRUE, FALSE), n, replace = TRUE, prob = c(probs$p.up, probs$p.down))
+                    plane1.det <- plane1.in & plane1.up
+                    plane2.det <- numeric(n)
+                    for (i in 1:n){
+                        plane2.det[i] <- sample(c(TRUE, FALSE), 1,
+                                                prob = c(probs$p.11[plane1.det[i]], probs$p.10[!plane1.det[i]],
+                                                         probs$p.01[plane1.det[i]], probs$p.00[!plane1.det[i]]))
+                    }
+                    n.children <-  plane1.det + plane2.det
+                    planes <- numeric(sum(n.children))
+                    j <- 1
+                    for (i in 1:n){
+                        if (n.children[i] > 0){
+                            planes[j:(j + n.children[i] - 1)] <- c(1[plane1.det[i]], 2[plane2.det[i]])
+                        }
+                        j <- j + n.children[i]
+                    }
+                    sibling.list <- siblings.twoplane_r6(planes)
+                    list(n.children = n.children, sibling.list = sibling.list)
                 },
                 ## A method for the expectation of the child distribution.
                 child.expectation = function(pars){
@@ -718,7 +753,7 @@ set.void.class <- function(class, class.env){
                     for (i in 1:self$dim){
                         parent.locs[, i] <- runif(n.parents, self$lims[i, 1], self$lims[i, 2])
                     }
-                    self$delete.points(child.locs, parent.locs, pars)
+                    list(points = self$delete.points(child.locs, parent.locs, pars))
                 },
                 ## Overwriting method for the Palm intensity.
                 palm.intensity = function(r, pars){

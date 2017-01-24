@@ -257,6 +257,7 @@ twoplane.probs <- function(t, C, w, b, S, sigma){
 
     ## Outputting conditional detection probabilities.
     out <- list(p.11 = p.11, p.01 = p.01, p.10 = p.10, p.00 = p.00,
+                p.up = p.up, p.down = p.down, p.in = p.in, p.out = p.out,
                 p.up.down = p.up.down, p.down.up = p.down.up,
                 p.in.out = p.in.out, p.out.in = p.out.in)
     out
