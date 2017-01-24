@@ -185,20 +185,22 @@ dldsigma <- function(D, nu, sigma, n.points, dists, R){
 
 ## Calculation of two-plane detection probabilities.
 twoplane.probs <- function(t, C, w, b, S, sigma){
-    
+    #browser(expr = S > 9.9)
     ## Up/down probabilities.
 
     ## Marginal probabilities.
     p.up <- S/C
     p.down <- 1 - S/C
     ## Conditional probabilities.
-    p.up.up <- S/C + ((C - S)/C)*exp(-t*(1/S + 1/(C - S)))
-    p.down.up <- 1 - p.up.up
     ## Workaround for an edge case. 
-    if (S == C){
+    if (S >= C){
+        p.up.up <- 1
+        p.down.up <- 0
         p.up.down <- 1
         p.down.down <- 0
     } else {
+        p.up.up <- S/C + ((C - S)/C)*exp(-t*(1/S + 1/(C - S)))
+        p.down.up <- 1 - p.up.up
         p.up.down <- p.up*p.down.up/p.down
         p.down.down <- 1 - p.up.down
     }
