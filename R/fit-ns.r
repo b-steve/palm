@@ -306,12 +306,11 @@ boot <- function(fit, N, prog = TRUE){
 
 ## Roxygen code for NAMESPACE.
 #' @import methods Rcpp R6
-#' @importFrom graphics abline axis box lines par plot.new plot.window points title
+#' @importFrom graphics abline axis box lines par plot.new plot.window title
 #' @importFrom gsl hyperg_2F1
 #' @importFrom mvtnorm rmvnorm
-#' @importFrom optimx optimx
 #' @importFrom spatstat crossdist
-#' @importFrom stats coef dist integrate nlminb optim pbeta pgamma pnorm printCoefmat qnorm quantile rbinom rnorm rpois runif sd var
+#' @importFrom stats coef dist integrate nlminb pbeta pgamma pnorm printCoefmat qnorm quantile rbinom rpois runif sd
 #' @importFrom utils setTxtProgressBar txtProgressBar
 #' @useDynLib nspp
 NULL

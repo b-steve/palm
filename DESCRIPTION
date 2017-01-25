@@ -12,7 +12,6 @@ Imports:
     gsl,
     methods,
     mvtnorm,
-    optimx,
     R6,
     spatstat
 LinkingTo: Rcpp
