@@ -114,7 +114,7 @@ invlogit <- function(y){
 }
 
 ## Obtaining sibling matrix from plane IDs.
-siblings.twoplane_r6 <- function(plane.id){
+siblings.twoplane <- function(plane.id){
     n.points <- length(plane.id)
     out <- matrix(NA, nrow = n.points, ncol = n.points)
     for (i in 1:n.points){

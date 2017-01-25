@@ -2,7 +2,7 @@
 ## General base class.
 ######
 
-base.class.R6 <- R6Class("nspp_r6",
+base.class.R6 <- R6Class("nspp",
                          public = list(
                              ## Setting fields.
                              lims = NULL,
@@ -36,7 +36,7 @@ base.class.R6 <- R6Class("nspp_r6",
 set.CLASSNAME.class <- function(class, class.env){
     ## Saving inherited class to class.env.
     assign("CLASSNAME.inherit", class, envir = class.env)
-    R6Class("nspp_r6",
+    R6Class("nspp",
             inherit = class.env$CLASSNAME.inherit,
             public = list(
 
@@ -50,7 +50,7 @@ set.CLASSNAME.class <- function(class, class.env){
 set.fit.class <- function(class, class.env){
     ## Saving inherited class to class.env.
     assign("fit.inherit", class, envir = class.env)
-    R6Class("nspp_r6",
+    R6Class("nspp",
             inherit = class.env$fit.inherit,
             public = list(
                 points = NULL,
@@ -478,7 +478,7 @@ set.ns.class <- function(class, class.env){
 set.sibling.class <- function(class, class.env){
     ## Saving inherited class to class.env.
     assign("sibling.inherit", class, envir = class.env)
-    R6Class("nspp_r6",
+    R6Class("nspp",
             inherit = class.env$sibling.inherit,
             public = list(
                 siblings = NULL,
@@ -530,7 +530,7 @@ set.sibling.class <- function(class, class.env){
 set.poischild.class <- function(class, class.env){
     ## Saving inherited class to class.env.
     assign("poischild.inherit", class, envir = class.env)
-    R6Class("nspp_r6",
+    R6Class("nspp",
             inherit = class.env$poischild.inherit,
             public = list(
                 ## Adding lambda parameter.
@@ -560,7 +560,7 @@ set.poischild.class <- function(class, class.env){
 set.binomchild.class <- function(class, class.env){
     ## Saving inherited class to class.env.
     assign("binomchild.inherit", class, envir = class.env)
-    R6Class("nspp_r6",
+    R6Class("nspp",
             inherit = class.env$binomchild.inherit,
             public = list(
                 binom.size = NULL,
@@ -598,7 +598,7 @@ set.binomchild.class <- function(class, class.env){
 set.twoplanechild.class <- function(class, class.env){
     ## Saving inherited class to class.env.
     assign("twoplanechild.inherit", class, envir = class.env)
-    R6Class("nspp_r6",
+    R6Class("nspp",
             inherit = class.env$twoplanechild.inherit,
             public = list(
                 ## Detection zone halfwidth.
@@ -648,7 +648,7 @@ set.twoplanechild.class <- function(class, class.env){
                         }
                         j <- j + n.children[i]
                     }
-                    sibling.list <- siblings.twoplane_r6(planes)
+                    sibling.list <- siblings.twoplane(planes)
                     list(n.children = n.children, sibling.list = sibling.list)
                 },
                 ## A method for the expectation of the child distribution.
@@ -673,7 +673,7 @@ set.twoplanechild.class <- function(class, class.env){
 set.thomas.class <- function(class, class.env){
     ## Saving inherited class to class.env.
     assign("thomas.inherit", class, envir = class.env)
-    R6Class("nspp_r6",
+    R6Class("nspp",
             inherit = class.env$thomas.inherit,
             public = list(
                 ## Adding sigma paremter.
@@ -718,7 +718,7 @@ set.thomas.class <- function(class, class.env){
 set.matern.class <- function(class, class.env){
     ## Saving inherited class to class.env.
     assign("matern.inherit", class, envir = class.env)
-    R6Class("nspp_r6",
+    R6Class("nspp",
             inherit = class.env$matern.inherit,
             public = list(
                 ## Adding tau parameter.
@@ -777,7 +777,7 @@ set.matern.class <- function(class, class.env){
 set.void.class <- function(class, class.env){
     ## Saving inherited class to class.env.
     assign("void.inherit", class, envir = class.env)
-    R6Class("nspp_r6",
+    R6Class("nspp",
             inherit = class.env$void.inherit,
             public = list(
                 ## Adding children and parent density parameters.
@@ -814,7 +814,7 @@ set.void.class <- function(class, class.env){
 set.totaldeletion.class <- function(class, class.env){
     ## Saving inherited class to class.env.
     assign("totaldeletion.inherit", class, envir = class.env)
-    R6Class("nspp_r6",
+    R6Class("nspp",
             inherit = class.env$totaldeletion.inherit,
             public = list(
                 fetch.pars = function(){

@@ -1,17 +1,17 @@
 #' Extract parameter estimates.
 #'
 #' Extracts estimated parameters from an object returned by
-#' \link{fit.ns_r6}.
+#' \link{fit.ns}.
 #'
-#' @param object A fitted model object returned by \link{fit.ns_r6}.
+#' @param object A fitted model object returned by \link{fit.ns}.
 #' @param se Logical, if \code{TRUE} standard errors are presented
 #'     (if available) instead of parameter estimates.
 #' @param ... Other parameters (for S3 generic compatibility).
 #'
-#' @method coef nspp_r6
+#' @method coef nspp
 #' 
 #'@export
-coef.nspp_r6 <- function(object, se = FALSE, ...){
+coef.nspp <- function(object, se = FALSE, ...){
     if (se){
         if (is.null(object$boots)){
             stop("Standard errors not available as the model object has not been bootstrapped.")
@@ -27,13 +27,13 @@ coef.nspp_r6 <- function(object, se = FALSE, ...){
 #'
 #' Extracts confidence intervals for estimated and derived parameters
 #' from a model fitted using \link{fit.ns}, then bootstrapped using
-#' \link{boot.ns}.
+#' \link{boot}.
 #'
 #' Bootstrap parameter estimates can be found in the
 #' \code{boot} component of the model object, so alternative
 #' confidence interval methods can be calculated by hand.
 #'
-#' @param object A fitted model returned by \link{fit.ns_r6},
+#' @param object A fitted model returned by \link{fit.ns},
 #'     bootstrapped using \link{boot}.
 #' @param parm A vector of parameter names, specifying which
 #'     parameters are to be given confidence intervals. Defaults to
@@ -45,10 +45,10 @@ coef.nspp_r6 <- function(object, se = FALSE, ...){
 #'     method.
 #' @param ... Other parameters (for S3 generic compatability).
 #'
-#' @method confint nspp_r6
+#' @method confint nspp
 #'
 #' @export
-confint.nspp_r6 <- function(object, parm = NULL, level = 0.95, method = "percentile", ...){
+confint.nspp <- function(object, parm = NULL, level = 0.95, method = "percentile", ...){
     if (is.null(object$boots)){
         stop("Confidence intervals not available as the model object has not been bootstrapped.")
     }
@@ -73,25 +73,25 @@ confint.nspp_r6 <- function(object, parm = NULL, level = 0.95, method = "percent
 #'
 #' Provides a useful summary of the model fit.
 #'
-#' @param object A fitted model returned by \link{fit.ns_r6}.
+#' @param object A fitted model returned by \link{fit.ns}.
 #' @param ... Other parameters (for S3 generic compatibility).
 #' @inheritParams coef.nspp
 #' 
-#' @method summary nspp_r6
+#' @method summary nspp
 #'
 #' @export
-summary.nspp_r6 <- function(object, all = FALSE, ...){
+summary.nspp <- function(object, ...){
     coefs <- coef(object)
     ses <- coef(object, se = TRUE)
     out <- list(coefs = coefs, ses = ses)
-    class(out) <- c("summary.nspp_r6", class(out))
+    class(out) <- c("summary.nspp", class(out))
     out
 }
 
-#' @method print summary.nspp_r6
+#' @method print summary.nspp
 #' 
 #' @export
-print.summary.nspp_r6 <- function(x, ...){
+print.summary.nspp <- function(x, ...){
     n.coefs <- length(x$coefs)
     mat <- matrix(0, nrow = n.coefs, ncol = 2)
     rownames(mat) <- names(x$coefs)
@@ -105,13 +105,13 @@ print.summary.nspp_r6 <- function(x, ...){
 #' Plotting an estimated Palm intensity function.
 #'
 #' Plots a fitted Palm intensity function from an object returned by
-#' \link{fit.ns_r6}().
+#' \link{fit.ns}().
 #'
-#' @param x A fitted model from \link{fit.ns_r6}.
+#' @param x A fitted model from \link{fit.ns}.
 #' @param ... Other parameters (for S3 generic compatibility).
 #'
 #' @export
-plot.nspp_r6 <- function(x, ...){
+plot.nspp <- function(x, ...){
     x$plot(...)
 }
 

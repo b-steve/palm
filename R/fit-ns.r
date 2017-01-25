@@ -62,7 +62,7 @@
 #' @return An R6 reference class object.
 #'
 #' @export
-fit.ns_r6 <- function(points, lims, R, disp = "gaussian", child.dist = "pois", child.info = NULL,
+fit.ns <- function(points, lims, R, disp = "gaussian", child.dist = "pois", child.info = NULL,
                       sibling.list = NULL, edge.correction = "pbc", start = NULL, bounds = NULL, trace = FALSE){
     classes.list <- setup.classes(fit = TRUE, family = "ns", family.info = list(child.dist = child.dist,
                                                                                 child.info = child.info,
@@ -91,14 +91,14 @@ fit.ns_r6 <- function(points, lims, R, disp = "gaussian", child.dist = "pois", c
 #' @param pars A named vector containing the values of the parameters
 #'     of the process that generates the points.
 #' 
-#' @inheritParams fit.ns_r6
+#' @inheritParams fit.ns
 #'
 #' @return A list. The first component gives the Cartesian coordinates
 #'     of the generated points. A second component may provide sibling
 #'     information.
 #'
 #' @export
-sim.ns_r6 <- function(pars, lims, disp = "gaussian", child.dist = "pois", child.info = NULL){
+sim.ns <- function(pars, lims, disp = "gaussian", child.dist = "pois", child.info = NULL){
     classes.list <- setup.classes(fit = FALSE, family = "ns", family.info = list(child.dist = child.dist,
                                                                                  child.info = child.info,
                                                                                  disp = disp),
@@ -118,12 +118,12 @@ sim.ns_r6 <- function(pars, lims, disp = "gaussian", child.dist = "pois", child.
 #'     dependencies inherent in spatial and spatio-temporal point
 #'     pattern data}. PhD thesis, University of St Andrews.
 #'
-#' @inheritParams fit.ns_r6
+#' @inheritParams fit.ns
 #'
 #' @return An R6 reference class object.
 #'
 #' @export
-fit.void_r6 <- function(points, lims, R, edge.correction = "pbc", start = NULL, bounds, trace = FALSE){
+fit.void <- function(points, lims, R, edge.correction = "pbc", start = NULL, bounds, trace = FALSE){
     classes.list <- setup.classes(fit = TRUE, family = "void", family.info = NULL,
                                   edge.correction = edge.correction)
     obj <- create.obj(classes = classes.list$classes, points = points, lims = lims, R = R,
@@ -137,11 +137,11 @@ fit.void_r6 <- function(points, lims, R, edge.correction = "pbc", start = NULL, 
 #'
 #' Generates points from a void point process using parameters provided by the user.
 #'
-#' @inheritParams fit.void_r6
-#' @inheritParams sim.ns_r6
+#' @inheritParams fit.void
+#' @inheritParams sim.ns
 #'
 #' @export
-sim.void_r6 <- function(pars, lims){
+sim.void <- function(pars, lims){
     classes.list <- setup.classes(fit = FALSE, family = "void", family.info = NULL,
                                   edge.correction = NULL)
     obj <- create.obj(classes = classes.list$classes, points = NULL, lims = lims, R = NULL,
@@ -233,9 +233,9 @@ setup.classes <- function(fit, family, family.info, edge.correction){
 #' Estimates animal density (amongst other parameters) from two-plane
 #' aerial surveys. This conceptualises sighting locations as a
 #' Neyman-Scott point pattern---estimation is carried out via
-#' \code{fit.ns_r6()}.
+#' \code{fit.ns()}.
 #'
-#' @return An object of class \code{"nspp_r6"} that can be extracted via
+#' @return An object of class \code{"nspp"} that can be extracted via
 #' the same utility functions fit for objects created using
 #' \code{fit.ns_6()}.
 #'
@@ -261,19 +261,19 @@ setup.classes <- function(fit, family, family.info, edge.correction){
 #'     or \code{"buffer"} for a buffer-zone correction.
 #' @param trace Logical, if \code{TRUE}, parameter values are printed
 #'     to the screen for each iteration of the optimisation procedure.
-#' @inheritParams fit.ns_r6
+#' @inheritParams fit.ns
 #' 
 #' @export
-fit.twoplane_r6 <- function(points, planes, d, w, b, l, tau, R,
+fit.twoplane <- function(points, planes, d, w, b, l, tau, R,
                             edge.correction = "pbc", start = NULL,
                             bounds = NULL, trace = FALSE){
     if (is.null(planes)){
         sibling.list <- NULL
     } else {
-        sibling.list <- siblings.twoplane_r6(planes)
+        sibling.list <- siblings.twoplane(planes)
     }
     bounds <- list(sigma = c(0, min(R, b/3)))
-    fit.ns_r6(points = points, lims = rbind(c(0, d)), R = R,
+    fit.ns(points = points, lims = rbind(c(0, d)), R = R,
               child.dist = "twoplane",
               child.info = list(w = w, b = b, l = l, tau = tau),
               sibling.list = sibling.list, start = start, bounds = bounds, trace = trace)
