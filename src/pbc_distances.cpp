@@ -3,14 +3,6 @@
 using namespace Rcpp;
 using namespace std;
 
-
-//' Calculating distances between points subject to periodic boundary constraints.
-//'
-//' Calculates pairwise distances between points subject to periodic boundary constraints.
-//'
-//' @inheritParams fit.ns
-//'
-//' @export
 // [[Rcpp::export]]
 NumericVector pbc_distances(const NumericMatrix& points, const NumericMatrix& lims){
   int n_dims = points.ncol();
