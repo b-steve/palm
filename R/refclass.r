@@ -3,289 +3,30 @@
 ######
 
 base.class.R6 <- R6Class("nspp_r6",
-                      public = list(
-                          ## Setting fields.
-                          points = NULL,
-                          n.points = NULL,
-                          contrasts = NULL,
-                          n.contrasts = NULL,
-                          contrast.pairs = NULL,
-                          lims = NULL,
-                          vol = NULL,
-                          dim = NULL,
-                          R = NULL,
-                          boots = NULL,
-                          n.par = NULL,
-                          set.start = NULL,
-                          set.bounds = NULL,
-                          par.names = NULL,
-                          fixed.names = NULL,
-                          par.names.link = NULL,
-                          par.start = NULL,
-                          par.start.link = NULL,
-                          par.fixed = NULL,
-                          par.fixed.link = NULL,
-                          par.links = NULL,
-                          par.invlinks = NULL,
-                          par.fitted = NULL,
-                          par.fitted.link = NULL,
-                          par.lower = NULL,
-                          par.lower.link = NULL,
-                          par.upper = NULL,
-                          par.upper.link = NULL,
-                          gr = NULL,
-                          trace = NULL,
-                          conv.code = NULL,
-                          classes = NULL,
-                          ## Initialisation method.
-                          initialize = function(points, lims, R, trace, classes, start, bounds, ...){
-                              self$points <- points
-                              self$n.points <- nrow(points)
-                              self$lims <- lims
-                              self$vol <- prod(apply(self$lims, 1, diff))
-                              self$dim <- ncol(points)
-                              self$R <- R
-                              self$trace <- trace
-                              self$set.start <- start
-                              self$set.bounds <- bounds
-                              self$get.contrasts()
-                              self$get.pars()
-                              self$n.par <- length(self$par.start)
-                              self$par.start.link <- self$link.pars(self$par.start)
-                              self$get.link.bounds()
-                              self$classes <- classes
-                          },
-                          ## An empty method for getting contrasts.
-                          get.contrasts = function(){
-                              self$n.contrasts <- length(self$contrasts)
-                          },
-                          ## A method for getting the parameters across all classes.
-                          get.pars = function(){
-                              self$fetch.pars()
-                          },
-                          ## An empty method for fetching parameters from a particular class.
-                          fetch.pars = function(){
-                          },
-                          ## A method for adding new parameters.
-                          add.pars = function(name, link.name = NULL, link, invlink = NULL,
-                                              start, lower, upper){
-                              self$par.names <- c(self$par.names, name)
-                              ## Sorting out inverse link.
-                              if (identical(link, log)){
-                                  full.link <- function(pars) log(pars[name])
-                                  ## Default name and inverse for log link.
-                                  if (is.null(link.name)){
-                                      link.name <- paste("log", name, sep = ".")
-                                  }
-                                  if (is.null(invlink)){
-                                      full.invlink <- function(pars) exp(pars[link.name])
-                                  }
-                              } else if (identical(link, logit)){
-                                  full.link <- function(pars) link(pars[name])
-                                  ## Default name and inverse for logit link.
-                                  if (is.null(link.name)){
-                                      link.name <- paste("logit", name, sep = ".")
-                                  }
-                                  if (is.null(invlink)){
-                                      full.invlink <- function(pars) invlogit(pars[link.name])
-                                  }
-                              } else {
-                                  if (is.null(link.name)){
-                                      stop("Please provide link name.")
-                                  }
-                                  if (is.null(invlink)){
-                                      stop("Please provide inverse link function.")
-                                  }
-                                  full.link <- link
-                                  full.invlink <- invlink
-                              }
-                              self$par.links <- c(self$par.links, full.link)
-                              names(self$par.links) <- self$par.names
-                              self$par.invlinks <- c(self$par.invlinks, full.invlink)
-                              names(self$par.invlinks) <- self$par.names
-                              self$par.names.link <- c(self$par.names.link, link.name)
-                              ## Overwriting start parameter, if one provided.
-                              if (any(name == names(self$set.start))){
-                                  start <- self$set.start[name]
-                              }
-                              self$par.start <- c(self$par.start, start)
-                              names(self$par.start) <- self$par.names
-                              if (any(name == names(self$set.bounds))){
-                                  lower <- self$set.bounds[[name]][1]
-                                  upper <- self$set.bounds[[name]][2]
-                              }
-                              self$par.upper <- c(self$par.upper, upper)
-                              names(self$par.upper) <- self$par.names
-                              self$par.lower <- c(self$par.lower, lower)
-                              names(self$par.lower) <- self$par.names
-                          },
-                          ## A method to set the upper and lower parameter bounds on the link scale.
-                          get.link.bounds = function(){
-                              self$par.lower.link <- self$link.pars(self$par.lower)
-                              self$par.upper.link <- self$link.pars(self$par.upper)
-                          },
-                          ## A method for converting parameters to their link scales.
-                          link.pars = function(pars){
-                              out <- numeric(self$n.par)
-                              for (i in 1:self$n.par){
-                                  out[i] <- self$par.links[[i]](pars)
-                              }
-                              names(out) <- self$par.names.link
-                              out
-                          },
-                          ## A method for converting parameters to their real scale.
-                          invlink.pars = function(pars){
-                              out <- numeric(self$n.par)
-                              for (i in 1:self$n.par){
-                                  out[i] <- self$par.invlinks[[i]](pars)
-                              }
-                              names(out) <- self$par.names
-                              out
-                          },
-                          ## An empty method for simulation.
-                          simulate = function(pars){},
-                          ## A method to trim points to the observation window.
-                          trim.points = function(points){
-                              in.window <- rep(TRUE, nrow(points))
-                              for (i in 1:self$dim){
-                                  in.window <- in.window & (self$lims[i, 1] <= points[, i] & self$lims[i, 2] >= points[, i])
-                              }
-                              points[in.window, , drop = FALSE]
-                          },
-                          ## An empty method for the Palm intensity.
-                          palm.intensity = function(r, pars){},
-                          ## A default method for the sum of the log Palm intensities.
-                          sum.log.intensities = function(pars){
-                              sum(log(self$n.points*self$palm.intensity(self$contrasts, pars)))
-                          },
-                          ## A default method for the integral in the Palm likelihood.
-                          palm.likelihood.integral = function(pars){
-                              f <- function(r, pars){
-                                  self$palm.intensity(r, pars)*Sd(r, self$dim)
-                              }
-                              -self$n.points*integrate(f, lower = 0, upper = self$R, pars = pars)$value
-                          },
-                          ## A default method for the log of the Palm likelihood function.
-                          log.palm.likelihood = function(pars){
-                              out <- self$sum.log.intensities(pars) + self$palm.likelihood.integral(pars)
-                              if (self$trace){
-                                  for (i in 1:self$n.par){
-                                      cat(self$par.names[i], ": ", sep = "")
-                                      cat(pars[i], ", ", sep = "")
-                                  }
-                                  cat("Log-lik: ", out, "\n", sep = "")
-                              }
-                              out
-                          },
-                          ## A method for the negative Palm likelihood function.
-                          neg.log.palm.likelihood = function(pars){
-                              -self$log.palm.likelihood(pars)
-                          },
-                          ## A method for the negative Palm likelihood function with linked parameters.
-                          link.neg.log.palm.likelihood = function(link.pars, fixed.link.pars = NULL,
-                                                                  est.names = NULL, fixed.names = NULL){
-                              combined.pars <- c(link.pars, fixed.link.pars)
-                              names(combined.pars) <- c(est.names, fixed.names)
-                              link.pars <- combined.pars[self$par.names.link]
-                              pars <- self$invlink.pars(link.pars)
-                              self$neg.log.palm.likelihood(pars)
-                          },
-                          ## A method for model fitting.
-                          fit = function(){
-                              optim.obj <- nlminb(self$par.start.link, self$link.neg.log.palm.likelihood,
-                                                  fixed.link.pars = self$par.fixed.link,
-                                                  est.names = self$par.names.link, fixed.names = self$fixed.names.link,
-                                                  control = list(eval.max = 2000, iter.max = 1500),
-                                                  lower = self$par.lower.link, upper = self$par.upper.link)
-                              ##optim.obj <- nmkb(self$par.start.link, self$link.neg.log.palm.likelihood,
-                              ##                    lower = self$par.lower.link, upper = self$par.upper.link,
-                              ##                    fixed.link.pars = self$par.fixed.link,
-                              ##                    est.names = self$par.names.link, fixed.names = self$fixed.names.link)
-                              if (optim.obj$convergence > 1){
-                                  warning("Failed convergence.")
-                              }
-                              self$par.fitted.link <- optim.obj$par
-                              names(self$par.fitted.link) <- self$par.names.link
-                              self$par.fitted <- self$invlink.pars(self$par.fitted.link)
-                              self$conv.code <- optim.obj$convergence
-                          },
-                          ## A method for bootstrapping.
-                          boot = function(N, prog = TRUE){
-                              boots <- matrix(0, nrow = N, ncol = self$n.par)
-                              ## Setting up progress bar.
-                              if (prog){
-                                  pb <- txtProgressBar(min = 0, max = N, style = 3)
-                              }
-                              for (i in 1:N){
-                                  sim.obj <- self$simulate()
-                                  obj.boot <- create.obj(classes = self$classes, points = sim.obj$points, lims = self$lims,
-                                                         R = self$R, child.list = self$child.list,
-                                                         sibling.list = sim.obj$sibling.list, trace = FALSE,
-                                                         start = self$par.fitted, bounds = self$bounds)
-                                  obj.boot$fit()
-                                  if (obj.boot$conv.code > 1){
-                                      boots[i, ] <- rep(NA, self$n.par)
-                                  } else {
-                                      boots[i, ] <- coef(obj.boot)
-                                  }
-                                  ## Updating progress bar.
-                                  if (prog){
-                                      setTxtProgressBar(pb, i)
-                                  }
-                              }
-                              self$boots <- boots
-                          },
-                          ## A method for plotting.
-                          plot = function(xlim = NULL, show.empirical = TRUE, breaks = 50){
-                              if (is.null(xlim)){
-                                  xlim <- self$get.xlim()
-                              }
-                              xx <- seq(xlim[1], xlim[2], length.out = 1000)
-                              yy <- self$palm.intensity(xx, self$par.fitted)
-                              if (show.empirical){
-                                  emp <- self$empirical(xlim, breaks)
-                                  ylim <- c(0, max(c(emp$y, yy)))
-                              } else {
-                                  ylim <- c(0, max(yy))
-                              }
-                              par(xaxs = "i")
-                              plot.new()
-                              plot.window(xlim = range(xx), ylim = ylim)
-                              box()
-                              axis(1)
-                              axis(2)
-                              abline(h = 0, col = "grey")
-                              title(xlab = "r", ylab = "Palm intensity")
-                              lines(xx, yy)
-                              if (show.empirical){
-                                  lines(emp$x, emp$y, lty = "dashed")
-                              }
-                          },
-                          ## A method for default xlim.
-                          get.xlim = function(){
-                              c(0, self$R)
-                          },
-                          ## A method for empirical Palm intensity.
-                          empirical = function(xlim = NULL, breaks = 50){
-                              if (is.null(xlim)){
-                                  xlim <- self$get.xlim()
-                              }
-                              dists <- pbc_distances(self$points, self$lims)
-                              midpoints <- seq(0, xlim[2], length.out = breaks)
-                              midpoints <- midpoints[-length(midpoints)]
-                              h <- diff(midpoints[c(1, 2)])
-                              midpoints[1] <- midpoints[1] + h/2
-                              intensities <- numeric(length(midpoints))
-                              for (i in 1:length(midpoints)){
-                                  halfwidth <- ifelse(i == 1, 0.25*h, 0.5*h)
-                                  n.interval <- sum(dists <= (midpoints[i] + halfwidth)) -
-                                      sum(dists <= (midpoints[i] - halfwidth))
-                                  area <- Vd(midpoints[i] + halfwidth, self$dim) -  Vd(midpoints[i] - halfwidth, self$dim)
-                                  intensities[i] <- n.interval/(self$n.points*area)
-                              }
-                              list(x = midpoints, y = intensities)
-                          }
-                      ))
+                         public = list(
+                             ## Setting fields.
+                             lims = NULL,
+                             vol = NULL,
+                             dim = NULL,
+                             classes = NULL,
+                             ## Initialisation method.
+                             initialize = function(lims, classes, ...){
+                                 self$lims <- lims
+                                 self$vol <- prod(apply(self$lims, 1, diff))
+                                 self$dim <- nrow(lims)
+                                 self$classes <- classes
+                             },
+                             ## An empty method for simulation.
+                             simulate = function(pars){},
+                             ## A method to trim points to the observation window.
+                             trim.points = function(points){
+                                 in.window <- rep(TRUE, nrow(points))
+                                 for (i in 1:self$dim){
+                                     in.window <- in.window & (self$lims[i, 1] <= points[, i] & self$lims[i, 2] >= points[, i])
+                                 }
+                                 points[in.window, , drop = FALSE]
+                             }
+                         ))
 
 ######
 ## Template for new classes.
@@ -298,7 +39,285 @@ set.CLASSNAME.class <- function(class, class.env){
     R6Class("nspp_r6",
             inherit = class.env$CLASSNAME.inherit,
             public = list(
+
+            ))
+}
+
+######
+## Class for models fitted to data.
+######
+
+set.fit.class <- function(class, class.env){
+    ## Saving inherited class to class.env.
+    assign("fit.inherit", class, envir = class.env)
+    R6Class("nspp_r6",
+            inherit = class.env$fit.inherit,
+            public = list(
+                points = NULL,
+                n.points = NULL,
+                contrasts = NULL,
+                n.contrasts = NULL,
+                contrast.pairs = NULL,
+                R = NULL,
+                boots = NULL,
+                trace = NULL,
+                conv.code = NULL,
+                n.par = NULL,
+                set.start = NULL,
+                set.bounds = NULL,
+                par.names = NULL,
+                fixed.names = NULL,
+                par.names.link = NULL,
+                par.start = NULL,
+                par.start.link = NULL,
+                par.fixed = NULL,
+                par.fixed.link = NULL,
+                par.links = NULL,
+                par.invlinks = NULL,
+                par.fitted = NULL,
+                par.fitted.link = NULL,
+                par.se = NULL,
+                par.lower = NULL,
+                par.lower.link = NULL,
+                par.upper = NULL,
+                par.upper.link = NULL,
+                initialize = function(points, R, trace, start, bounds, ...){
+                    super$initialize(...)
+                    self$points <- points
+                    self$n.points <- nrow(points)
+                    self$R <- R
+                    self$trace <- trace
+                    self$set.start <- start
+                    self$set.bounds <- bounds
+                    self$get.contrasts()
+                    self$get.pars()
+                    self$n.par <- length(self$par.start)
+                    self$par.start.link <- self$link.pars(self$par.start)
+                    self$get.link.bounds()
+                },
+                ## An empty method for getting contrasts.
+                get.contrasts = function(){
+                    self$n.contrasts <- length(self$contrasts)
+                },
+                ## A method for getting the parameters across all classes.
+                get.pars = function(){
+                    self$fetch.pars()
+                },
+                ## An empty method for fetching parameters from a particular class.
+                fetch.pars = function(){
+                },
+                ## A method for adding new parameters.
+                add.pars = function(name, link.name = NULL, link, invlink = NULL,
+                                    start, lower, upper){
+                    self$par.names <- c(self$par.names, name)
+                    ## Sorting out inverse link.
+                    if (identical(link, log)){
+                        full.link <- function(pars) log(pars[name])
+                        ## Default name and inverse for log link.
+                        if (is.null(link.name)){
+                            link.name <- paste("log", name, sep = ".")
+                        }
+                        if (is.null(invlink)){
+                            full.invlink <- function(pars) exp(pars[link.name])
+                        }
+                    } else if (identical(link, logit)){
+                        full.link <- function(pars) link(pars[name])
+                        ## Default name and inverse for logit link.
+                        if (is.null(link.name)){
+                            link.name <- paste("logit", name, sep = ".")
+                        }
+                        if (is.null(invlink)){
+                            full.invlink <- function(pars) invlogit(pars[link.name])
+                        }
+                    } else {
+                        if (is.null(link.name)){
+                            stop("Please provide link name.")
+                        }
+                        if (is.null(invlink)){
+                            stop("Please provide inverse link function.")
+                        }
+                        full.link <- link
+                        full.invlink <- invlink
+                    }
+                    self$par.links <- c(self$par.links, full.link)
+                    names(self$par.links) <- self$par.names
+                    self$par.invlinks <- c(self$par.invlinks, full.invlink)
+                    names(self$par.invlinks) <- self$par.names
+                    self$par.names.link <- c(self$par.names.link, link.name)
+                    ## Overwriting start parameter, if one provided.
+                    if (any(name == names(self$set.start))){
+                        start <- self$set.start[name]
+                    }
+                    self$par.start <- c(self$par.start, start)
+                    names(self$par.start) <- self$par.names
+                    if (any(name == names(self$set.bounds))){
+                        lower <- self$set.bounds[[name]][1]
+                        upper <- self$set.bounds[[name]][2]
+                    }
+                    self$par.upper <- c(self$par.upper, upper)
+                    names(self$par.upper) <- self$par.names
+                    self$par.lower <- c(self$par.lower, lower)
+                    names(self$par.lower) <- self$par.names
+                },
+                ## A method to set the upper and lower parameter bounds on the link scale.
+                get.link.bounds = function(){
+                    self$par.lower.link <- self$link.pars(self$par.lower)
+                    self$par.upper.link <- self$link.pars(self$par.upper)
+                },
+                ## A method for converting parameters to their link scales.
+                link.pars = function(pars){
+                    out <- numeric(self$n.par)
+                    for (i in 1:self$n.par){
+                        out[i] <- self$par.links[[i]](pars)
+                    }
+                    names(out) <- self$par.names.link
+                    out
+                },
+                ## A method for converting parameters to their real scale.
+                invlink.pars = function(pars){
+                    out <- numeric(self$n.par)
+                    for (i in 1:self$n.par){
+                        out[i] <- self$par.invlinks[[i]](pars)
+                    }
+                    names(out) <- self$par.names
+                    out
+                },               
+
+                ## An empty method for the Palm intensity.
+                palm.intensity = function(r, pars){},
+                ## A default method for the sum of the log Palm intensities.
+                sum.log.intensities = function(pars){
+                    sum(log(self$n.points*self$palm.intensity(self$contrasts, pars)))
+                },
+                ## A default method for the integral in the Palm likelihood.
+                palm.likelihood.integral = function(pars){
+                    f <- function(r, pars){
+                        self$palm.intensity(r, pars)*Sd(r, self$dim)
+                    }
+                    -self$n.points*integrate(f, lower = 0, upper = self$R, pars = pars)$value
+                },
+                ## A default method for the log of the Palm likelihood function.
+                log.palm.likelihood = function(pars){
+                    out <- self$sum.log.intensities(pars) + self$palm.likelihood.integral(pars)
+                    if (self$trace){
+                        for (i in 1:self$n.par){
+                            cat(self$par.names[i], ": ", sep = "")
+                            cat(pars[i], ", ", sep = "")
+                        }
+                        cat("Log-lik: ", out, "\n", sep = "")
+                    }
+                    out
+                },
+
+                ## A method for the negative Palm likelihood function.
+                neg.log.palm.likelihood = function(pars){
+                    -self$log.palm.likelihood(pars)
+                },
+                ## A method for the negative Palm likelihood function with linked parameters.
+                link.neg.log.palm.likelihood = function(link.pars, fixed.link.pars = NULL,
+                                                        est.names = NULL, fixed.names = NULL){
+                    combined.pars <- c(link.pars, fixed.link.pars)
+                    names(combined.pars) <- c(est.names, fixed.names)
+                    link.pars <- combined.pars[self$par.names.link]
+                    pars <- self$invlink.pars(link.pars)
+                    self$neg.log.palm.likelihood(pars)
+                },
                 
+                ## A method for model fitting.
+                fit = function(){
+                    optim.obj <- nlminb(self$par.start.link, self$link.neg.log.palm.likelihood,
+                                        fixed.link.pars = self$par.fixed.link,
+                                        est.names = self$par.names.link, fixed.names = self$fixed.names.link,
+                                        control = list(eval.max = 2000, iter.max = 1500),
+                                        lower = self$par.lower.link, upper = self$par.upper.link)
+                    if (optim.obj$convergence > 1){
+                        warning("Failed convergence.")
+                    }
+                    self$par.fitted.link <- optim.obj$par
+                    names(self$par.fitted.link) <- self$par.names.link
+                    self$par.fitted <- self$invlink.pars(self$par.fitted.link)
+                    self$conv.code <- optim.obj$convergence
+                },
+                ## A method for bootstrapping.
+                boot = function(N, prog = TRUE){
+                    boots <- matrix(0, nrow = N, ncol = self$n.par)
+                    ## Setting up progress bar.
+                    if (prog){
+                        pb <- txtProgressBar(min = 0, max = N, style = 3)
+                    }
+                    for (i in 1:N){
+                        sim.obj <- self$simulate()
+                        obj.boot <- create.obj(classes = self$classes, points = sim.obj$points, lims = self$lims,
+                                               R = self$R, child.list = self$child.list,
+                                               sibling.list = sim.obj$sibling.list, trace = FALSE,
+                                               start = self$par.fitted, bounds = self$bounds)
+                        obj.boot$fit()
+                        if (obj.boot$conv.code > 1){
+                            boots[i, ] <- rep(NA, self$n.par)
+                        } else {
+                            boots[i, ] <- coef(obj.boot)
+                        }
+                        ## Updating progress bar.
+                        if (prog){
+                            setTxtProgressBar(pb, i)
+                        }
+                    }
+                    cat("\n")
+                    self$boots <- boots
+                    colnames(self$boots) <- self$par.names
+                    self$par.se <- apply(boots, 2, sd, na.rm = TRUE)
+                    names(self$par.se) <- self$par.names
+                },
+                ## A method for plotting.
+                plot = function(xlim = NULL, show.empirical = TRUE, breaks = 50){
+                    if (is.null(xlim)){
+                        xlim <- self$get.xlim()
+                    }
+                    xx <- seq(xlim[1], xlim[2], length.out = 1000)
+                    yy <- self$palm.intensity(xx, self$par.fitted)
+                    if (show.empirical){
+                        emp <- self$empirical(xlim, breaks)
+                        ylim <- c(0, max(c(emp$y, yy)))
+                    } else {
+                        ylim <- c(0, max(yy))
+                    }
+                    par(xaxs = "i")
+                    plot.new()
+                    plot.window(xlim = range(xx), ylim = ylim)
+                    box()
+                    axis(1)
+                    axis(2)
+                    abline(h = 0, col = "grey")
+                    title(xlab = "r", ylab = "Palm intensity")
+                    lines(xx, yy)
+                    if (show.empirical){
+                        lines(emp$x, emp$y, lty = "dashed")
+                    }
+                },
+                ## A method for default xlim.
+                get.xlim = function(){
+                    c(0, self$R)
+                },
+                ## A method for empirical Palm intensity.
+                empirical = function(xlim = NULL, breaks = 50){
+                    if (is.null(xlim)){
+                        xlim <- self$get.xlim()
+                    }
+                    dists <- pbc_distances(self$points, self$lims)
+                    midpoints <- seq(0, xlim[2], length.out = breaks)
+                    midpoints <- midpoints[-length(midpoints)]
+                    h <- diff(midpoints[c(1, 2)])
+                    midpoints[1] <- midpoints[1] + h/2
+                    intensities <- numeric(length(midpoints))
+                    for (i in 1:length(midpoints)){
+                        halfwidth <- ifelse(i == 1, 0.25*h, 0.5*h)
+                        n.interval <- sum(dists <= (midpoints[i] + halfwidth)) -
+                            sum(dists <= (midpoints[i] - halfwidth))
+                        area <- Vd(midpoints[i] + halfwidth, self$dim) -  Vd(midpoints[i] - halfwidth, self$dim)
+                        intensities[i] <- n.interval/(self$n.points*area)
+                    }
+                    list(x = midpoints, y = intensities)
+                }
             ))
 }
 
@@ -316,7 +335,7 @@ set.pbc.class <- function(class, class.env){
                 get.contrasts = function(){
                     ## Saving which contrast applies to which pair of observations.
                     contrast.pairs <- matrix(0, nrow = self$n.points^2 -
-                                                     self$n.points, ncol = 2)
+                                                    self$n.points, ncol = 2)
                     k <- 1
                     for (i in 1:(self$n.points - 1)){
                         for (j in (i + 1):self$n.points){
@@ -332,6 +351,36 @@ set.pbc.class <- function(class, class.env){
                 }
             ))
 }
+
+######
+## Class for buffer-zone boundary conditions.
+######
+
+set.buffer.class <- function(class, class.env){
+    ## Saving inherited class to class.env.
+    assign("pbc.inherit", class, envir = class.env)
+    R6Class("pbc",
+            inherit = class.env$pbc.inherit,
+            public = list(
+                ## A method to generate contrasts.
+                get.contrasts = function(){
+                    ## Getting rid of contrasts between two external points.
+                    buffer.keep <- buffer_keep(points = self$points, lims = self$lims,
+                                               R = self$R)
+                    contrasts <- as.vector(as.matrix(dist(self$points))[buffer.keep])
+                    contrast.pairs.1 <- matrix(rep(1:self$n.points, self$n.points), nrow = self$n.points)
+                    contrast.pairs.2 <- matrix(rep(1:self$n.points, self$n.points), nrow = self$n.points, byrow = TRUE)
+                    contrast.pairs.1 <- as.vector(contrast.pairs.1[buffer.keep])
+                    contrast.pairs.2 <- as.vector(contrast.pairs.2[buffer.keep])
+                    contrast.pairs <- cbind(contrast.pairs.1, contrast.pairs.2)
+                    ## Now truncating to contrasts less than R.
+                    self$contrasts <- contrasts[contrasts <= self$R] 
+                    self$contrast.pairs <- contrast.pairs[contrasts <= self$R, ]
+                    super$get.contrasts()
+                }
+            ))
+}
+
 
 ######
 ## Class for Neyman-Scott processes.
@@ -640,12 +689,12 @@ set.thomas.class <- function(class, class.env){
                 ## Overwriting method for the integral in the Palm likelihood.
                 palm.likelihood.integral = function(pars){
                     -self$n.points*(pars["D"]*self$child.expectation(pars)*Vd(self$R, self$dim) +
-                self$sibling.expectation(pars)*self$Fq(self$R, pars))
+                                    self$sibling.expectation(pars)*self$Fq(self$R, pars))
                 },
                 ## Overwriting method for the PDF of Q.
                 fq = function(r, pars){
                     2^(1 - self$dim/2)*r^(self$dim - 1)*exp(-r^2/(4*pars["sigma"]^2))/
-                                             ((pars["sigma"]*sqrt(2))^self$dim*gamma(self$dim/2))
+                        ((pars["sigma"]*sqrt(2))^self$dim*gamma(self$dim/2))
                 },
                 ## Overwriting method for the CDF of Q.
                 Fq = function(r, pars){
@@ -697,15 +746,15 @@ set.matern.class <- function(class, class.env){
                 fq = function(r, pars){
                     ifelse(r > 2*pars["tau"], 0,
                            2*self$dim*r^(self$dim - 1)*(pars["tau"]*hyperg_2F1(0.5, 0.5 - self$dim/2, 1.5, 1) -
-                                              r/2*hyperg_2F1(0.5, 0.5 - self$dim/2, 1.5, r^2/(4*pars["tau"]^2)))/
-                                   (beta(self$dim/2 + 0.5, 0.5)*pars["tau"]^(self$dim + 1)))
+                                                        r/2*hyperg_2F1(0.5, 0.5 - self$dim/2, 1.5, r^2/(4*pars["tau"]^2)))/
+                           (beta(self$dim/2 + 0.5, 0.5)*pars["tau"]^(self$dim + 1)))
                 },
                 ## Overwriting method for the CDF of Q.
                 Fq = function(r, pars){
                     alpha <- r^2/(4*pars["tau"]^2)
                     r^2/pars["tau"]^2*(1 - pbeta(alpha, 0.5, self$dim/2 + 0.5)) +
-                                        2^self$dim*incomplete.beta(alpha, self$dim/2 + 0.5, self$dim/2 + 0.5)/
-                                              beta(0.5, self$dim/2 + 0.5)
+                        2^self$dim*incomplete.beta(alpha, self$dim/2 + 0.5, self$dim/2 + 0.5)/
+                            beta(0.5, self$dim/2 + 0.5)
                 },
                 ## Overwriting method for the quotient of the PDF of Q and the surface volume.
                 fq.over.s = function(r, pars){
@@ -807,4 +856,5 @@ create.obj <- function(classes, points, lims, R, child.list, sibling.list, trace
 ## Some objects to get around R CMD check.
 super <- NULL
 self <- NULL
+
 

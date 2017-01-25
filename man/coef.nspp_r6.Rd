@@ -4,10 +4,13 @@
 \alias{coef.nspp_r6}
 \title{Extract parameter estimates.}
 \usage{
-\method{coef}{nspp_r6}(object, ...)
+\method{coef}{nspp_r6}(object, se = FALSE, ...)
 }
 \arguments{
 \item{object}{A fitted model object returned by \link{fit.ns_r6}.}
+
+\item{se}{Logical, if \code{TRUE} standard errors are presented
+(if available) instead of parameter estimates.}
 
 \item{...}{Other parameters (for S3 generic compatibility).}
 }

@@ -6,14 +6,6 @@
 \usage{
 pbc_distances(points, lims)
 }
-\arguments{
-\item{points}{A matrix containing locations of observed points,
-where each row corresponds to a point and each column
-corresponds to a dimension.}
-
-\item{lims}{A matrix with two columns, corresponding to the upper
-and lower limits of each dimension, respectively.}
-}
 \description{
 Calculates pairwise distances between points subject to periodic boundary constraints.
 }

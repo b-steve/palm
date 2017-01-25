@@ -4,38 +4,29 @@ test_that(
     "1D fitting",
     {
         ## Testing fits with PBC edge correction.
-        fit.pois.1D <- fit.ns(points = example.1D, lims = rbind(c(0, 1)), R = 0.5,
-                              child.dist = list(mean = function(x) x,
-                                                var = function(x) x,
-                                                sv = 5, bounds = c(0, 1e8)))
-        expect_that(abs(coef(fit.pois.1D)[1] - 46.530524823) < 1e-4, is_true())
-        fit.pois.1D.r6 <- fit.ns_r6(example.1D, lims = rbind(c(0, 1)), R = 0.5, trace = FALSE)
-        par.pois.1D.r6 <- coef(fit.pois.1D.r6)
-        diff.ratio.1D <- par.pois.1D.r6[c(1, 3, 2)]/coef(fit.pois.1D)
-        names(diff.ratio.1D) <- NULL
-        expect_equal(diff.ratio.1D, expected = rep(1, 3), tolerance = 0.01)
-        fit.bin.1D <- fit.ns(points = example.1D, lims = rbind(c(0, 1)), R = 0.5,
-                             child.dist = list(mean = function(x) 4*x,
-                                 var = function(x) 4*x*(1 - x),
-                                 sv = 0.5, bounds = c(0, 1)))
-        expect_that(abs(coef(fit.bin.1D)[1] - 34.907561984) < 1e-4, is_true())
-        ## Testing fits with buffer-zone edge correction.
-        fit.pois.1D.buffer <- fit.ns(points = example.1D, lims = rbind(c(0, 1)), R = 0.1,
-                                     child.dist = list(mean = function(x) x,
-                                                       var = function(x) x,
-                                                       sv = 5, bounds = c(0, 1e8)),
-                                     edge.correction = "buffer")
-        expect_that(abs(coef(fit.pois.1D.buffer)[1] - 38.7933732) < 1e-4, is_true())
+        fit.pois.1D <- fit.ns_r6(example.1D, lims = rbind(c(0, 1)), R = 0.5)
+        expect_equal(coef(fit.pois.1D), expected = c(D = 46.545192991,
+                                                     lambda = 2.061197102,
+                                                     sigma = 0.005430651),
+                     tolerance = 0.01)
+        fit.bin.1D <- fit.ns_r6(points = example.1D, lims = rbind(c(0, 1)), R = 0.5,
+                                   child.dist = "binom4")
+        expect_equal(coef(fit.bin.1D), expected = c(D = 34.908870817,
+                                                    p = 0.687066075,
+                                                    sigma = 0.005430652),
+                     tolerance = 0.01)
+        ## Testing fit with buffer-zone edge correction.
+        fit.pois.1D.buffer.r6 <- fit.ns_r6(example.1D, lims = rbind(c(0, 1)), R = 0.1,
+                                           edge.correction = "buffer")
+        expect_equal(coef(fit.pois.1D.buffer.r6), expected = c(D = 38.791827160,
+                                                               lambda = 1.922548805,
+                                                               sigma = 0.005606419),
+                     tolerance = 0.01)
+        
         ## Testing bootstrapping.
         set.seed(5432)
-        fit.pois.1D.boot <- boot.ns(fit = fit.pois.1D,
-                                    rchild = function(n, child.par){
-                                        rpois(n, lambda = child.par)
-                                    },
-                                    N = 5, prog = FALSE)
-        expect_that(abs(mean(fit.pois.1D.boot$boots[, 1]) - 48.78834) < 1e-4, is_true())
-        ## Testing plotting.
-        expect_that(plot(fit.pois.1D.boot), is_null())
+        fit.pois.1D <- boot(fit.pois.1D, 10, FALSE)
+        expect_equal(mean(fit.pois.1D$boots[, 1]), 50.47325, tolerance = 0.01)
     })
 
 test_that(
@@ -43,10 +34,9 @@ test_that(
     {
         ## With Poisson response (in R6).
         fit.pois.2D <- fit.ns_r6(example.2D, lims = rbind(c(0, 1), c(0, 1)), R = 0.5)
-        pars.fit.pois.2D <- coef(fit.pois.2D)
-        names(pars.fit.pois.2D) <- NULL
-        expect_equal(pars.fit.pois.2D,
-                     c(41.1579245303134, 0.694235909141885, 0.0270400534209158),
+        expect_equal(coef(fit.pois.2D), expected = c(D = 41.1579245303134,
+                                                     lambda = 0.694235909141885,
+                                                     sigma = 0.0270400534209158),
                      tolerance = 0.01)
         ## With binomial response (in R6).             
         fit.bin.2D <- fit.ns_r6(example.2D, lims = rbind(c(0, 1), c(0, 1)), R = 0.5,
@@ -69,27 +59,22 @@ test_that(
     "Two-plane simulation and model fitting.",
     {
         set.seed(4321)
-        D.2D <- 1.6025; sigma <- 0.025; S <- 28; l <- 500; w <- 0.175;
-        b <- w + 5*sigma; t = 20; C = 110
-        ## Simulating data.
-        plane.data <- sim.twoplane(D = D.2D, sigma = sigma, S = S, l = l, w = w,
-                                   b = b, t = t, C = C)
-        points <- plane.data$points
-        planes <- plane.data$planes
-        expect_that(abs(plane.data$points[1, 1] - 379.5013) < 1e-4, is_true())
-        ## Fitting model.
-        fit <- fit.twoplane(points = points, planes = planes, l = l, w = w,
-                            b = b, t = t, C = C, R = 1)
-        ## coef(fit)[1]/(2*b) ## This is an estimate of D.2D.
-        expect_that(abs(coef(fit, all = TRUE)[7] - 0.4958427) < 1e-4, is_true())
-        ## Test using R6.
-        sibling.list <- siblings.twoplane(planes)
-        names(sibling.list) <- c("sibling.mat", "alpha", "beta")
-        fit.r6 <- fit.twoplane_r6(points = points, planes = planes, d = l, w = w,
-                                  b = b, l = t, tau = C, R = 1)
-        pars.old <- coef(fit)[c(1, 3, 2)]
-        pars.new <- coef(fit.r6)
-        pars.new[1] <- pars.new[1]/(2*b)
-        names(pars.old) <- names(pars.new) <- NULL
-        expect_equal(pars.old, pars.new, tolerance = 0.001)
+        ## Simulation.
+        twoplane.data <- sim.ns_r6(c(D = 0.9615, kappa = 28, sigma = 0.025), lims = rbind(c(0, 500)),
+                                   disp = "gaussian", child.dist = "twoplane",
+                                   child.info = list(w = 0.175, b = 0.175 + 5*0.025, l = 20, tau = 110))
+        expect_equal(twoplane.data$points[1, 1], expected = 399.969972, tolerance = 0.01)
+        ## With plane information.
+        fit <- fit.ns_r6(points = twoplane.data$points, lims = rbind(c(0, 500)), R = 1,
+                         child.dist = "twoplane",
+                         child.info = list(w = 0.175, b = 0.175 + 5*0.025, l = 20, tau = 110),
+                         sibling.list = twoplane.data$sibling.list)
+        expect_equal(coef(fit), expected = c(D = 0.81322222, kappa = 26.02728291, sigma = 0.02046535), tolerance = 0.01)
+        ## Without plane information.
+        fit <- fit.ns_r6(points = twoplane.data$points, lims = rbind(c(0, 500)), R = 1,
+                         child.dist = "twoplane",
+                         child.info = list(w = 0.175, b = 0.175 + 5*0.025, l = 20, tau = 110))
+        expect_equal(coef(fit), expected = c(D = 0.76768111, kappa = 26.91820235, sigma = 0.02054313), tolerance = 0.01)
+        fit.noplane <- fit.twoplane_r6(points = twoplane.data$points, NULL, 500, 0.175, 0.175 + 5*0.025, 20, 110, 1)
+        expect_equal(coef(fit.noplane), expected = c(D = 0.76768111, kappa = 26.91820235, sigma = 0.02054313), tolerance = 0.01)
     })
