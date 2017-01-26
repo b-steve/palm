@@ -265,7 +265,6 @@ set.fit.class <- function(class, class.env){
                     cat("\n")
                     self$boots <- boots
                     colnames(self$boots) <- self$par.names
-                    self$par.se <- apply(boots, 2, sd, na.rm = TRUE)
                 },
                 ## A method for plotting.
                 plot = function(xlim = NULL, show.empirical = TRUE, breaks = 50){

@@ -16,7 +16,7 @@ coef.nspp <- function(object, se = FALSE, ...){
         if (is.null(object$boots)){
             stop("Standard errors not available as the model object has not been bootstrapped.")
         }
-        out <- object$par.se
+        out <- apply(object$boots, 2, sd, na.rm = TRUE)
     } else {
         out <- object$par.fitted
     }
@@ -44,12 +44,7 @@ coef.nspp_twoplanechild <- function(object, se = FALSE, report.2D = TRUE, ...){
         if (is.null(object$boots)){
             stop("Standard errors not available as the model object has not been bootstrapped.")
         }
-        boots <- object$boots
-        if (report.2D){
-            which.D <- which(object$par.names == "D")
-            boots[, which.D] <- boots[, which.D]/(2*object$twoplane.b)
-            colnames(boots)[which.D] <- "D.2D"
-        }
+        boots <- get.boots(object, report.2D = report.2D)
         out <- apply(boots, 2, sd, na.rm = TRUE)
     } else {
         out <- object$par.fitted
@@ -91,21 +86,43 @@ confint.nspp <- function(object, parm = NULL, level = 0.95, method = "percentile
     if (is.null(object$boots)){
         stop("Confidence intervals not available as the model object has not been bootstrapped.")
     }
-    if(is.null(parm)){
-        parm <- object$par.names
-    }
     if (method == "normal"){
         ests <- coef(object, ...)
-        ses <- coef(object, se = TRUE)
+        ses <- coef(object, se = TRUE, ...)
         out <- cbind(ests + qnorm((1 - level)/2)*ses,
                      ests - qnorm((1 - level)/2)*ses)
     } else if (method == "percentile"){
-        out <- t(apply(object$boots[, parm, drop = FALSE], 2, quantile, probs = c((1 - level)/2, 1 - (1 - level)/2),
+        boots <- get.boots(object, ...)
+        out <- t(apply(boots, 2, quantile, probs = c((1 - level)/2, 1 - (1 - level)/2),
                        na.rm = TRUE))
     }
     colnames(out) <- c(paste(100*(1 - level)/2, "%"),
                        paste(100*((1 + level)/2), "%"))
+    if (!is.null(parm)){
+        out <- out[parm, , drop = FALSE]
+    }
     out
+}
+
+## Getting bootstraps.
+get.boots <- function(object, ...){
+    UseMethod("get.boots")
+}
+## For normal fits.
+#' @method get.boots nspp
+get.boots.nspp <- function(object, ...){
+    object$boots
+}
+## For twoplane fits.
+#' @method get.boots nspp_twoplanechild
+get.boots.nspp_twoplanechild <- function(object, report.2D = TRUE, ...){
+    boots <- object$boots
+    if (report.2D){
+        which.D <- which(object$par.names == "D")
+        boots[, which.D] <- boots[, which.D]/(2*object$twoplane.b)
+        colnames(boots)[which.D] <- "D.2D"
+    }
+    boots
 }
 
 #' Summarising nspp model fits
@@ -120,8 +137,8 @@ confint.nspp <- function(object, parm = NULL, level = 0.95, method = "percentile
 #'
 #' @export
 summary.nspp <- function(object, ...){
-    coefs <- coef(object)
-    ses <- coef(object, se = TRUE)
+    coefs <- coef(object, ...)
+    ses <- coef(object, se = TRUE, ...)
     out <- list(coefs = coefs, ses = ses)
     class(out) <- c("summary.nspp", class(out))
     out
