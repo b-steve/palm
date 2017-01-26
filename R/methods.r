@@ -44,11 +44,17 @@ coef.nspp_twoplanechild <- function(object, se = FALSE, report.2D = TRUE, ...){
         if (is.null(object$boots)){
             stop("Standard errors not available as the model object has not been bootstrapped.")
         }
-        out <- object$par.se
+        boots <- object$boots
+        if (report.2D){
+            which.D <- which(object$par.names == "D")
+            boots[, which.D] <- boots[, which.D]/(2*object$twoplane.b)
+            colnames(boots)[which.D] <- "D.2D"
+        }
+        out <- apply(boots, 2, sd, na.rm = TRUE)
     } else {
         out <- object$par.fitted
         if (report.2D){
-            which.D <- which(names(out) == "D")
+            which.D <- which(object$par.names == "D")
             out[which.D] <- out[which.D]/(2*object$twoplane.b)
             names(out)[which.D] <- "D.2D"
         }
@@ -89,7 +95,7 @@ confint.nspp <- function(object, parm = NULL, level = 0.95, method = "percentile
         parm <- object$par.names
     }
     if (method == "normal"){
-        ests <- coef(object)
+        ests <- coef(object, ...)
         ses <- coef(object, se = TRUE)
         out <- cbind(ests + qnorm((1 - level)/2)*ses,
                      ests - qnorm((1 - level)/2)*ses)
