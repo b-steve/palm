@@ -7,7 +7,7 @@
 \method{coef}{nspp}(object, se = FALSE, ...)
 }
 \arguments{
-\item{object}{A fitted model object returned by \link{fit.ns}.}
+\item{object}{A fitted model object.}
 
 \item{se}{Logical, if \code{TRUE} standard errors are presented
 (if available) instead of parameter estimates.}
@@ -16,6 +16,6 @@
 }
 \description{
 Extracts estimated parameters from an object returned by
-\link{fit.ns}.
+\link{fit.ns} or \link{fit.void}.
 }
 
