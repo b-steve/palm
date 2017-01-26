@@ -1,9 +1,9 @@
 #' Extract parameter estimates.
 #'
 #' Extracts estimated parameters from an object returned by
-#' \link{fit.ns}.
+#' \link{fit.ns} or \link{fit.void}.
 #'
-#' @param object A fitted model object returned by \link{fit.ns}.
+#' @param object A fitted model object.
 #' @param se Logical, if \code{TRUE} standard errors are presented
 #'     (if available) instead of parameter estimates.
 #' @param ... Other parameters (for S3 generic compatibility).
@@ -19,6 +19,39 @@ coef.nspp <- function(object, se = FALSE, ...){
         out <- object$par.se
     } else {
         out <- object$par.fitted
+    }
+    out
+}
+
+#' Extract parameter estimates.
+#'
+#' Extracts estimated parameters from an object returned by
+#' \link{fit.ns} with \code{"twoplane"} dispersion or
+#' \link{fit.twoplane}.
+#'
+#' @param object A fitted model object.
+#' @param se Logical, if \code{TRUE} standard errors are presented (if
+#'     available) instead of parameter estimates.
+#' @param report.2D Logical, if \code{TRUE}, two-dimensional density
+#'     is reported.
+#' @param ... Other parameters (for S3 generic compatibility).
+#'
+#' @method coef nspp_twoplanechild
+#' 
+#'@export
+coef.nspp_twoplanechild <- function(object, se = FALSE, report.2D = TRUE, ...){
+    if (se){
+        if (is.null(object$boots)){
+            stop("Standard errors not available as the model object has not been bootstrapped.")
+        }
+        out <- object$par.se
+    } else {
+        out <- object$par.fitted
+        if (report.2D){
+            which.D <- which(names(out) == "D")
+            out[which.D] <- out[which.D]/(2*object$twoplane.b)
+            names(out)[which.D] <- "D.2D"
+        }
     }
     out
 }
