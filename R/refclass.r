@@ -76,7 +76,6 @@ set.fit.class <- function(class, class.env){
                 par.invlinks = NULL,
                 par.fitted = NULL,
                 par.fitted.link = NULL,
-                par.se = NULL,
                 par.lower = NULL,
                 par.lower.link = NULL,
                 par.upper = NULL,
@@ -256,7 +255,7 @@ set.fit.class <- function(class, class.env){
                         if (obj.boot$conv.code > 1){
                             boots[i, ] <- rep(NA, self$n.par)
                         } else {
-                            boots[i, ] <- coef(obj.boot)
+                            boots[i, ] <- obj.boot$par.fitted
                         }
                         ## Updating progress bar.
                         if (prog){
@@ -267,7 +266,6 @@ set.fit.class <- function(class, class.env){
                     self$boots <- boots
                     colnames(self$boots) <- self$par.names
                     self$par.se <- apply(boots, 2, sd, na.rm = TRUE)
-                    names(self$par.se) <- self$par.names
                 },
                 ## A method for plotting.
                 plot = function(xlim = NULL, show.empirical = TRUE, breaks = 50){
