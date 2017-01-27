@@ -151,9 +151,11 @@ fit.ns <- function(points, lims, R, disp = "gaussian", child.dist = "pois", chil
 #' ## Fitting a model to these data.
 #' fit.thomas <- fit.ns(data.thomas$points, lims = rbind(c(0, 1)), R = 0.5)
 #' ## Three-dimensional Matern process.
-#' data.matern <- sim.ns(c(D = 10, lambda = 10, tau = 0.1), disp = "uniform", lims = rbind(c(0, 1), c(0, 2), c(0, 3)))
+#' data.matern <- sim.ns(c(D = 10, lambda = 10, tau = 0.1), disp = "uniform",
+#'                       lims = rbind(c(0, 1), c(0, 2), c(0, 3)))
 #' ## Fitting a model to these data.
-#' fit.matern <- fit.ns(data.matern$points, lims = rbind(c(0, 1), c(0, 2), c(0, 3)), R = 0.5, disp = "uniform")
+#' fit.matern <- fit.ns(data.matern$points, lims = rbind(c(0, 1), c(0, 2), c(0, 3)),
+#'                      R = 0.5, disp = "uniform")
 #' 
 #' @export
 sim.ns <- function(pars, lims, disp = "gaussian", child.dist = "pois", child.info = NULL){
