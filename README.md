@@ -14,5 +14,10 @@ clustered point process. Some of the functions in this package are
 specifically for the estimation of cetacean density from two-camera
 aerial surveys.
 
-## References
+## Installation
 
+The stable version of this package can be installed from CRAN:
+
+```
+install.packages("palm")
+```
