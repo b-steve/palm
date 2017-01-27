@@ -25,7 +25,7 @@ test_that(
         
         ## Testing bootstrapping.
         set.seed(5432)
-        fit.pois.1D <- boot(fit.pois.1D, 10, FALSE)
+        fit.pois.1D <- boot.palm(fit.pois.1D, 10, FALSE)
         expect_equal(mean(fit.pois.1D$boots[, 1]), 50.47325, tolerance = 0.01)
     })
 
