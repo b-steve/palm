@@ -1,0 +1,12 @@
+Version 1.0.0
+-------------
+
+- First release of palm, after the original project was named 'nspp'.
+
+- Includes functions to fit Neyman-Scott point processes (including
+  Thomas process and Matern process variants) and void processes.
+
+- Includes a function to estimate cetacean density from two-camera
+  aerial surveys.
+
+- Includes functions to simulate from all of the above models.
