@@ -1,6 +1,6 @@
 Package: palm
 Type: Package
-Title: Fitting point process models via the Palm likelihood
+Title: Fitting Point Process Models via the Palm Likelihood
 Version: 1.0.0
 Date: 2017-01-27
 Author: Ben Stevenson <ben.stevenson@auckland.ac.nz>
@@ -17,7 +17,7 @@ Imports:
 LinkingTo: Rcpp
 Suggests:
     testthat
-Description: This package provides functions for the fitting of point process models using the Palm likelihood function.
+Description: Functions for the fitting of point process models using the Palm likelihood function.
 License: GPL
 URL: https://github.com/b-steve/palm
 LazyData: TRUE
