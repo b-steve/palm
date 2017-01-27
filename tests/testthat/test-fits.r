@@ -56,29 +56,29 @@ test_that(
     })
 
 test_that(
-    "Two-plane simulation and model fitting.",
+    "Two-camera simulation and model fitting.",
     {
         set.seed(4321)
         ## Simulation.
-        twoplane.data <- sim.ns(c(D = 0.9615, kappa = 28, sigma = 0.025), lims = rbind(c(0, 500)),
-                                   disp = "gaussian", child.dist = "twoplane",
+        twocamera.data <- sim.ns(c(D = 0.9615, kappa = 28, sigma = 0.025), lims = rbind(c(0, 500)),
+                                   disp = "gaussian", child.dist = "twocamera",
                                    child.info = list(w = 0.175, b = 0.175 + 5*0.025, l = 20, tau = 110))
-        expect_equal(twoplane.data$points[1, 1], expected = 399.969972, tolerance = 0.01)
-        ## With plane information.
-        fit <- fit.ns(points = twoplane.data$points, lims = rbind(c(0, 500)), R = 1,
-                         child.dist = "twoplane",
+        expect_equal(twocamera.data$points[1, 1], expected = 399.969972, tolerance = 0.01)
+        ## With camera information.
+        fit <- fit.ns(points = twocamera.data$points, lims = rbind(c(0, 500)), R = 1,
+                         child.dist = "twocamera",
                          child.info = list(w = 0.175, b = 0.175 + 5*0.025, l = 20, tau = 110),
-                         sibling.list = twoplane.data$sibling.list)
+                         sibling.list = twocamera.data$sibling.list)
         expect_equal(coef(fit, report.2D = FALSE), expected = c(D = 0.81322222, kappa = 26.02728291, sigma = 0.02046535),
                      tolerance = 0.01)
-        ## Without plane information.
-        fit <- fit.ns(points = twoplane.data$points, lims = rbind(c(0, 500)), R = 1,
-                         child.dist = "twoplane",
+        ## Without camera information.
+        fit <- fit.ns(points = twocamera.data$points, lims = rbind(c(0, 500)), R = 1,
+                         child.dist = "twocamera",
                          child.info = list(w = 0.175, b = 0.175 + 5*0.025, l = 20, tau = 110))
         expect_equal(coef(fit, report.2D = FALSE), expected = c(D = 0.76768111, kappa = 26.91820235, sigma = 0.02054313),
                      tolerance = 0.01)
-        fit.noplane <- fit.twoplane(points = twoplane.data$points, NULL, 500, 0.175, 0.175 + 5*0.025, 20, 110, 1)
-        expect_equal(coef(fit.noplane, report.2D = FALSE), expected = c(D = 0.76768111, kappa = 26.91820235, sigma = 0.02054313),
+        fit.nocamera <- fit.twocamera(points = twocamera.data$points, NULL, 500, 0.175, 0.175 + 5*0.025, 20, 110, 1)
+        expect_equal(coef(fit.nocamera, report.2D = FALSE), expected = c(D = 0.76768111, kappa = 26.91820235, sigma = 0.02054313),
                      tolerance = 0.01)
     })
 

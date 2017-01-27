@@ -1,4 +1,4 @@
 library(testthat)
-library(nspp)
+library(palm)
 
-test_check("nspp")
+test_check("palm")

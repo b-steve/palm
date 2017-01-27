@@ -21,8 +21,8 @@ error.dims <- function(points, lims){
     }
 }
 
-## Calculation of two-plane detection probabilities.
-twoplane.probs <- function(t, C, w, b, S, sigma){
+## Calculation of two-camera detection probabilities.
+twocamera.probs <- function(t, C, w, b, S, sigma){
     ## Up/down probabilities.
 
     ## Marginal probabilities.
@@ -43,8 +43,8 @@ twoplane.probs <- function(t, C, w, b, S, sigma){
     }
     ## In/out probabilities.
     
-    ## Probability of being in the transect for second plane, given in
-    ## transect for first plane.
+    ## Probability of being in the transect for second camera, given in
+    ## transect for first camera.
     f.y2.cond.y1 <- function(y1, w, sigma){
         F.pw <- pnorm(w, mean = y1, sd = sigma*sqrt(2))
         F.nw <- pnorm(-w, mean = y1, sd = sigma*sqrt(2))
@@ -113,13 +113,13 @@ invlogit <- function(y){
     1/(1 + exp(-y))
 }
 
-## Obtaining sibling matrix from plane IDs.
-siblings.twoplane <- function(plane.id){
-    n.points <- length(plane.id)
+## Obtaining sibling matrix from camera IDs.
+siblings.twocamera <- function(camera.id){
+    n.points <- length(camera.id)
     out <- matrix(NA, nrow = n.points, ncol = n.points)
     for (i in 1:n.points){
         for (j in i:n.points){
-            if (plane.id[i] == plane.id[j]){
+            if (camera.id[i] == camera.id[j]){
                 out[i, j] <- out[j, i] <- FALSE
             }
         }

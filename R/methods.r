@@ -8,10 +8,10 @@
 #'     (if available) instead of parameter estimates.
 #' @param ... Other parameters (for S3 generic compatibility).
 #'
-#' @method coef nspp
+#' @method coef palm
 #' 
 #'@export
-coef.nspp <- function(object, se = FALSE, ...){
+coef.palm <- function(object, se = FALSE, ...){
     if (se){
         if (is.null(object$boots)){
             stop("Standard errors not available as the model object has not been bootstrapped.")
@@ -26,8 +26,8 @@ coef.nspp <- function(object, se = FALSE, ...){
 #' Extract parameter estimates.
 #'
 #' Extracts estimated parameters from an object returned by
-#' \link{fit.ns} with \code{"twoplane"} dispersion or
-#' \link{fit.twoplane}.
+#' \link{fit.ns} with \code{"twocamera"} dispersion or
+#' \link{fit.twocamera}.
 #'
 #' @param object A fitted model object.
 #' @param se Logical, if \code{TRUE} standard errors are presented (if
@@ -36,10 +36,10 @@ coef.nspp <- function(object, se = FALSE, ...){
 #'     is reported.
 #' @param ... Other parameters (for S3 generic compatibility).
 #'
-#' @method coef nspp_twoplanechild
+#' @method coef palm_twocamerachild
 #' 
 #'@export
-coef.nspp_twoplanechild <- function(object, se = FALSE, report.2D = TRUE, ...){
+coef.palm_twocamerachild <- function(object, se = FALSE, report.2D = TRUE, ...){
     if (se){
         if (is.null(object$boots)){
             stop("Standard errors not available as the model object has not been bootstrapped.")
@@ -50,7 +50,7 @@ coef.nspp_twoplanechild <- function(object, se = FALSE, report.2D = TRUE, ...){
         out <- object$par.fitted
         if (report.2D){
             which.D <- which(object$par.names == "D")
-            out[which.D] <- out[which.D]/(2*object$twoplane.b)
+            out[which.D] <- out[which.D]/(2*object$twocamera.b)
             names(out)[which.D] <- "D.2D"
         }
     }
@@ -79,10 +79,10 @@ coef.nspp_twoplanechild <- function(object, se = FALSE, report.2D = TRUE, ...){
 #'     method.
 #' @param ... Other parameters (for S3 generic compatability).
 #'
-#' @method confint nspp
+#' @method confint palm
 #'
 #' @export
-confint.nspp <- function(object, parm = NULL, level = 0.95, method = "percentile", ...){
+confint.palm <- function(object, parm = NULL, level = 0.95, method = "percentile", ...){
     if (is.null(object$boots)){
         stop("Confidence intervals not available as the model object has not been bootstrapped.")
     }
@@ -109,45 +109,45 @@ get.boots <- function(object, ...){
     UseMethod("get.boots")
 }
 ## For normal fits.
-#' @method get.boots nspp
-get.boots.nspp <- function(object, ...){
+#' @method get.boots palm
+get.boots.palm <- function(object, ...){
     object$boots
 }
-## For twoplane fits.
-#' @method get.boots nspp_twoplanechild
-get.boots.nspp_twoplanechild <- function(object, report.2D = TRUE, ...){
+## For twocamera fits.
+#' @method get.boots palm_twocamerachild
+get.boots.palm_twocamerachild <- function(object, report.2D = TRUE, ...){
     boots <- object$boots
     if (report.2D){
         which.D <- which(object$par.names == "D")
-        boots[, which.D] <- boots[, which.D]/(2*object$twoplane.b)
+        boots[, which.D] <- boots[, which.D]/(2*object$twocamera.b)
         colnames(boots)[which.D] <- "D.2D"
     }
     boots
 }
 
-#' Summarising nspp model fits
+#' Summarising palm model fits
 #'
 #' Provides a useful summary of the model fit.
 #'
 #' @param object A fitted model returned by \link{fit.ns}.
 #' @param ... Other parameters (for S3 generic compatibility).
-#' @inheritParams coef.nspp
+#' @inheritParams coef.palm
 #' 
-#' @method summary nspp
+#' @method summary palm
 #'
 #' @export
-summary.nspp <- function(object, ...){
+summary.palm <- function(object, ...){
     coefs <- coef(object, ...)
     ses <- coef(object, se = TRUE, ...)
     out <- list(coefs = coefs, ses = ses)
-    class(out) <- c("summary.nspp", class(out))
+    class(out) <- c("summary.palm", class(out))
     out
 }
 
-#' @method print summary.nspp
+#' @method print summary.palm
 #' 
 #' @export
-print.summary.nspp <- function(x, ...){
+print.summary.palm <- function(x, ...){
     n.coefs <- length(x$coefs)
     mat <- matrix(0, nrow = n.coefs, ncol = 2)
     rownames(mat) <- names(x$coefs)
@@ -167,7 +167,7 @@ print.summary.nspp <- function(x, ...){
 #' @param ... Other parameters (for S3 generic compatibility).
 #'
 #' @export
-plot.nspp <- function(x, ...){
+plot.palm <- function(x, ...){
     x$plot(...)
 }
 

@@ -2,7 +2,7 @@
 ## General base class.
 ######
 
-base.class.R6 <- R6Class("nspp",
+base.class.R6 <- R6Class("palm",
                          public = list(
                              ## Setting fields.
                              lims = NULL,
@@ -36,7 +36,7 @@ base.class.R6 <- R6Class("nspp",
 set.CLASSNAME.class <- function(class, class.env){
     ## Saving inherited class to class.env.
     assign("CLASSNAME.inherit", class, envir = class.env)
-    R6Class("nspp_CLASSNAME",
+    R6Class("palm_CLASSNAME",
             inherit = class.env$CLASSNAME.inherit,
             public = list(
 
@@ -50,7 +50,7 @@ set.CLASSNAME.class <- function(class, class.env){
 set.fit.class <- function(class, class.env){
     ## Saving inherited class to class.env.
     assign("fit.inherit", class, envir = class.env)
-    R6Class("nspp_fit",
+    R6Class("palm_fit",
             inherit = class.env$fit.inherit,
             public = list(
                 points = NULL,
@@ -326,7 +326,7 @@ set.fit.class <- function(class, class.env){
 set.pbc.class <- function(class, class.env){
     ## Saving inherited class to class.env.
     assign("pbc.inherit", class, envir = class.env)
-    R6Class("nspp_pbc",
+    R6Class("palm_pbc",
             inherit = class.env$pbc.inherit,
             public = list(
                 ## A method to generate contrasts.
@@ -357,7 +357,7 @@ set.pbc.class <- function(class, class.env){
 set.buffer.class <- function(class, class.env){
     ## Saving inherited class to class.env.
     assign("pbc.inherit", class, envir = class.env)
-    R6Class("nspp_pbc",
+    R6Class("palm_pbc",
             inherit = class.env$pbc.inherit,
             public = list(
                 ## A method to generate contrasts.
@@ -387,7 +387,7 @@ set.buffer.class <- function(class, class.env){
 set.ns.class <- function(class, class.env){
     ## Saving inherited class to class.env.
     assign("ns.inherit", class, envir = class.env)
-    R6Class("nspp_ns",
+    R6Class("palm_ns",
             inherit = class.env$ns.inherit,
             public = list(
                 child.list = NULL,
@@ -476,7 +476,7 @@ set.ns.class <- function(class, class.env){
 set.sibling.class <- function(class, class.env){
     ## Saving inherited class to class.env.
     assign("sibling.inherit", class, envir = class.env)
-    R6Class("nspp_sibling",
+    R6Class("palm_sibling",
             inherit = class.env$sibling.inherit,
             public = list(
                 siblings = NULL,
@@ -528,7 +528,7 @@ set.sibling.class <- function(class, class.env){
 set.poischild.class <- function(class, class.env){
     ## Saving inherited class to class.env.
     assign("poischild.inherit", class, envir = class.env)
-    R6Class("nspp_poischild",
+    R6Class("palm_poischild",
             inherit = class.env$poischild.inherit,
             public = list(
                 ## Adding lambda parameter.
@@ -558,7 +558,7 @@ set.poischild.class <- function(class, class.env){
 set.binomchild.class <- function(class, class.env){
     ## Saving inherited class to class.env.
     assign("binomchild.inherit", class, envir = class.env)
-    R6Class("nspp_binomchild",
+    R6Class("palm_binomchild",
             inherit = class.env$binomchild.inherit,
             public = list(
                 binom.size = NULL,
@@ -591,84 +591,84 @@ set.binomchild.class <- function(class, class.env){
 }
 
 ######
-## Class for two-plane children distribution.
+## Class for two-camera children distribution.
 ######
-set.twoplanechild.class <- function(class, class.env){
+set.twocamerachild.class <- function(class, class.env){
     ## Saving inherited class to class.env.
-    assign("twoplanechild.inherit", class, envir = class.env)
-    R6Class("nspp_twoplanechild",
-            inherit = class.env$twoplanechild.inherit,
+    assign("twocamerachild.inherit", class, envir = class.env)
+    R6Class("palm_twocamerachild",
+            inherit = class.env$twocamerachild.inherit,
             public = list(
                 ## Detection zone halfwidth.
-                twoplane.w = NULL,
+                twocamera.w = NULL,
                 ## Survey area halfwidth.
-                twoplane.b = NULL,
-                ## Lag between planes.
-                twoplane.l = NULL,
+                twocamera.b = NULL,
+                ## Lag between cameras.
+                twocamera.l = NULL,
                 ## Mean dive-cycle duration.
-                twoplane.tau = NULL,
+                twocamera.tau = NULL,
                 initialize = function(child.list, ...){
                     self$child.list <- child.list
-                    self$twoplane.w <- child.list$twoplane.w
-                    self$twoplane.b <- child.list$twoplane.b
-                    self$twoplane.l <- child.list$twoplane.l
-                    self$twoplane.tau <- child.list$twoplane.tau
+                    self$twocamera.w <- child.list$twocamera.w
+                    self$twocamera.b <- child.list$twocamera.b
+                    self$twocamera.l <- child.list$twocamera.l
+                    self$twocamera.tau <- child.list$twocamera.tau
                     super$initialize(...)
                     if (self$dim != 1){
-                        stop("Analysis of two-plane surveys is only implemented for one-dimensional processes.")
+                        stop("Analysis of two-camera surveys is only implemented for one-dimensional processes.")
                     }
                 },
                 ## Adding kappa parameter.
                 fetch.pars = function(){
                     super$fetch.pars()
-                    self$add.pars(name = "kappa", link = log, start = 0.1*self$twoplane.tau, lower = 0,
-                                  upper = self$twoplane.tau)
+                    self$add.pars(name = "kappa", link = log, start = 0.1*self$twocamera.tau, lower = 0,
+                                  upper = self$twocamera.tau)
                 },
                 ## Overwriting base simulation method in case D.2D is provided.
                 simulate = function(pars = self$par.fitted){
                     if (any(names(pars) == "D.2D")){
                         which.D <- which(names(pars) == "D.2D")
-                        pars[which.D] <- 2*pars[which.D]*self$twoplane.b
+                        pars[which.D] <- 2*pars[which.D]*self$twocamera.b
                         names(pars)[which.D] <- "D"
                     }
                     super$simulate(pars)
                 },
                 ## Simulation method for the number of children per parent.
                 simulate.n.children = function(n, pars){
-                    probs <- twoplane.probs(self$twoplane.l, self$twoplane.tau, self$twoplane.w,
-                                            self$twoplane.b, pars["kappa"], pars["sigma"])
-                    plane1.in <- sample(c(TRUE, FALSE), n, replace = TRUE, prob = c(probs$p.in, probs$p.out))
-                    plane1.up <- sample(c(TRUE, FALSE), n, replace = TRUE, prob = c(probs$p.up, probs$p.down))
-                    plane1.det <- plane1.in & plane1.up
-                    plane2.det <- numeric(n)
+                    probs <- twocamera.probs(self$twocamera.l, self$twocamera.tau, self$twocamera.w,
+                                            self$twocamera.b, pars["kappa"], pars["sigma"])
+                    camera1.in <- sample(c(TRUE, FALSE), n, replace = TRUE, prob = c(probs$p.in, probs$p.out))
+                    camera1.up <- sample(c(TRUE, FALSE), n, replace = TRUE, prob = c(probs$p.up, probs$p.down))
+                    camera1.det <- camera1.in & camera1.up
+                    camera2.det <- numeric(n)
                     for (i in 1:n){
-                        plane2.det[i] <- sample(c(TRUE, FALSE), 1,
-                                                prob = c(probs$p.11[plane1.det[i]], probs$p.10[!plane1.det[i]],
-                                                         probs$p.01[plane1.det[i]], probs$p.00[!plane1.det[i]]))
+                        camera2.det[i] <- sample(c(TRUE, FALSE), 1,
+                                                prob = c(probs$p.11[camera1.det[i]], probs$p.10[!camera1.det[i]],
+                                                         probs$p.01[camera1.det[i]], probs$p.00[!camera1.det[i]]))
                     }
-                    n.children <-  plane1.det + plane2.det
-                    planes <- numeric(sum(n.children))
+                    n.children <-  camera1.det + camera2.det
+                    cameras <- numeric(sum(n.children))
                     j <- 1
                     for (i in 1:n){
                         if (n.children[i] > 0){
-                            planes[j:(j + n.children[i] - 1)] <- c(1[plane1.det[i]], 2[plane2.det[i]])
+                            cameras[j:(j + n.children[i] - 1)] <- c(1[camera1.det[i]], 2[camera2.det[i]])
                         }
                         j <- j + n.children[i]
                     }
-                    sibling.list <- siblings.twoplane(planes)
-                    sibling.list$planes <- planes
+                    sibling.list <- siblings.twocamera(cameras)
+                    sibling.list$cameras <- cameras
                     list(n.children = n.children, sibling.list = sibling.list)
                 },
                 ## A method for the expectation of the child distribution.
                 child.expectation = function(pars){
-                    probs <- twoplane.probs(self$twoplane.l, self$twoplane.tau, self$twoplane.w,
-                                            self$twoplane.b, pars["kappa"], pars["sigma"])
+                    probs <- twocamera.probs(self$twocamera.l, self$twocamera.tau, self$twocamera.w,
+                                            self$twocamera.b, pars["kappa"], pars["sigma"])
                     2*probs$p.10/(probs$p.10 + probs$p.01)
                 },
                 ## A method for the variance of the child distribution.
                 child.variance = function(pars){
-                    probs <- twoplane.probs(self$twoplane.l, self$twoplane.tau, self$twoplane.w,
-                                            self$twoplane.b, pars["kappa"], pars["sigma"])
+                    probs <- twocamera.probs(self$twocamera.l, self$twocamera.tau, self$twocamera.w,
+                                            self$twocamera.b, pars["kappa"], pars["sigma"])
                     2*probs$p.10*probs$p.01*(2 - probs$p.10 - probs$p.01)/(probs$p.10 + probs$p.01)^2
                 }
             ))
@@ -681,7 +681,7 @@ set.twoplanechild.class <- function(class, class.env){
 set.thomas.class <- function(class, class.env){
     ## Saving inherited class to class.env.
     assign("thomas.inherit", class, envir = class.env)
-    R6Class("nspp_thomas",
+    R6Class("palm_thomas",
             inherit = class.env$thomas.inherit,
             public = list(
                 ## Adding sigma paremter.
@@ -726,7 +726,7 @@ set.thomas.class <- function(class, class.env){
 set.matern.class <- function(class, class.env){
     ## Saving inherited class to class.env.
     assign("matern.inherit", class, envir = class.env)
-    R6Class("nspp_matern",
+    R6Class("palm_matern",
             inherit = class.env$matern.inherit,
             public = list(
                 ## Adding tau parameter.
@@ -785,7 +785,7 @@ set.matern.class <- function(class, class.env){
 set.void.class <- function(class, class.env){
     ## Saving inherited class to class.env.
     assign("void.inherit", class, envir = class.env)
-    R6Class("nspp_void",
+    R6Class("palm_void",
             inherit = class.env$void.inherit,
             public = list(
                 ## Adding children and parent density parameters.
@@ -822,7 +822,7 @@ set.void.class <- function(class, class.env){
 set.totaldeletion.class <- function(class, class.env){
     ## Saving inherited class to class.env.
     assign("totaldeletion.inherit", class, envir = class.env)
-    R6Class("nspp_totaldeletion",
+    R6Class("palm_totaldeletion",
             inherit = class.env$totaldeletion.inherit,
             public = list(
                 fetch.pars = function(){
@@ -854,8 +854,8 @@ create.obj <- function(classes, points, lims, R, child.list, sibling.list, trace
         set.class <- get(paste("set", classes[i], "class", sep = "."))
         class <- set.class(class, class.env)
     }
-    if (any(classes == "twoplanechild") & !any(classes == "thomas")){
-        stop("Analysis of two-plane surveys is only implemented for Thomas processes.")
+    if (any(classes == "twocamerachild") & !any(classes == "thomas")){
+        stop("Analysis of two-camera surveys is only implemented for Thomas processes.")
     }
     class$new(points = points, lims = lims, R = R, child.list = child.list,
               sibling.list = sibling.list, trace = trace, classes = classes, start = start, bounds = bounds)

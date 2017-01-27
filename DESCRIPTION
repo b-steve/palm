@@ -1,4 +1,4 @@
-Package: nspp
+Package: palm
 Type: Package
 Title: Fitting point process models via the Palm likelihood
 Version: 1.0.0
@@ -19,6 +19,6 @@ Suggests:
     testthat
 Description: This package provides functions for the fitting of point process models using the Palm likelihood function.
 License: GPL
-URL: https://github.com/b-steve/nspp
+URL: https://github.com/b-steve/palm
 LazyData: TRUE
 RoxygenNote: 5.0.1

@@ -2,10 +2,10 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 buffer_keep <- function(points, lims, R) {
-    .Call('nspp_buffer_keep', PACKAGE = 'nspp', points, lims, R)
+    .Call('palm_buffer_keep', PACKAGE = 'palm', points, lims, R)
 }
 
 pbc_distances <- function(points, lims) {
-    .Call('nspp_pbc_distances', PACKAGE = 'nspp', points, lims)
+    .Call('palm_pbc_distances', PACKAGE = 'palm', points, lims)
 }
 

@@ -33,8 +33,8 @@ to the screen for each iteration of the optimisation procedure.}
 }
 \value{
 An R6 reference class object. Extraction of the information
-    held within is best handled by functions \link{coef.nspp},
-    \link{confint.nspp}, \link{summary.nspp}, and \link{plot.nspp}.
+    held within is best handled by functions \link{coef.palm},
+    \link{confint.palm}, \link{summary.palm}, and \link{plot.palm}.
 }
 \description{
 Estimates parameters for a void point process by maximising the

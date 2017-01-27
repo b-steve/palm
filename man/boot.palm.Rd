@@ -24,7 +24,7 @@ The original R6 reference object, with additional bootstrap
 }
 \description{
 Carries out a parametric bootstrap procedure for models fitted
-using the \code{nspp} package.
+using the \code{palm} package.
 }
 \examples{
 ## Fit model.

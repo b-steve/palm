@@ -42,7 +42,7 @@ example.2D <- c(0.0926548938595788, 0.10439191286585, 0.733650003520192, 0.42072
                 0.896523387774792, 0.322220191923651, 0.678711984855891, 0.68676462318177)
 example.2D <- matrix(example.2D, ncol = 2)
 
-example.twoplane <- structure(list(points = structure(c(399.969971705574, 442.439199902305, 
+example.twocamera <- structure(list(points = structure(c(399.969971705574, 442.439199902305, 
                                                         224.448873415149, 224.467705431214, 53.0505299480616, 236.63326244747, 
                                                         317.34434930835, 51.8078716165156, 342.819095080381, 342.80983522518, 
                                                         213.00550960733, 212.952001931218, 180.646312892234, 180.6261532783, 
@@ -1988,7 +1988,7 @@ example.twoplane <- structure(list(points = structure(c(399.969971705574, 442.43
                                                                                                                                                 NA, NA, FALSE, NA, FALSE, FALSE, NA, NA, FALSE, FALSE, FALSE, 
                                                                                                                                                 FALSE, NA, NA, FALSE, FALSE, FALSE, FALSE, NA, FALSE, NA, 
                                                                                                                                                 FALSE, NA, FALSE, NA, NA, NA, NA, FALSE, NA, FALSE, NA, NA, 
-                                                                                                                                                FALSE), .Dim = c(144L, 144L)), alpha = 0, beta = 0.5, planes = c(2, 
+                                                                                                                                                FALSE), .Dim = c(144L, 144L)), alpha = 0, beta = 0.5, cameras = c(2, 
                                                                                                                                                                                                                  1, 1, 2, 2, 2, 1, 2, 1, 2, 1, 2, 1, 2, 2, 1, 2, 1, 2, 1, 
                                                                                                                                                                                                                  1, 2, 1, 2, 1, 2, 1, 1, 1, 2, 1, 1, 2, 2, 1, 2, 2, 2, 1, 
                                                                                                                                                                                                                  1, 2, 1, 2, 2, 1, 1, 2, 2, 1, 2, 2, 2, 1, 2, 2, 1, 2, 1, 
@@ -1997,5 +1997,5 @@ example.twoplane <- structure(list(points = structure(c(399.969971705574, 442.43
                                                                                                                                                                                                                  2, 1, 2, 1, 2, 1, 2, 1, 1, 1, 2, 1, 1, 2, 2, 2, 1, 2, 1, 
                                                                                                                                                                                                                  1, 2, 2, 1, 1, 1, 1, 2, 2, 1, 1, 1, 1, 2, 1, 2, 1, 2, 1, 
                                                                                                                                                                                                                  2, 2, 2, 2, 1, 2, 1, 2, 2, 1)), .Names = c("sibling.mat", 
-                                                                                                                                                                                                                                                            "alpha", "beta", "planes"))), .Names = c("points", "sibling.list"
+                                                                                                                                                                                                                                                            "alpha", "beta", "cameras"))), .Names = c("points", "sibling.list"
                                                                                                                                                                                                                                                                                                      ))
