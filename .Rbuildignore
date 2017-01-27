@@ -1,6 +1,6 @@
 .gitignore
 .git
 cran-comments.md
-install-nspp.sh
+install-palm.sh
 package-build
 palm.Rcheck
