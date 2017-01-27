@@ -4,15 +4,15 @@
 \alias{fit.twoplane}
 \title{Estimation of animal density from two-plane surveys.}
 \usage{
-fit.twoplane(points, planes, d, w, b, l, tau, R, edge.correction = "pbc",
-  start = NULL, bounds = NULL, trace = FALSE)
+fit.twoplane(points, planes = NULL, d, w, b, l, tau, R,
+  edge.correction = "pbc", start = NULL, bounds = NULL, trace = FALSE)
 }
 \arguments{
 \item{points}{A vector (or single-column matrix) containing the
 distance along the transect that each detection was made.}
 
-\item{planes}{A vector containing the plane ID (either \code{1} or
-\code{2}) that made the corresponding detection in
+\item{planes}{An optional vector containing the plane ID (either
+\code{1} or \code{2}) that made the corresponding detection in
 \code{points}.}
 
 \item{d}{The length of the transect flown (in km).}
@@ -48,14 +48,33 @@ for the named parameter.}
 to the screen for each iteration of the optimisation procedure.}
 }
 \value{
-An object of class \code{"nspp"} that can be extracted via
-the same utility functions fit for objects created using
-\code{fit.ns_6()}.
+An R6 reference class object. Extraction of the information
+    held within is best handled by functions \link{coef.nspp},
+    \link{confint.nspp}, \link{summary.nspp}, and \link{plot.nspp}.
 }
 \description{
 Estimates animal density (amongst other parameters) from two-plane
 aerial surveys. This conceptualises sighting locations as a
 Neyman-Scott point pattern---estimation is carried out via
 \code{fit.ns()}.
+}
+\details{
+This function is simply a wrapper for \code{fit.ns}, and
+facilitates the fitting of the model proposed by Stevenson,
+Borchers, and Fewster (in prep). This function presents the
+parameter \code{D.2D} (two-dimensional cetacean density in
+cetaceans per square km) rather than \code{D} for enhanced
+interpretability.
+}
+\examples{
+fit <- fit.twoplane(points = example.twoplane$points, planes = example.twoplane$planes,
+                    d = 500, w = 0.175, b = 0.5, l = 20, tau = 110, R = 1)
+
+}
+\references{
+Stevenson, B. C., Borchers, D. L., and Fewster,
+    R. M. (in prep) Trace-contrast methods to account for
+    identification uncertainty on aerial surveys of cetacean
+    populations.
 }
 

@@ -32,13 +32,31 @@ for the named parameter.}
 to the screen for each iteration of the optimisation procedure.}
 }
 \value{
-An R6 reference class object.
+An R6 reference class object. Extraction of the information
+    held within is best handled by functions \link{coef.nspp},
+    \link{confint.nspp}, \link{summary.nspp}, and \link{plot.nspp}.
 }
 \description{
-Estimates parameters for a void process using the approach of
-Jones-Todd (2017).
+Estimates parameters for a void point process by maximising the
+Palm likelihood. This approach was first proposed by Tanaka et
+al. (2008) for two-dimensional Thomas processes. Generalisation to
+d-dimensional void processes was made by Jones-Todd (2017).
+}
+\details{
+Parameters to estimate are as follows:
+\itemize{
+  \item \code{Dc}, the baseline density of observed points.
+
+\item \code{Dp}, the density of unobserved parents that cause voids.
+
+\item \code{tau}, the radius of the deletion process centred at each parent.
+}
 }
 \references{
+Tanaka, U., Ogata, Y., and Stoyan, D. (2008) Parameter
+    estimation and model selection for Neyman-Scott point
+    processes. \emph{Biometrical Journal}, \strong{50}: 43--57.
+
 Jones-Todd, C. M. (2017) \emph{Modelling complex
     dependencies inherent in spatial and spatio-temporal point
     pattern data}. PhD thesis, University of St Andrews.
