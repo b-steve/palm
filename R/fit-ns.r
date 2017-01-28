@@ -145,6 +145,7 @@ fit.ns <- function(points, lims, R, disp = "gaussian", child.dist = "pois", chil
 #'     information.
 #'
 #' @examples
+#' \dontrun{
 #' set.seed(1234)
 #' ## One-dimensional Thomas process.
 #' data.thomas <- sim.ns(c(D = 10, lambda = 5, sigma = 0.025), lims = rbind(c(0, 1)))
@@ -156,6 +157,7 @@ fit.ns <- function(points, lims, R, disp = "gaussian", child.dist = "pois", chil
 #' ## Fitting a model to these data.
 #' fit.matern <- fit.ns(data.matern$points, lims = rbind(c(0, 1), c(0, 2), c(0, 3)),
 #'                      R = 0.5, disp = "uniform")
+#' }
 #' 
 #' @export
 sim.ns <- function(pars, lims, disp = "gaussian", child.dist = "pois", child.info = NULL){
