@@ -56,6 +56,7 @@ time lag between cameras (in seconds); and (iv) a component named
 Borchers, and Fewster (in prep) for details.
 }
 \examples{
+\dontrun{
 set.seed(1234)
 ## One-dimensional Thomas process.
 data.thomas <- sim.ns(c(D = 10, lambda = 5, sigma = 0.025), lims = rbind(c(0, 1)))
@@ -67,6 +68,7 @@ data.matern <- sim.ns(c(D = 10, lambda = 10, tau = 0.1), disp = "uniform",
 ## Fitting a model to these data.
 fit.matern <- fit.ns(data.matern$points, lims = rbind(c(0, 1), c(0, 2), c(0, 3)),
                      R = 0.5, disp = "uniform")
+}
 
 }
 
