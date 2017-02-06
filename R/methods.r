@@ -164,11 +164,17 @@ print.summary.palm <- function(x, ...){
 #' \link{fit.ns}().
 #'
 #' @param x A fitted model from \link{fit.ns}.
+#' @param xlim Numeric vector giving the x-coordinate range.
+#' @param ylim Numeric vector giving the y-coordinate range.
+#' @param show.empirical Logical, if \code{TRUE} the empirical Palm
+#'     intensity is also plotted.
+#' @param breaks The number of breakpoints between cells for the
+#'     empirical Palm intensity.
 #' @param ... Other parameters (for S3 generic compatibility).
 #'
 #' @export
-plot.palm <- function(x, ...){
-    x$plot(...)
+plot.palm <- function(x, xlim = NULL, ylim = NULL, show.empirical = TRUE, breaks = 50, ...){
+    x$plot(xlim, ylim, show.empirical, breaks, ...)
 }
 
 
