@@ -4,10 +4,21 @@
 \alias{plot.palm}
 \title{Plotting an estimated Palm intensity function.}
 \usage{
-\method{plot}{palm}(x, ...)
+\method{plot}{palm}(x, xlim = NULL, ylim = NULL, show.empirical = TRUE,
+  breaks = 50, ...)
 }
 \arguments{
 \item{x}{A fitted model from \link{fit.ns}.}
+
+\item{xlim}{Numeric vector giving the x-coordinate range.}
+
+\item{ylim}{Numeric vector giving the y-coordinate range.}
+
+\item{show.empirical}{Logical, if \code{TRUE} the empirical Palm
+intensity is also plotted.}
+
+\item{breaks}{The number of breakpoints between cells for the
+empirical Palm intensity.}
 
 \item{...}{Other parameters (for S3 generic compatibility).}
 }
