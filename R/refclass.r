@@ -267,17 +267,21 @@ set.fit.class <- function(class, class.env){
                     colnames(self$boots) <- self$par.names
                 },
                 ## A method for plotting.
-                plot = function(xlim = NULL, show.empirical = TRUE, breaks = 50){
+                plot = function(xlim = NULL, ylim = NULL, show.empirical = TRUE, breaks = 50, ...){
+                    if (show.empirical){
+                        emp <- self$empirical(xlim, breaks)  
+                    }
                     if (is.null(xlim)){
                         xlim <- self$get.xlim()
                     }
                     xx <- seq(xlim[1], xlim[2], length.out = 1000)
                     yy <- self$palm.intensity(xx, self$par.fitted)
-                    if (show.empirical){
-                        emp <- self$empirical(xlim, breaks)
-                        ylim <- c(0, max(c(emp$y, yy)))
-                    } else {
-                        ylim <- c(0, max(yy))
+                    if (is.null(ylim)){
+                        if (show.empirical){
+                            ylim <- c(0, max(c(emp$y, yy)))
+                        } else {
+                            ylim <- c(0, max(yy))
+                        }
                     }
                     par(xaxs = "i")
                     plot.new()
