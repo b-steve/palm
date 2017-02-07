@@ -373,6 +373,31 @@ fit.twocamera <- function(points, cameras = NULL, d, w, b, l, tau, R,
               sibling.list = sibling.list, start = start, bounds = bounds, trace = trace)
 }
 
+#' Simulating data from two-camera aerial surveys.
+#'
+#' @param pars A vector containing elements named \code{D.2D},
+#'     \code{kappa}, and \code{sigma}, providing values of animal
+#'     density (animals per square km), average duration of surface
+#'     phase (s), and dispersion (km).
+#' @inheritParams fit.twocamera
+#'
+#' @return A list. The first component gives the distance along the
+#'     transect of detected individuals. A second component provides
+#'     sibling information.
+#'
+#' @export
+sim.twocamera <- function(pars, d, w, b, l, tau){
+    family.info <- list(child.dist = "twocamera",
+                        child.info = list(w = w, b = b, l = l, tau = tau),
+                        disp = "gaussian")
+    classes.list <- setup.classes(fit = FALSE, family = "ns",
+                                  family.info = family.info)
+    obj <- create.obj(classes = classes.list$classes, points = NULL, lims = rbind(c(0, d)),
+                      R = NULL, child.list = classes.list$child.list, sibling.list = NULL,
+                      trace = NULL, bounds = NULL)
+    obj$simulate(pars)
+}
+
 #' Bootstrapping for fitted models
 #'
 #' Carries out a parametric bootstrap procedure for models fitted
