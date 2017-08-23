@@ -2,8 +2,10 @@
 cd ~/GitHub/palm
 rm -rfv man
 rm -fv NAMESPACE
-R --slave -e "library(Rcpp); compileAttributes()"
+rm -fv src/*.o src/RcppExports.cpp src/*.so R/RcppExports.R
+rm -rfv package-build
 R --slave -e "library(roxygen2); roxygenise('.')"
+R --slave -e "library(Rcpp); compileAttributes()"
 rm -rfv ..Rcheck/ ..pdf
 rm -rfv src/*.o src/*.so src/*.rds
 rm -rfv src-i386/ src-x64/
