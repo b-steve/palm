@@ -77,4 +77,3 @@ Stevenson, B. C., Borchers, D. L., and Fewster,
     identification uncertainty on aerial surveys of cetacean
     populations.
 }
-

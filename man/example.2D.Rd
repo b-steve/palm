@@ -13,4 +13,3 @@ Simulated data, with children points generated from a Binomial(2,
 0.5) distribution.
 }
 \keyword{datasets}
-

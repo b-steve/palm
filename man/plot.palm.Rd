@@ -26,4 +26,3 @@ empirical Palm intensity.}
 Plots a fitted Palm intensity function from an object returned by
 \link{fit.ns}().
 }
-

@@ -23,4 +23,3 @@ Extracts estimated parameters from an object returned by
 \link{fit.ns} with \code{"twocamera"} dispersion or
 \link{fit.twocamera}.
 }
-

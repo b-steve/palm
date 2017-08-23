@@ -16,4 +16,3 @@ and lower limits of each dimension, respectively.}
 \description{
 Generates points from a void point process using parameters provided by the user.
 }
-

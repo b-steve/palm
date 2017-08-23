@@ -71,4 +71,3 @@ fit.matern <- fit.ns(data.matern$points, lims = rbind(c(0, 1), c(0, 2), c(0, 3))
 }
 
 }
-

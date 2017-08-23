@@ -36,4 +36,3 @@ A list. The first component gives the distance along the
 \description{
 Simulating data from two-camera aerial surveys.
 }
-

@@ -12,4 +12,3 @@ example.twocamera
 Simulated data from a two-camera aerial survey.
 }
 \keyword{datasets}
-
