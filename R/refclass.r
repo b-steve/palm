@@ -439,7 +439,8 @@ set.ns.class <- function(class, class.env){
                             j <- j + n.children[i]
                         }
                     }
-                    list(points = self$trim.points(child.locs), sibling.list = sibling.list)
+                    list(points = self$trim.points(child.locs), parents = parent.locs,
+                         sibling.list = sibling.list)
                 },
                 ## Overwriting method for the Palm intensity.
                 palm.intensity = function(r, pars){
