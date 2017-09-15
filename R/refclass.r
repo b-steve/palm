@@ -421,12 +421,8 @@ set.ns.class <- function(class, class.env){
                 },
                 ## Overwriting simulation method.
                 simulate = function(pars = self$par.fitted){
-                    expected.parents <- pars["D"]*self$vol
-                    n.parents <- rpois(1, expected.parents)
-                    parent.locs <- matrix(0, nrow = n.parents, ncol = self$dim)
-                    for (i in 1:self$dim){
-                        parent.locs[, i] <- runif(n.parents, self$lims[i, 1], self$lims[i, 2])
-                    }
+                    parent.locs <- self$get.parents(pars)
+                    n.parents <- nrow(parent.locs)
                     sim.n.children <- self$simulate.n.children(n.parents, pars)
                     n.children <- sim.n.children$n.children
                     sibling.list <- sim.n.children$sibling.list
@@ -441,6 +437,16 @@ set.ns.class <- function(class, class.env){
                     }
                     list(points = self$trim.points(child.locs), parents = parent.locs,
                          sibling.list = sibling.list)
+                },
+                ## A method to get parents by simulation.
+                get.parents = function(pars){
+                    expected.parents <- pars["D"]*self$vol
+                    n.parents <- rpois(1, expected.parents)
+                    parent.locs <- matrix(0, nrow = n.parents, ncol = self$dim)
+                    for (i in 1:self$dim){
+                        parent.locs[, i] <- runif(n.parents, self$lims[i, 1], self$lims[i, 2])
+                    }
+                    parent.locs
                 },
                 ## Overwriting method for the Palm intensity.
                 palm.intensity = function(r, pars){
@@ -809,13 +815,18 @@ set.void.class <- function(class, class.env){
                         child.locs[, i] <- runif(n.children, self$lims[i, 1], self$lims[i, 2])
                     }
                     ## Generating parents.
+                    parent.locs <- self$get.parents(pars)
+                    list(points = self$delete.points(child.locs, parent.locs, pars), parents = parent.locs)
+                },
+                ## A method to get parents by simulation.
+                get.parents = function(pars){
                     expected.parents <- pars["Dp"]*self$vol
                     n.parents <- rpois(1, expected.parents)
                     parent.locs <- matrix(0, nrow = n.parents, ncol = self$dim)
                     for (i in 1:self$dim){
                         parent.locs[, i] <- runif(n.parents, self$lims[i, 1], self$lims[i, 2])
                     }
-                    list(points = self$delete.points(child.locs, parent.locs, pars), parents = parent.locs)
+                    parent.locs
                 },
                 ## Overwriting method for the Palm intensity.
                 palm.intensity = function(r, pars){
@@ -850,8 +861,34 @@ set.totaldeletion.class <- function(class, class.env){
             ))
 }
 
+######
+## Class for simulating given known parent locations.
+######
+
+set.giveparent.class <- function(class, class.env){
+    ## Saving inherited class to class.env.
+    assign("giveparent.inherit", class, envir = class.env)
+    R6Class("palm_giveparent",
+            inherit = class.env$giveparent.inherit,
+            public = list(
+                parent.locs = NULL,
+                initialize = function(parent.locs, ...){
+                    self$parent.locs <- parent.locs
+                    super$initialize(...)
+                },
+                ## Overwriting method for getting parents.
+                get.parents = function(pars){
+                    if (!(ncol(self$parent.locs) == self$dim)){
+                        stop("Incorrection dimensions of parent locations.")
+                    }
+                    self$parent.locs
+                }
+            ))
+}
+
+
 ## Function to create R6 object with correct class hierarchy.
-create.obj <- function(classes, points, lims, R, child.list, sibling.list, trace, start, bounds){
+create.obj <- function(classes, points, lims, R, child.list, parent.locs, sibling.list, trace, start, bounds){
     class <- base.class.R6
     n.classes <- length(classes)
     class.env <- new.env()
@@ -862,7 +899,7 @@ create.obj <- function(classes, points, lims, R, child.list, sibling.list, trace
     if (any(classes == "twocamerachild") & !any(classes == "thomas")){
         stop("Analysis of two-camera surveys is only implemented for Thomas processes.")
     }
-    class$new(points = points, lims = lims, R = R, child.list = child.list,
+    class$new(points = points, lims = lims, R = R, child.list = child.list, parent.locs = parent.locs,
               sibling.list = sibling.list, trace = trace, classes = classes, start = start, bounds = bounds)
 }
 

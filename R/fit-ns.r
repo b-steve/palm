@@ -113,8 +113,8 @@ fit.ns <- function(points, lims, R, disp = "gaussian", child.dist = "pois", chil
                                                                                 sibling.list = sibling.list),
                                   edge.correction = edge.correction)
     obj <- create.obj(classes = classes.list$classes, points = points, lims = lims, R = R,
-                      child.list = classes.list$child.list, sibling.list = sibling.list, trace = trace,
-                      start = start, bounds = bounds)
+                      child.list = classes.list$child.list, parent.locs = NULL,
+                      sibling.list = sibling.list, trace = trace, start = start, bounds = bounds)
     obj$fit()
     obj
 }
@@ -139,9 +139,15 @@ fit.ns <- function(points, lims, R, disp = "gaussian", child.dist = "pois", chil
 #'     of the process that generates the points.
 #' 
 #' @inheritParams fit.ns
+#' @param parents An optional matrix containing locations of
+#'     parents. If this is provided, then the parameter \code{D} is
+#'     not required in \code{pars}. If this is not provided, then
+#'     parents are generated from a homogeneous Poisson point process
+#'     with intensity \code{D}.
 #'
 #' @return A list. The first component gives the Cartesian coordinates
-#'     of the generated points. A second component may provide sibling
+#'     of the generated points. The second component returns the
+#'     parent locations. A third component may provide sibling
 #'     information.
 #'
 #' @examples
@@ -160,20 +166,21 @@ fit.ns <- function(points, lims, R, disp = "gaussian", child.dist = "pois", chil
 #' }
 #' 
 #' @export
-sim.ns <- function(pars, lims, disp = "gaussian", child.dist = "pois", child.info = NULL){
+sim.ns <- function(pars, lims, disp = "gaussian", child.dist = "pois", parents = NULL, child.info = NULL){
     classes.list <- setup.classes(fit = FALSE, family = "ns", family.info = list(child.dist = child.dist,
                                                                                  child.info = child.info,
+                                                                                 parent.locs = parents,
                                                                                  disp = disp),
                                   edge.correction = NULL)
     obj <- create.obj(classes = classes.list$classes, points = NULL, lims = lims, R = NULL,
-                      child.list = classes.list$child.list, sibling.list = NULL, trace = NULL,
-                      start = NULL, bounds = NULL)
+                      child.list = classes.list$child.list, parent.locs = classes.list$parent.locs,
+                      sibling.list = NULL, trace = NULL, start = NULL, bounds = NULL)
     obj$simulate(pars)
 }
 
 #' Fitting a model to a void point process
 #'
-#'  Estimates parameters for a void point process by maximising the
+#' Estimates parameters for a void point process by maximising the
 #' Palm likelihood. This approach was first proposed by Tanaka et
 #' al. (2008) for two-dimensional Thomas processes. Generalisation to
 #' d-dimensional void processes was made by Jones-Todd (2017).
@@ -205,8 +212,8 @@ fit.void <- function(points, lims, R, edge.correction = "pbc", start = NULL, bou
     classes.list <- setup.classes(fit = TRUE, family = "void", family.info = NULL,
                                   edge.correction = edge.correction)
     obj <- create.obj(classes = classes.list$classes, points = points, lims = lims, R = R,
-                      child.list = NULL, sibling.list = NULL, trace = trace, start = start,
-                      bounds = bounds)
+                      child.list = NULL, parent.locs = NULL, sibling.list = NULL,
+                      trace = trace, start = start, bounds = bounds)
     obj$fit()
     obj
 }
@@ -215,16 +222,27 @@ fit.void <- function(points, lims, R, edge.correction = "pbc", start = NULL, bou
 #'
 #' Generates points from a void point process using parameters provided by the user.
 #'
+#' For a list of possible parameter names, see \link{fit.ns}.
+#'
 #' @inheritParams fit.void
 #' @inheritParams sim.ns
+#' @param parents An optional matrix containing locations of
+#'     parents. If this is provided, then the parameter \code{D} is
+#'     not required in \code{pars}. If this is not provided, then
+#'     parents are generated from a homogeneous Poisson point process
+#'     with intensity \code{Dp}.
+#'
+#' @return A list. The first component gives the Cartesian coordinates
+#'     of the generated points. The second component returns the
+#'     parent locations.
 #'
 #' @export
-sim.void <- function(pars, lims){
-    classes.list <- setup.classes(fit = FALSE, family = "void", family.info = NULL,
+sim.void <- function(pars, lims, parents = NULL){
+    classes.list <- setup.classes(fit = FALSE, family = "void", family.info = list(parent.locs = parents),
                                   edge.correction = NULL)
     obj <- create.obj(classes = classes.list$classes, points = NULL, lims = lims, R = NULL,
-                      child.list = NULL, sibling.list = NULL, trace = NULL, start = NULL,
-                      bounds = NULL)
+                      child.list = NULL, parent.locs = classes.list$parent.locs,
+                      sibling.list = NULL, trace = NULL, start = NULL, bounds = NULL)
     obj$simulate(pars)
 }
 
@@ -239,10 +257,12 @@ setup.classes <- function(fit, family, family.info, edge.correction){
     use.binomchild.class <- FALSE
     use.twocamerachild.class <- FALSE
     child.list <- NULL
+    parent.locs <- NULL
     use.thomas.class <- FALSE
     use.matern.class <- FALSE
     use.void.class <- FALSE
     use.totaldeletion.class <- FALSE
+    use.giveparent.class <- FALSE
     ## Sorting out fitting class.
     if (fit){
         use.fit.class <- TRUE
@@ -291,6 +311,11 @@ setup.classes <- function(fit, family, family.info, edge.correction){
         use.void.class <- TRUE
         use.totaldeletion.class <- TRUE
     }
+    ## Sorting out parent location class.
+    if (!is.null(family.info$parent.locs)){
+        use.giveparent.class <- TRUE
+        parent.locs <- family.info$parent.locs
+    }
     classes <- c("fit"[use.fit.class],
                  "pbc"[use.pbc.class],
                  "buffer"[use.buffer.class],
@@ -302,8 +327,9 @@ setup.classes <- function(fit, family, family.info, edge.correction){
                  "thomas"[use.thomas.class],
                  "matern"[use.matern.class],
                  "void"[use.void.class],
-                 "totaldeletion"[use.totaldeletion.class])
-    list(classes = classes, child.list = child.list)
+                 "totaldeletion"[use.totaldeletion.class],
+                 "giveparent"[use.giveparent.class])
+    list(classes = classes, child.list = child.list, parent.locs = parent.locs)
 }
 
 #' Estimation of animal density from two-camera surveys.
