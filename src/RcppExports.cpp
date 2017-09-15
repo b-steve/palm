@@ -7,7 +7,7 @@ using namespace Rcpp;
 
 // buffer_keep
 LogicalMatrix buffer_keep(const NumericMatrix& points, const NumericMatrix& lims, const double& R);
-RcppExport SEXP palm_buffer_keep(SEXP pointsSEXP, SEXP limsSEXP, SEXP RSEXP) {
+RcppExport SEXP _palm_buffer_keep(SEXP pointsSEXP, SEXP limsSEXP, SEXP RSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -20,7 +20,7 @@ END_RCPP
 }
 // pbc_distances
 NumericVector pbc_distances(const NumericMatrix& points, const NumericMatrix& lims);
-RcppExport SEXP palm_pbc_distances(SEXP pointsSEXP, SEXP limsSEXP) {
+RcppExport SEXP _palm_pbc_distances(SEXP pointsSEXP, SEXP limsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -29,4 +29,15 @@ BEGIN_RCPP
     rcpp_result_gen = Rcpp::wrap(pbc_distances(points, lims));
     return rcpp_result_gen;
 END_RCPP
+}
+
+static const R_CallMethodDef CallEntries[] = {
+    {"_palm_buffer_keep", (DL_FUNC) &_palm_buffer_keep, 3},
+    {"_palm_pbc_distances", (DL_FUNC) &_palm_pbc_distances, 2},
+    {NULL, NULL, 0}
+};
+
+RcppExport void R_init_palm(DllInfo *dll) {
+    R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
+    R_useDynamicSymbols(dll, FALSE);
 }

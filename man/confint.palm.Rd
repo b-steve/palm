@@ -34,4 +34,3 @@ Bootstrap parameter estimates can be found in the
 \code{boot} component of the model object, so alternative
 confidence interval methods can be calculated by hand.
 }
-

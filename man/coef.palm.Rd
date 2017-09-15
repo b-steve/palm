@@ -18,4 +18,3 @@
 Extracts estimated parameters from an object returned by
 \link{fit.ns} or \link{fit.void}.
 }
-

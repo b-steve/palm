@@ -61,4 +61,3 @@ Jones-Todd, C. M. (2017) \emph{Modelling complex
     dependencies inherent in spatial and spatio-temporal point
     pattern data}. PhD thesis, University of St Andrews.
 }
-

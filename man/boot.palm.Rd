@@ -38,4 +38,3 @@ confint(fit)
 ## they can be fitted and bootstrapped quickly for example purposes.
 
 }
-

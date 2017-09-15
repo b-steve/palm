@@ -2,10 +2,10 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 buffer_keep <- function(points, lims, R) {
-    .Call('palm_buffer_keep', PACKAGE = 'palm', points, lims, R)
+    .Call('_palm_buffer_keep', PACKAGE = 'palm', points, lims, R)
 }
 
 pbc_distances <- function(points, lims) {
-    .Call('palm_pbc_distances', PACKAGE = 'palm', points, lims)
+    .Call('_palm_pbc_distances', PACKAGE = 'palm', points, lims)
 }
 
