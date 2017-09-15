@@ -1,3 +1,11 @@
+Version 1.0.1
+-------------
+
+- Added a function to simulate data from two-camera aerial surveys.
+
+- Added the `parents' argument to simulation functions, so that the
+  user can specify their own parent locations.
+
 Version 1.0.0
 -------------
 
