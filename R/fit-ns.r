@@ -368,9 +368,9 @@ fit.twocamera <- function(points, cameras = NULL, d, w, b, l, tau, R,
     }
     bounds <- list(sigma = c(0, min(R, b/3)))
     fit.ns(points = points, lims = rbind(c(0, d)), R = R,
-              child.dist = "twocamera",
-              child.info = list(w = w, b = b, l = l, tau = tau),
-              sibling.list = sibling.list, start = start, bounds = bounds, trace = trace)
+           child.dist = "twocamera",
+           child.info = list(w = w, b = b, l = l, tau = tau),
+           sibling.list = sibling.list, start = start, bounds = bounds, trace = trace)
 }
 
 #' Simulating data from two-camera aerial surveys.
