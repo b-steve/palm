@@ -71,6 +71,10 @@ test_that(
                          sibling.list = twocamera.data$sibling.list)
         expect_equal(coef(fit, report.2D = FALSE), expected = c(D = 0.81322222, kappa = 26.02728291, sigma = 0.02046535),
                      tolerance = 0.01)
+        fit.camera <- fit.twocamera(points = twocamera.data$points, cameras = twocamera.data$sibling.list$cameras,
+                                    d = 500, w = 0.175, b = 0.175 + 5*0.025, l = 20, tau = 110, R = 1)
+        expect_equal(coef(fit, report.2D = FALSE), expected = c(D = 0.81322222, kappa = 26.02728291, sigma = 0.02046535),
+                     tolerance = 0.01)
         ## Without camera information.
         fit <- fit.ns(points = twocamera.data$points, lims = rbind(c(0, 500)), R = 1,
                          child.dist = "twocamera",
