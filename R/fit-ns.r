@@ -187,7 +187,7 @@ sim.ns <- function(pars, lims, disp = "gaussian", child.dist = "pois", parents =
 #'
 #' Parameters to estimate are as follows:
 #' \itemize{
-#'   \item \code{Dc}, the baseline density of observed points.
+#'   \item \code{Dc}, the baseline density of points prior to the deletion process.
 #'
 #'   \item \code{Dp}, the density of unobserved parents that cause voids.
 #'
