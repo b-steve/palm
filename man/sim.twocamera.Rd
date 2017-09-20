@@ -4,7 +4,7 @@
 \alias{sim.twocamera}
 \title{Simulating data from two-camera aerial surveys.}
 \usage{
-sim.twocamera(pars, d, w, b, l, tau)
+sim.twocamera(pars, d, w, b, l, tau, parents = NULL)
 }
 \arguments{
 \item{pars}{A vector containing elements named \code{D.2D},
@@ -27,6 +27,13 @@ passing of the second camera.}
 \item{l}{The lag between cameras (in seconds).}
 
 \item{tau}{Mean dive-cycle duration (in seconds).}
+
+\item{parents}{An optional vector containing the parent locations
+for all animals within the area of interest, given in distance
+along the transect (in km). If this is provided, then the
+parameter \code{D.2D} is not required in \code{pars}. If this
+is not provided, then parent locations are generated from a
+homogeneous Poisson point process with intensity \code{D.2D}.}
 }
 \value{
 A list. The first component gives the distance along the
