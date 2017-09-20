@@ -405,6 +405,12 @@ fit.twocamera <- function(points, cameras = NULL, d, w, b, l, tau, R,
 #'     \code{kappa}, and \code{sigma}, providing values of animal
 #'     density (animals per square km), average duration of surface
 #'     phase (s), and dispersion (km).
+#' @param parents An optional vector containing the parent locations
+#'     for all animals within the area of interest, given in distance
+#'     along the transect (in km). If this is provided, then the
+#'     parameter \code{D.2D} is not required in \code{pars}. If this
+#'     is not provided, then parent locations are generated from a
+#'     homogeneous Poisson point process with intensity \code{D.2D}.
 #' @inheritParams fit.twocamera
 #'
 #' @return A list. The first component gives the distance along the
