@@ -412,14 +412,16 @@ fit.twocamera <- function(points, cameras = NULL, d, w, b, l, tau, R,
 #'     sibling information.
 #'
 #' @export
-sim.twocamera <- function(pars, d, w, b, l, tau){
+sim.twocamera <- function(pars, d, w, b, l, tau, parents = NULL){
     family.info <- list(child.dist = "twocamera",
                         child.info = list(w = w, b = b, l = l, tau = tau),
                         disp = "gaussian")
     classes.list <- setup.classes(fit = FALSE, family = "ns",
-                                  family.info = family.info)
+                                  family.info = family.info,
+                                  parent.locs = parents)
     obj <- create.obj(classes = classes.list$classes, points = NULL, lims = rbind(c(0, d)),
-                      R = NULL, child.list = classes.list$child.list, sibling.list = NULL,
+                      R = NULL, child.list = classes.list$child.list,
+                      parent.locs = classes.list$parent.locs, sibling.list = NULL,
                       trace = NULL, bounds = NULL)
     obj$simulate(pars)
 }
