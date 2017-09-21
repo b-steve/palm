@@ -392,7 +392,11 @@ fit.twocamera <- function(points, cameras = NULL, d, w, b, l, tau, R,
     } else {
         sibling.list <- siblings.twocamera(cameras)
     }
-    bounds <- list(sigma = c(0, min(R, b/3)))
+    if (is.null(bounds)){
+        bounds <- list(sigma = c(0, min(R, b/3)))
+    } else if (!any(names(bounds) == "sigma")){
+        bounds[["sigma"]] <- c(0, min(R, b/3))
+    }
     fit.ns(points = points, lims = rbind(c(0, d)), R = R,
            child.dist = "twocamera",
            child.info = list(w = w, b = b, l = l, tau = tau),
@@ -419,12 +423,12 @@ fit.twocamera <- function(points, cameras = NULL, d, w, b, l, tau, R,
 #'
 #' @export
 sim.twocamera <- function(pars, d, w, b, l, tau, parents = NULL){
+    parents <- matrix(parents, ncol = 1)
     family.info <- list(child.dist = "twocamera",
                         child.info = list(w = w, b = b, l = l, tau = tau),
-                        disp = "gaussian")
+                        parent.locs = parents, disp = "gaussian")
     classes.list <- setup.classes(fit = FALSE, family = "ns",
-                                  family.info = family.info,
-                                  parent.locs = parents)
+                                  family.info = family.info)
     obj <- create.obj(classes = classes.list$classes, points = NULL, lims = rbind(c(0, d)),
                       R = NULL, child.list = classes.list$child.list,
                       parent.locs = classes.list$parent.locs, sibling.list = NULL,
