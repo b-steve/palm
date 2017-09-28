@@ -423,7 +423,9 @@ fit.twocamera <- function(points, cameras = NULL, d, w, b, l, tau, R,
 #'
 #' @export
 sim.twocamera <- function(pars, d, w, b, l, tau, parents = NULL){
-    parents <- matrix(parents, ncol = 1)
+    if (!is.null(parents)){
+        parents <- matrix(parents, ncol = 1)
+    }
     family.info <- list(child.dist = "twocamera",
                         child.info = list(w = w, b = b, l = l, tau = tau),
                         parent.locs = parents, disp = "gaussian")
