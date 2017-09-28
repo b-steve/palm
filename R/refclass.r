@@ -647,7 +647,7 @@ set.twocamerachild.class <- function(class, class.env){
                 ## Simulation method for the number of children per parent.
                 simulate.n.children = function(n, pars){
                     probs <- twocamera.probs(self$twocamera.l, self$twocamera.tau, self$twocamera.w,
-                                            self$twocamera.b, pars["kappa"], pars["sigma"])
+                                             self$twocamera.b, pars["kappa"], pars["sigma"])
                     camera1.in <- sample(c(TRUE, FALSE), n, replace = TRUE, prob = c(probs$p.in, probs$p.out))
                     camera1.up <- sample(c(TRUE, FALSE), n, replace = TRUE, prob = c(probs$p.up, probs$p.down))
                     camera1.det <- camera1.in & camera1.up
