@@ -437,7 +437,8 @@ set.ns.class <- function(class, class.env){
                     }
                     parent.ids <- rep(1:n.parents, times = n.children)
                     list(points = self$trim.points(child.locs), parents = parent.locs,
-                         parent.ids = parent.ids, sibling.list = sibling.list)
+                         parent.ids = parent.ids, child.ys = sim.n.children$child.ys,
+                         sibling.list = sibling.list)
                 },
                 ## A method to get parents by simulation.
                 get.parents = function(pars){
@@ -649,15 +650,25 @@ set.twocamerachild.class <- function(class, class.env){
                 simulate.n.children = function(n, pars){
                     probs <- twocamera.probs(self$twocamera.l, self$twocamera.tau, self$twocamera.w,
                                              self$twocamera.b, pars["kappa"], pars["sigma"])
-                    camera1.in <- sample(c(TRUE, FALSE), n, replace = TRUE, prob = c(probs$p.in, probs$p.out))
-                    camera1.up <- sample(c(TRUE, FALSE), n, replace = TRUE, prob = c(probs$p.up, probs$p.down))
-                    camera1.det <- camera1.in & camera1.up
-                    camera2.det <- numeric(n)
+                    ## Generating some y values.
+                    parent.ys <- runif(n, -self$twocamera.b, self$twocamera.b)
+                    child.ys <- matrix(nrow = n, ncol = 2)
                     for (i in 1:n){
-                        camera2.det[i] <- sample(c(TRUE, FALSE), 1,
-                                                prob = c(probs$p.11[camera1.det[i]], probs$p.10[!camera1.det[i]],
-                                                         probs$p.01[camera1.det[i]], probs$p.00[!camera1.det[i]]))
+                        child.ys[i, ] <- rnorm(2, parent.ys[i], pars["sigma"])
                     }
+                    camera1.in <- ifelse(child.ys[, 1] < self$twocamera.w & child.ys[, 1] > -self$twocamera.w,
+                                         TRUE, FALSE)
+                    camera2.in <- ifelse(child.ys[, 2] < self$twocamera.w & child.ys[, 2] > -self$twocamera.w,
+                                         TRUE, FALSE)
+                    camera1.up <- sample(c(TRUE, FALSE), n, replace = TRUE, prob = c(probs$p.up, probs$p.down))
+                    camera2.up <- logical(n)
+                    for (i in 1:n){
+                        p.up <- ifelse(camera1.up[i], 1 - probs$p.down.up, probs$p.up.down)
+                        camera2.up[i] <- sample(c(TRUE, FALSE), 1, prob = c(p.up, 1 - p.up))
+                    }
+                    camera1.det <- camera1.in & camera1.up
+                    camera2.det <- camera2.in & camera2.up
+                    child.ys <- t(child.ys)[t(cbind(camera1.det, camera2.det))]
                     n.children <-  camera1.det + camera2.det
                     cameras <- numeric(sum(n.children))
                     j <- 1
@@ -669,7 +680,7 @@ set.twocamerachild.class <- function(class, class.env){
                     }
                     sibling.list <- siblings.twocamera(cameras)
                     sibling.list$cameras <- cameras
-                    list(n.children = n.children, sibling.list = sibling.list)
+                    list(n.children = n.children, sibling.list = sibling.list, child.ys = child.ys)
                 },
                 ## A method for the expectation of the child distribution.
                 child.expectation = function(pars){
