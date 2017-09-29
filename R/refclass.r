@@ -435,8 +435,9 @@ set.ns.class <- function(class, class.env){
                             j <- j + n.children[i]
                         }
                     }
+                    parent.ids <- rep(1:n.parents, times = n.children)
                     list(points = self$trim.points(child.locs), parents = parent.locs,
-                         sibling.list = sibling.list)
+                         parent.ids = parent.ids, sibling.list = sibling.list)
                 },
                 ## A method to get parents by simulation.
                 get.parents = function(pars){
