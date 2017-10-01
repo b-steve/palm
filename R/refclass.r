@@ -19,12 +19,17 @@ base.class.R6 <- R6Class("palm",
                              ## An empty method for simulation.
                              simulate = function(pars){},
                              ## A method to trim points to the observation window.
-                             trim.points = function(points){
+                             trim.points = function(points, output.indices = FALSE){
                                  in.window <- rep(TRUE, nrow(points))
                                  for (i in 1:self$dim){
                                      in.window <- in.window & (self$lims[i, 1] <= points[, i] & self$lims[i, 2] >= points[, i])
                                  }
-                                 points[in.window, , drop = FALSE]
+                                 if (output.indices){
+                                     out <- which(in.window)
+                                 } else {
+                                     out <- points[in.window, , drop = FALSE]
+                                 }
+                                 out
                              }
                          ))
 
@@ -436,9 +441,16 @@ set.ns.class <- function(class, class.env){
                         }
                     }
                     parent.ids <- rep(1:n.parents, times = n.children)
-                    list(points = self$trim.points(child.locs), parents = parent.locs,
-                         parent.ids = parent.ids, child.ys = sim.n.children$child.ys,
-                         sibling.list = sibling.list)
+                    trimmed <- self$trim.points(child.locs, output.indices = TRUE)
+                    list(points = child.locs[trimmed, , drop = FALSE],
+                         parents = parent.locs[trimmed, , drop = FALSE],
+                         parent.ids = parent.ids[trimmed],
+                         child.ys = sim.n.children$child.ys[trimmed],
+                         sibling.list = self$trim.siblings(sibling.list))
+                },
+                ## A method to trim the sibling list.
+                trim.siblings = function(sibling.list, trimmed){
+                    sibling.list
                 },
                 ## A method to get parents by simulation.
                 get.parents = function(pars){
@@ -681,6 +693,11 @@ set.twocamerachild.class <- function(class, class.env){
                     sibling.list <- siblings.twocamera(cameras)
                     sibling.list$cameras <- cameras
                     list(n.children = n.children, sibling.list = sibling.list, child.ys = child.ys)
+                },
+                ## Overwriting the method to trim the sibling list for children outside the window.
+                trim.siblings = function(sibling.list, trimmed){
+                    sibling.list$sibling.mat <- sibling.list$sibling.mat[trimmed, trimmed, drop = FALSE]
+                    super$trim.siblings(sibling.list, trimmed)
                 },
                 ## A method for the expectation of the child distribution.
                 child.expectation = function(pars){
