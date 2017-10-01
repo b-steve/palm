@@ -480,7 +480,7 @@ boot.palm <- function(fit, N, prog = TRUE){
 #' @importFrom gsl hyperg_2F1
 #' @importFrom mvtnorm rmvnorm
 #' @importFrom spatstat crossdist
-#' @importFrom stats coef dist integrate nlminb pbeta pgamma pnorm printCoefmat qnorm quantile rbinom rpois runif sd
+#' @importFrom stats coef dist integrate nlminb pbeta pgamma pnorm printCoefmat qnorm quantile rbinom rnorm rpois runif sd
 #' @importFrom utils setTxtProgressBar txtProgressBar
 #' @useDynLib palm
 NULL
