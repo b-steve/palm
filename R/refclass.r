@@ -446,7 +446,7 @@ set.ns.class <- function(class, class.env){
                          parents = parent.locs[trimmed, , drop = FALSE],
                          parent.ids = parent.ids[trimmed],
                          child.ys = sim.n.children$child.ys[trimmed],
-                         sibling.list = self$trim.siblings(sibling.list))
+                         sibling.list = self$trim.siblings(sibling.list, trimmed))
                 },
                 ## A method to trim the sibling list.
                 trim.siblings = function(sibling.list, trimmed){
@@ -697,6 +697,7 @@ set.twocamerachild.class <- function(class, class.env){
                 ## Overwriting the method to trim the sibling list for children outside the window.
                 trim.siblings = function(sibling.list, trimmed){
                     sibling.list$sibling.mat <- sibling.list$sibling.mat[trimmed, trimmed, drop = FALSE]
+                    sibling.list$cameras <- sibling.list$cameras[trimmed]
                     super$trim.siblings(sibling.list, trimmed)
                 },
                 ## A method for the expectation of the child distribution.
