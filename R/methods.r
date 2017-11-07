@@ -18,7 +18,8 @@ coef.palm <- function(object, se = FALSE, ...){
             warning("Standard errors not available as the model object has not been bootstrapped.")
             out <- rep(NA, length(object$par.fitted))
         } else {
-            out <- apply(object$boots, 2, sd, na.rm = TRUE)
+            boots <- get.boots(object)
+            out <- apply(boots, 2, sd, na.rm = TRUE)
         }
     } else {
         out <- object$par.fitted
@@ -79,11 +80,11 @@ coef.palm_twocamerachild <- function(object, se = FALSE, report.2D = TRUE, ...){
 #' @method confint palm
 #'
 #' @examples
-#' ## Fit model.
+#' ## Fitting model.
 #' fit <- fit.ns(example.2D, lims = rbind(c(0, 1), c(0, 1)), R = 0.5)
-#' ## Carry out bootstrap.
+#' ## Carrying out bootstrap.
 #' fit <- boot.palm(fit, N = 100)
-#' ## Calculate 95% confidence intervals.
+#' ## Calculating 95% confidence intervals.
 #' confint(fit)
 #' ## Estimates are very imprecise---these data were only used as
 #' ## they can be fitted and bootstrapped quickly for example purposes.
