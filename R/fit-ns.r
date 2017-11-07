@@ -239,7 +239,7 @@ sim.ns <- function(pars, lims, disp = "gaussian", child.dist = "pois", parents =
 #' }
 #' 
 #' @export
-fit.void <- function(points, lims, R, edge.correction = "pbc", start = NULL, bounds, trace = FALSE){
+fit.void <- function(points, lims, R, edge.correction = "pbc", start = NULL, bounds = NULL, trace = FALSE){
     classes.list <- setup.classes(fit = TRUE, family = "void", family.info = NULL,
                                   edge.correction = edge.correction)
     obj <- create.obj(classes = classes.list$classes, points = points, lims = lims, R = R,
