@@ -443,7 +443,7 @@ set.ns.class <- function(class, class.env){
                     parent.ids <- rep(1:n.parents, times = n.children)
                     trimmed <- self$trim.points(child.locs, output.indices = TRUE)
                     list(points = child.locs[trimmed, , drop = FALSE],
-                         parents = parent.locs[trimmed, , drop = FALSE],
+                         parents = parent.locs,
                          parent.ids = parent.ids[trimmed],
                          child.ys = sim.n.children$child.ys[trimmed],
                          sibling.list = self$trim.siblings(sibling.list, trimmed))
