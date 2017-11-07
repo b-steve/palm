@@ -69,20 +69,20 @@ test_that(
                       child.dist = "twocamera",
                       child.info = list(w = 0.175, b = 0.175 + 5*0.025, l = 20, tau = 110),
                       sibling.list = twocamera.data$sibling.list)
-        expect_equal(coef(fit, report.2D = FALSE), expected = c(D = 0.81322222, kappa = 26.02728291, sigma = 0.02046535),
-                     tolerance = 0.01)
+        expect_equal(coef(fit, report.2D = FALSE), expected = c(D = 1.74321506, kappa = 19.75875843, sigma = 0.02202638),
+                     tolerance = 0.001)
         fit.camera <- fit.twocamera(points = twocamera.data$points, cameras = twocamera.data$sibling.list$cameras,
                                     d = 500, w = 0.175, b = 0.175 + 5*0.025, l = 20, tau = 110, R = 1)
-        expect_equal(coef(fit, report.2D = FALSE), expected = c(D = 0.81322222, kappa = 26.02728291, sigma = 0.02046535),
-                     tolerance = 0.01)
+        expect_equal(coef(fit.camera, report.2D = FALSE), expected = c(D = 1.74321506, kappa = 19.75875843, sigma = 0.02202638),
+                     tolerance = 0.001)
         ## Without camera information.
         fit <- fit.ns(points = twocamera.data$points, lims = rbind(c(0, 500)), R = 1,
                          child.dist = "twocamera",
                          child.info = list(w = 0.175, b = 0.175 + 5*0.025, l = 20, tau = 110))
-        expect_equal(coef(fit, report.2D = FALSE), expected = c(D = 0.76768111, kappa = 26.91820235, sigma = 0.02054313),
-                     tolerance = 0.01)
+        expect_equal(coef(fit, report.2D = FALSE), expected = c(D = 1.97975828, kappa = 18.08215974, sigma = 0.02144923),
+                     tolerance = 0.001)
         fit.nocamera <- fit.twocamera(points = twocamera.data$points, NULL, 500, 0.175, 0.175 + 5*0.025, 20, 110, 1)
-        expect_equal(coef(fit.nocamera, report.2D = FALSE), expected = c(D = 0.76768111, kappa = 26.91820235, sigma = 0.02054313),
-                     tolerance = 0.01)
+        expect_equal(coef(fit.nocamera, report.2D = FALSE), expected = c(D = 1.97975828, kappa = 18.08215974, sigma = 0.02144923),
+                     tolerance = 0.001)
     })
 
