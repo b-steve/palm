@@ -105,13 +105,27 @@
 #'     process.
 #'
 #' @examples
-#' ## Fit model.
+#' ## Fitting model to example data.
 #' fit <- fit.ns(example.2D, lims = rbind(c(0, 1), c(0, 1)), R = 0.5)
-#' ## Print estimates.
+#' ## Printing estimates.
 #' coef(fit)
-#' ## Plot the estimated Palm intensity.
+#' ## Plotting the estimated Palm intensity.
 #' plot(fit)
-#' 
+#' \dontrun{
+#' ## Simulating data and fitting additional models.
+#' set.seed(1234)
+#' ## One-dimensional Thomas process.
+#' data.thomas <- sim.ns(c(D = 10, lambda = 5, sigma = 0.025), lims = rbind(c(0, 1)))
+#' ## Fitting a model to these data.
+#' fit.thomas <- fit.ns(data.thomas$points, lims = rbind(c(0, 1)), R = 0.5)
+#' ## Three-dimensional Matern process.
+#' data.matern <- sim.ns(c(D = 10, lambda = 10, tau = 0.1), disp = "uniform",
+#'                       lims = rbind(c(0, 1), c(0, 2), c(0, 3)))
+#' ## Fitting a model to these data.
+#' fit.matern <- fit.ns(data.matern$points, lims = rbind(c(0, 1), c(0, 2), c(0, 3)),
+#'                      R = 0.5, disp = "uniform")
+#' }
+#'
 #' @export
 fit.ns <- function(points, lims, R, disp = "gaussian", child.dist = "pois", child.info = NULL,
                       sibling.list = NULL, edge.correction = "pbc", start = NULL, bounds = NULL, trace = FALSE){
@@ -159,19 +173,11 @@ fit.ns <- function(points, lims, R, disp = "gaussian", child.dist = "pois", chil
 #'     information.
 #'
 #' @examples
-#' \dontrun{
-#' set.seed(1234)
-#' ## One-dimensional Thomas process.
+#' ## Simulating from a one-dimensional Thomas process.
 #' data.thomas <- sim.ns(c(D = 10, lambda = 5, sigma = 0.025), lims = rbind(c(0, 1)))
-#' ## Fitting a model to these data.
-#' fit.thomas <- fit.ns(data.thomas$points, lims = rbind(c(0, 1)), R = 0.5)
-#' ## Three-dimensional Matern process.
+#' ## Simulating from a three-dimensional Matern process.
 #' data.matern <- sim.ns(c(D = 10, lambda = 10, tau = 0.1), disp = "uniform",
 #'                       lims = rbind(c(0, 1), c(0, 2), c(0, 3)))
-#' ## Fitting a model to these data.
-#' fit.matern <- fit.ns(data.matern$points, lims = rbind(c(0, 1), c(0, 2), c(0, 3)),
-#'                      R = 0.5, disp = "uniform")
-#' }
 #' 
 #' @export
 sim.ns <- function(pars, lims, disp = "gaussian", child.dist = "pois", parents = NULL, child.info = NULL){
@@ -222,6 +228,15 @@ sim.ns <- function(pars, lims, disp = "gaussian", child.dist = "pois", parents =
 #'     intervals.
 #'
 #' @seealso See \link{sim.void} to simulate from a void process.
+#'
+#' @examples
+#' \dontrun{
+#' set.seed(1234)
+#' ## Simulating a two-dimensional void process.
+#' void.data <- sim.void(c(Dc = 1000, Dp = 10, tau = 0.05), rbind(c(0, 1), c(0, 1)))
+#' ## Fitting model.
+#' fit <- fit.void(void.data$points, rbind(c(0, 1), c(0, 1)), R = 0.5)
+#' }
 #' 
 #' @export
 fit.void <- function(points, lims, R, edge.correction = "pbc", start = NULL, bounds, trace = FALSE){
@@ -251,6 +266,13 @@ fit.void <- function(points, lims, R, edge.correction = "pbc", start = NULL, bou
 #' @return A list. The first component gives the Cartesian coordinates
 #'     of the generated points. The second component returns the
 #'     parent locations.
+#'
+#' @examples
+#' ## Two-dimensional void process.
+#' void.data <- sim.void(c(Dc = 1000, Dp = 10, tau = 0.05), rbind(c(0, 1), c(0, 1)))
+#' ## Plotting the data.
+#' plot(void.data$points)
+#' points(void.data$parents, pch = 16, col = "red")
 #'
 #' @export
 sim.void <- function(pars, lims, parents = NULL){
