@@ -15,9 +15,11 @@
 coef.palm <- function(object, se = FALSE, ...){
     if (se){
         if (is.null(object$boots)){
-            stop("Standard errors not available as the model object has not been bootstrapped.")
+            warning("Standard errors not available as the model object has not been bootstrapped.")
+            out <- rep(NA, length(object$par.fitted))
+        } else {
+            out <- apply(object$boots, 2, sd, na.rm = TRUE)
         }
-        out <- apply(object$boots, 2, sd, na.rm = TRUE)
     } else {
         out <- object$par.fitted
     }
@@ -35,10 +37,12 @@ coef.palm <- function(object, se = FALSE, ...){
 coef.palm_twocamerachild <- function(object, se = FALSE, report.2D = TRUE, ...){
     if (se){
         if (is.null(object$boots)){
-            stop("Standard errors not available as the model object has not been bootstrapped.")
+            warning("Standard errors not available as the model object has not been bootstrapped.")
+            out <- rep(NA, length(object$par.fitted))
+        } else {
+            boots <- get.boots(object, report.2D = report.2D)
+            out <- apply(boots, 2, sd, na.rm = TRUE)
         }
-        boots <- get.boots(object, report.2D = report.2D)
-        out <- apply(boots, 2, sd, na.rm = TRUE)
     } else {
         out <- object$par.fitted
         if (report.2D){
@@ -164,7 +168,7 @@ print.summary.palm <- function(x, ...){
 #' Plotting an estimated Palm intensity function.
 #'
 #' Plots a fitted Palm intensity function from an object returned by
-#' \link{fit.ns}().
+#' \link{fit.ns}.
 #'
 #' @param x A fitted model from \link{fit.ns}.
 #' @param xlim Numeric vector giving the x-coordinate range.
