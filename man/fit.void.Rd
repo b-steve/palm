@@ -4,8 +4,8 @@
 \alias{fit.void}
 \title{Fitting a model to a void point process}
 \usage{
-fit.void(points, lims, R, edge.correction = "pbc", start = NULL, bounds,
-  trace = FALSE)
+fit.void(points, lims, R, edge.correction = "pbc", start = NULL,
+  bounds = NULL, trace = FALSE)
 }
 \arguments{
 \item{points}{A matrix containing locations of observed points,
@@ -32,15 +32,14 @@ for the named parameter.}
 to the screen for each iteration of the optimisation procedure.}
 }
 \value{
-An R6 reference class object. Extraction of the information
-    held within is best handled by functions \link{coef.palm},
-    \link{confint.palm}, \link{summary.palm}, and \link{plot.palm}.
+An R6 reference class object.
 }
 \description{
 Estimates parameters for a void point process by maximising the
 Palm likelihood. This approach was first proposed by Tanaka et
 al. (2008) for two-dimensional Thomas processes. Generalisation to
-d-dimensional void processes was made by Jones-Todd (2017).
+d-dimensional void processes was made by Jones-Todd (in
+submission).
 }
 \details{
 Parameters to estimate are as follows:
@@ -52,12 +51,32 @@ Parameters to estimate are as follows:
 \item \code{tau}, the radius of the deletion process centred at each parent.
 }
 }
+\examples{
+\dontrun{
+set.seed(1234)
+## Simulating a two-dimensional void process.
+void.data <- sim.void(c(Dc = 1000, Dp = 10, tau = 0.05), rbind(c(0, 1), c(0, 1)))
+## Fitting model.
+fit <- fit.void(void.data$points, rbind(c(0, 1), c(0, 1)), R = 0.5)
+}
+
+}
 \references{
+Jones-Todd, C. M., Caie, P., Illian, J., Stevenson,
+    B. C., Savage, A., Harrison, D. J., and Bown, J. L. (in
+    submission). Identifying unusual structures in tissue sections
+    of colon cancer patients using point pattern analysis.
+
 Tanaka, U., Ogata, Y., and Stoyan, D. (2008) Parameter
     estimation and model selection for Neyman-Scott point
     processes. \emph{Biometrical Journal}, \strong{50}: 43--57.
+}
+\seealso{
+Use \link{coef.palm} to extract estimated parameters, and
+    \link{plot.palm} to plot the estimated Palm intensity
+    function. Use \link{boot.palm} to run a parametric bootstrap,
+    allowing calculation of standard errors and confidence
+    intervals.
 
-Jones-Todd, C. M. (2017) \emph{Modelling complex
-    dependencies inherent in spatial and spatio-temporal point
-    pattern data}. PhD thesis, University of St Andrews.
+See \link{sim.void} to simulate from a void process.
 }

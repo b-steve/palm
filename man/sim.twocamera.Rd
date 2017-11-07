@@ -37,9 +37,17 @@ homogeneous Poisson point process with intensity \code{D.2D}.}
 }
 \value{
 A list. The first component gives the distance along the
-    transect of detected individuals. A second component provides
-    sibling information.
+    transect of detected individuals. The second gives the parent
+    locations. The third identifies which parent location generated
+    each detected individual. The fourth gives the distance from
+    the transect centre line of the detection location. The fifth
+    provides observed sibling information.
 }
 \description{
 Simulating data from two-camera aerial surveys.
+}
+\examples{
+twocamera.data <- sim.twocamera(c(D.2D = 1.3, kappa = 27, sigma = 0.02), d = 500,
+                                w = 0.175, b = 0.5, l = 20, tau = 110)
+
 }

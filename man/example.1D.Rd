@@ -9,7 +9,8 @@
 example.1D
 }
 \description{
-Simulated data, with children points generated from a Binomial(4,
-0.5) distribution.
+Simulated data from a Neyman-Scott point process, with children
+points generated in the interval [0, 1]. The number of children
+spawned by each parent is from a Binomial(4, 0.5) distribution.
 }
 \keyword{datasets}

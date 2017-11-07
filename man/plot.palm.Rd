@@ -24,5 +24,12 @@ empirical Palm intensity.}
 }
 \description{
 Plots a fitted Palm intensity function from an object returned by
-\link{fit.ns}().
+\link{fit.ns}.
+}
+\examples{
+## Fit model.
+fit <- fit.ns(example.2D, lims = rbind(c(0, 1), c(0, 1)), R = 0.5)
+## Plot fitted Palm intensity.
+plot(fit)
+
 }

@@ -2,9 +2,13 @@
 % Please edit documentation in R/methods.r
 \name{coef.palm}
 \alias{coef.palm}
+\alias{coef.palm_twocamerachild}
 \title{Extract parameter estimates.}
 \usage{
 \method{coef}{palm}(object, se = FALSE, ...)
+
+\method{coef}{palm_twocamerachild}(object, se = FALSE, report.2D = TRUE,
+  ...)
 }
 \arguments{
 \item{object}{A fitted model object.}
@@ -13,8 +17,12 @@
 (if available) instead of parameter estimates.}
 
 \item{...}{Other parameters (for S3 generic compatibility).}
+
+\item{report.2D}{Logical, for two-camera model fits only. If
+\code{TRUE}, two-dimensional animal density is reported.}
 }
 \description{
-Extracts estimated parameters from an object returned by
-\link{fit.ns} or \link{fit.void}.
+Extracts estimated parameters from an object returned by the
+fitting functions in this package, such as \link{fit.ns},
+\link{fit.void}, and \link{fit.twocamera}.
 }

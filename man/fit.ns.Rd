@@ -63,16 +63,14 @@ for the named parameter.}
 to the screen for each iteration of the optimisation procedure.}
 }
 \value{
-An R6 reference class object. Extraction of the information
-    held within is best handled by functions \link{coef.palm},
-    \link{confint.palm}, \link{summary.palm}, and \link{plot.palm}.
+An R6 reference class object.
 }
 \description{
 Estimates parameters for a Neyman-Scott point process by maximising
 the Palm likelihood. This approach was first proposed by Tanaka et
 al. (2008) for two-dimensional Thomas processes. Further
 generalisations were made by Stevenson, Borchers, and Fewster (in
-prep) and Jones-Todd (2017).
+revision) and Jones-Todd et al. (in submission).
 }
 \details{
 The parameter \code{D} is the density of parent points, which is
@@ -86,7 +84,7 @@ always estimated. Possible additional parameters are
 
 \item \code{kappa}, the average length of the surface phase of a
         diving cetacean (when \code{child.dist = "twocamera"}; see
-        Stevenson, Borchers, and Fewster, in prep).
+        Stevenson, Borchers, and Fewster, in revision).
 
 \item \code{sigma}, the standard deviation of dispersion along
         each dimension (when \code{disp} = "gaussian").
@@ -103,28 +101,53 @@ zone; (ii) a component named \code{b}, providing the halfwidth of
 the survey area; (iii) a component named \code{l}, providing the
 time lag between cameras (in seconds); and (iv) a component named
 \code{tau}, providing the mean dive-cycle duration. See Stevenson,
-Borchers, and Fewster (in prep) for details.
+Borchers, and Fewster (in revision) for details.
 }
 \examples{
-## Fit model.
+## Fitting model to example data.
 fit <- fit.ns(example.2D, lims = rbind(c(0, 1), c(0, 1)), R = 0.5)
-## Print estimates.
+## Printing estimates.
 coef(fit)
-## Plot the estimated Palm intensity.
+## Plotting the estimated Palm intensity.
 plot(fit)
+\dontrun{
+## Simulating data and fitting additional models.
+set.seed(1234)
+## One-dimensional Thomas process.
+data.thomas <- sim.ns(c(D = 10, lambda = 5, sigma = 0.025), lims = rbind(c(0, 1)))
+## Fitting a model to these data.
+fit.thomas <- fit.ns(data.thomas$points, lims = rbind(c(0, 1)), R = 0.5)
+## Three-dimensional Matern process.
+data.matern <- sim.ns(c(D = 10, lambda = 10, tau = 0.1), disp = "uniform",
+                      lims = rbind(c(0, 1), c(0, 2), c(0, 3)))
+## Fitting a model to these data.
+fit.matern <- fit.ns(data.matern$points, lims = rbind(c(0, 1), c(0, 2), c(0, 3)),
+                     R = 0.5, disp = "uniform")
+}
 
 }
 \references{
+Jones-Todd, C. M., Caie, P., Illian, J., Stevenson,
+    B. C., Savage, A., Harrison, D. J., and Bown, J. L. (in
+    submission). Identifying unusual structures in tissue sections
+    of colon cancer patients using point pattern analysis.
+
+Stevenson, B. C., Borchers, D. L., and Fewster,
+    R. M. (in revision) Cluster capture-recapture to account for
+    identification uncertainty on aerial surveys of animal
+    populations.
+
 Tanaka, U., Ogata, Y., and Stoyan, D. (2008) Parameter
     estimation and model selection for Neyman-Scott point
     processes. \emph{Biometrical Journal}, \strong{50}: 43--57.
+}
+\seealso{
+Use \link{coef.palm} to extract estimated parameters, and
+    \link{plot.palm} to plot the estimated Palm intensity
+    function. Use \link{boot.palm} to run a parametric bootstrap,
+    allowing calculation of standard errors and confidence
+    intervals.
 
-Stevenson, B. C., Borchers, D. L., and Fewster,
-    R. M. (in prep) Trace-contrast methods to account for
-    identification uncertainty on aerial surveys of cetacean
-    populations.
-
-Jones-Todd, C. M. (2017) \emph{Modelling complex
-    dependencies inherent in spatial and spatio-temporal point
-    pattern data}. PhD thesis, University of St Andrews.
+See \link{sim.ns} to simulate from a Neyman-Scott point
+    process.
 }
