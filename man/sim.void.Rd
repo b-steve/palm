@@ -30,3 +30,11 @@ Generates points from a void point process using parameters provided by the user
 \details{
 For a list of possible parameter names, see \link{fit.ns}.
 }
+\examples{
+## Two-dimensional void process.
+void.data <- sim.void(c(Dc = 1000, Dp = 10, tau = 0.05), rbind(c(0, 1), c(0, 1)))
+## Plotting the data.
+plot(void.data$points)
+points(void.data$parents, pch = 16, col = "red")
+
+}

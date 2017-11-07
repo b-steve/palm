@@ -44,36 +44,56 @@ parameters.}
 be a vector of length two, giving the upper and lower bounds
 for the named parameter.}
 
-\item{trace}{Logical, if \code{TRUE}, parameter values are printed
+\item{trace}{Logical; if \code{TRUE}, parameter values are printed
 to the screen for each iteration of the optimisation procedure.}
 }
 \value{
-An R6 reference class object. Extraction of the information
-    held within is best handled by functions \link{coef.palm},
-    \link{confint.palm}, \link{summary.palm}, and \link{plot.palm}.
+An R6 reference class object.
 }
 \description{
 Estimates animal density (amongst other parameters) from two-camera
 aerial surveys. This conceptualises sighting locations as a
-Neyman-Scott point pattern---estimation is carried out via
-\code{fit.ns()}.
+Neyman-Scott point pattern.
 }
 \details{
 This function is simply a wrapper for \code{fit.ns}, and
 facilitates the fitting of the model proposed by Stevenson,
-Borchers, and Fewster (in prep). This function presents the
+Borchers, and Fewster (in revision). This function presents the
 parameter \code{D.2D} (two-dimensional cetacean density in
 cetaceans per square km) rather than \code{D} for enhanced
 interpretability.
+
+For further details on the cluster capture-recapture estimation
+approach, see Fewster, Stevenson and Borchers (2016).
 }
 \examples{
+## Fitting model.
 fit <- fit.twocamera(points = example.twocamera$points, cameras = example.twocamera$cameras,
-                    d = 500, w = 0.175, b = 0.5, l = 20, tau = 110, R = 1)
+                     d = 500, w = 0.175, b = 0.5, l = 20, tau = 110, R = 1)
+## Printing estimates.
+coef(fit)
+## Plotting the estimated Palm intensity.
+plot(fit)
 
 }
 \references{
+Fewster, R. M., Stevenson, B. C., and Borchers,
+    D. L. (2016) Trace-contrast methods for capture-recapture
+    without capture histories. \emph{Statistical Science},
+    \strong{31}: 245--258.
+
 Stevenson, B. C., Borchers, D. L., and Fewster,
-    R. M. (in prep) Trace-contrast methods to account for
-    identification uncertainty on aerial surveys of cetacean
+    R. M. (in revision) Cluster capture-recapture to account for
+    identification uncertainty on aerial surveys of animal
     populations.
+}
+\seealso{
+Use \link{coef.palm} to extract estimated parameters, and
+    \link{plot.palm} to plot the estimated Palm intensity
+    function. Use \link{boot.palm} to run a parametric bootstrap,
+    allowing calculation of standard errors and confidence
+    intervals.
+
+See \link{sim.twocamera} to simulate sightings from a
+    two-camera aerial survey.
 }

@@ -4,7 +4,7 @@
 #' the Palm likelihood. This approach was first proposed by Tanaka et
 #' al. (2008) for two-dimensional Thomas processes. Further
 #' generalisations were made by Stevenson, Borchers, and Fewster (in
-#' prep) and Jones-Todd (2017).
+#' revision) and Jones-Todd et al. (in submission).
 #' 
 #' The parameter \code{D} is the density of parent points, which is
 #' always estimated. Possible additional parameters are
@@ -17,7 +17,7 @@
 #'
 #'   \item \code{kappa}, the average length of the surface phase of a
 #'         diving cetacean (when \code{child.dist = "twocamera"}; see
-#'         Stevenson, Borchers, and Fewster, in prep).
+#'         Stevenson, Borchers, and Fewster, in revision).
 #'
 #'   \item \code{sigma}, the standard deviation of dispersion along
 #'         each dimension (when \code{disp} = "gaussian").
@@ -34,18 +34,19 @@
 #' the survey area; (iii) a component named \code{l}, providing the
 #' time lag between cameras (in seconds); and (iv) a component named
 #' \code{tau}, providing the mean dive-cycle duration. See Stevenson,
-#' Borchers, and Fewster (in prep) for details.
+#' Borchers, and Fewster (in revision) for details.
 #'
+#' @references Jones-Todd, C. M., Caie, P., Illian, J., Stevenson,
+#'     B. C., Savage, A., Harrison, D. J., and Bown, J. L. (in
+#'     submission). Identifying unusual structures in tissue sections
+#'     of colon cancer patients using point pattern analysis.
+#' @references Stevenson, B. C., Borchers, D. L., and Fewster,
+#'     R. M. (in revision) Cluster capture-recapture to account for
+#'     identification uncertainty on aerial surveys of animal
+#'     populations.
 #' @references Tanaka, U., Ogata, Y., and Stoyan, D. (2008) Parameter
 #'     estimation and model selection for Neyman-Scott point
 #'     processes. \emph{Biometrical Journal}, \strong{50}: 43--57.
-#' @references Stevenson, B. C., Borchers, D. L., and Fewster,
-#'     R. M. (in prep) Trace-contrast methods to account for
-#'     identification uncertainty on aerial surveys of cetacean
-#'     populations.
-#' @references Jones-Todd, C. M. (2017) \emph{Modelling complex
-#'     dependencies inherent in spatial and spatio-temporal point
-#'     pattern data}. PhD thesis, University of St Andrews.
 #'
 #' @param points A matrix containing locations of observed points,
 #'     where each row corresponds to a point and each column
@@ -92,18 +93,39 @@
 #'
 #' @inheritParams fit.ns
 #' 
-#' @return An R6 reference class object. Extraction of the information
-#'     held within is best handled by functions \link{coef.palm},
-#'     \link{confint.palm}, \link{summary.palm}, and \link{plot.palm}.
+#' @return An R6 reference class object.
+#'
+#' @seealso Use \link{coef.palm} to extract estimated parameters, and
+#'     \link{plot.palm} to plot the estimated Palm intensity
+#'     function. Use \link{boot.palm} to run a parametric bootstrap,
+#'     allowing calculation of standard errors and confidence
+#'     intervals.
+#'
+#' @seealso See \link{sim.ns} to simulate from a Neyman-Scott point
+#'     process.
 #'
 #' @examples
-#' ## Fit model.
+#' ## Fitting model to example data.
 #' fit <- fit.ns(example.2D, lims = rbind(c(0, 1), c(0, 1)), R = 0.5)
-#' ## Print estimates.
+#' ## Printing estimates.
 #' coef(fit)
-#' ## Plot the estimated Palm intensity.
+#' ## Plotting the estimated Palm intensity.
 #' plot(fit)
-#' 
+#' \dontrun{
+#' ## Simulating data and fitting additional models.
+#' set.seed(1234)
+#' ## One-dimensional Thomas process.
+#' data.thomas <- sim.ns(c(D = 10, lambda = 5, sigma = 0.025), lims = rbind(c(0, 1)))
+#' ## Fitting a model to these data.
+#' fit.thomas <- fit.ns(data.thomas$points, lims = rbind(c(0, 1)), R = 0.5)
+#' ## Three-dimensional Matern process.
+#' data.matern <- sim.ns(c(D = 10, lambda = 10, tau = 0.1), disp = "uniform",
+#'                       lims = rbind(c(0, 1), c(0, 2), c(0, 3)))
+#' ## Fitting a model to these data.
+#' fit.matern <- fit.ns(data.matern$points, lims = rbind(c(0, 1), c(0, 2), c(0, 3)),
+#'                      R = 0.5, disp = "uniform")
+#' }
+#'
 #' @export
 fit.ns <- function(points, lims, R, disp = "gaussian", child.dist = "pois", child.info = NULL,
                       sibling.list = NULL, edge.correction = "pbc", start = NULL, bounds = NULL, trace = FALSE){
@@ -133,7 +155,7 @@ fit.ns <- function(points, lims, R, disp = "gaussian", child.dist = "pois", chil
 #' the survey area; (iii) a component named \code{l}, providing the
 #' time lag between cameras (in seconds); and (iv) a component named
 #' \code{tau}, providing the mean dive-cycle duration. See Stevenson,
-#' Borchers, and Fewster (in prep) for details.
+#' Borchers, and Fewster (in revision) for details.
 #'
 #' @param pars A named vector containing the values of the parameters
 #'     of the process that generates the points.
@@ -151,19 +173,11 @@ fit.ns <- function(points, lims, R, disp = "gaussian", child.dist = "pois", chil
 #'     information.
 #'
 #' @examples
-#' \dontrun{
-#' set.seed(1234)
-#' ## One-dimensional Thomas process.
+#' ## Simulating from a one-dimensional Thomas process.
 #' data.thomas <- sim.ns(c(D = 10, lambda = 5, sigma = 0.025), lims = rbind(c(0, 1)))
-#' ## Fitting a model to these data.
-#' fit.thomas <- fit.ns(data.thomas$points, lims = rbind(c(0, 1)), R = 0.5)
-#' ## Three-dimensional Matern process.
+#' ## Simulating from a three-dimensional Matern process.
 #' data.matern <- sim.ns(c(D = 10, lambda = 10, tau = 0.1), disp = "uniform",
 #'                       lims = rbind(c(0, 1), c(0, 2), c(0, 3)))
-#' ## Fitting a model to these data.
-#' fit.matern <- fit.ns(data.matern$points, lims = rbind(c(0, 1), c(0, 2), c(0, 3)),
-#'                      R = 0.5, disp = "uniform")
-#' }
 #' 
 #' @export
 sim.ns <- function(pars, lims, disp = "gaussian", child.dist = "pois", parents = NULL, child.info = NULL){
@@ -183,7 +197,8 @@ sim.ns <- function(pars, lims, disp = "gaussian", child.dist = "pois", parents =
 #' Estimates parameters for a void point process by maximising the
 #' Palm likelihood. This approach was first proposed by Tanaka et
 #' al. (2008) for two-dimensional Thomas processes. Generalisation to
-#' d-dimensional void processes was made by Jones-Todd (2017).
+#' d-dimensional void processes was made by Jones-Todd (in
+#' submission).
 #'
 #' Parameters to estimate are as follows:
 #' \itemize{
@@ -194,21 +209,37 @@ sim.ns <- function(pars, lims, disp = "gaussian", child.dist = "pois", parents =
 #'   \item \code{tau}, the radius of the deletion process centred at each parent.
 #' }
 #'
+#' @references Jones-Todd, C. M., Caie, P., Illian, J., Stevenson,
+#'     B. C., Savage, A., Harrison, D. J., and Bown, J. L. (in
+#'     submission). Identifying unusual structures in tissue sections
+#'     of colon cancer patients using point pattern analysis.
 #' @references Tanaka, U., Ogata, Y., and Stoyan, D. (2008) Parameter
 #'     estimation and model selection for Neyman-Scott point
 #'     processes. \emph{Biometrical Journal}, \strong{50}: 43--57.
-#' @references Jones-Todd, C. M. (2017) \emph{Modelling complex
-#'     dependencies inherent in spatial and spatio-temporal point
-#'     pattern data}. PhD thesis, University of St Andrews.
 #'
 #' @inheritParams fit.ns
 #'
-#' @return An R6 reference class object. Extraction of the information
-#'     held within is best handled by functions \link{coef.palm},
-#'     \link{confint.palm}, \link{summary.palm}, and \link{plot.palm}.
+#' @return An R6 reference class object.
+#' 
+#' @seealso Use \link{coef.palm} to extract estimated parameters, and
+#'     \link{plot.palm} to plot the estimated Palm intensity
+#'     function. Use \link{boot.palm} to run a parametric bootstrap,
+#'     allowing calculation of standard errors and confidence
+#'     intervals.
 #'
+#' @seealso See \link{sim.void} to simulate from a void process.
+#'
+#' @examples
+#' \dontrun{
+#' set.seed(1234)
+#' ## Simulating a two-dimensional void process.
+#' void.data <- sim.void(c(Dc = 1000, Dp = 10, tau = 0.05), rbind(c(0, 1), c(0, 1)))
+#' ## Fitting model.
+#' fit <- fit.void(void.data$points, rbind(c(0, 1), c(0, 1)), R = 0.5)
+#' }
+#' 
 #' @export
-fit.void <- function(points, lims, R, edge.correction = "pbc", start = NULL, bounds, trace = FALSE){
+fit.void <- function(points, lims, R, edge.correction = "pbc", start = NULL, bounds = NULL, trace = FALSE){
     classes.list <- setup.classes(fit = TRUE, family = "void", family.info = NULL,
                                   edge.correction = edge.correction)
     obj <- create.obj(classes = classes.list$classes, points = points, lims = lims, R = R,
@@ -235,6 +266,13 @@ fit.void <- function(points, lims, R, edge.correction = "pbc", start = NULL, bou
 #' @return A list. The first component gives the Cartesian coordinates
 #'     of the generated points. The second component returns the
 #'     parent locations.
+#'
+#' @examples
+#' ## Two-dimensional void process.
+#' void.data <- sim.void(c(Dc = 1000, Dp = 10, tau = 0.05), rbind(c(0, 1), c(0, 1)))
+#' ## Plotting the data.
+#' plot(void.data$points)
+#' points(void.data$parents, pch = 16, col = "red")
 #'
 #' @export
 sim.void <- function(pars, lims, parents = NULL){
@@ -336,19 +374,25 @@ setup.classes <- function(fit, family, family.info, edge.correction){
 #'
 #' Estimates animal density (amongst other parameters) from two-camera
 #' aerial surveys. This conceptualises sighting locations as a
-#' Neyman-Scott point pattern---estimation is carried out via
-#' \code{fit.ns()}.
+#' Neyman-Scott point pattern.
 #'
 #' This function is simply a wrapper for \code{fit.ns}, and
 #' facilitates the fitting of the model proposed by Stevenson,
-#' Borchers, and Fewster (in prep). This function presents the
+#' Borchers, and Fewster (in revision). This function presents the
 #' parameter \code{D.2D} (two-dimensional cetacean density in
 #' cetaceans per square km) rather than \code{D} for enhanced
 #' interpretability.
 #'
+#' For further details on the cluster capture-recapture estimation
+#' approach, see Fewster, Stevenson and Borchers (2016).
+#'
+#' @references Fewster, R. M., Stevenson, B. C., and Borchers,
+#'     D. L. (2016) Trace-contrast methods for capture-recapture
+#'     without capture histories. \emph{Statistical Science},
+#'     \strong{31}: 245--258.
 #' @references Stevenson, B. C., Borchers, D. L., and Fewster,
-#'     R. M. (in prep) Trace-contrast methods to account for
-#'     identification uncertainty on aerial surveys of cetacean
+#'     R. M. (in revision) Cluster capture-recapture to account for
+#'     identification uncertainty on aerial surveys of animal
 #'     populations.
 #'
 #' @param points A vector (or single-column matrix) containing the
@@ -368,20 +412,27 @@ setup.classes <- function(fit, family, family.info, edge.correction){
 #' @param l The lag between cameras (in seconds).
 #' @param tau Mean dive-cycle duration (in seconds).
 #' @param R Truncation distance (see \link{fit.ns}).
-#' @param edge.correction The method used for the correction of edge
-#'     effects. Either \code{"pbc"} for periodic boundary conditions,
-#'     or \code{"buffer"} for a buffer-zone correction.
-#' @param trace Logical, if \code{TRUE}, parameter values are printed
-#'     to the screen for each iteration of the optimisation procedure.
 #' @inheritParams fit.ns
 #'
-#' @return An R6 reference class object. Extraction of the information
-#'     held within is best handled by functions \link{coef.palm},
-#'     \link{confint.palm}, \link{summary.palm}, and \link{plot.palm}.
+#' @return An R6 reference class object.
+#'
+#' @seealso Use \link{coef.palm} to extract estimated parameters, and
+#'     \link{plot.palm} to plot the estimated Palm intensity
+#'     function. Use \link{boot.palm} to run a parametric bootstrap,
+#'     allowing calculation of standard errors and confidence
+#'     intervals.
+#'
+#' @seealso See \link{sim.twocamera} to simulate sightings from a
+#'     two-camera aerial survey.
 #'
 #' @examples
+#' ## Fitting model.
 #' fit <- fit.twocamera(points = example.twocamera$points, cameras = example.twocamera$cameras,
-#'                     d = 500, w = 0.175, b = 0.5, l = 20, tau = 110, R = 1)
+#'                      d = 500, w = 0.175, b = 0.5, l = 20, tau = 110, R = 1)
+#' ## Printing estimates.
+#' coef(fit)
+#' ## Plotting the estimated Palm intensity.
+#' plot(fit)
 #' 
 #' @export
 fit.twocamera <- function(points, cameras = NULL, d, w, b, l, tau, R,
@@ -419,8 +470,15 @@ fit.twocamera <- function(points, cameras = NULL, d, w, b, l, tau, R,
 #' @inheritParams fit.twocamera
 #'
 #' @return A list. The first component gives the distance along the
-#'     transect of detected individuals. A second component provides
-#'     sibling information.
+#'     transect of detected individuals. The second gives the parent
+#'     locations. The third identifies which parent location generated
+#'     each detected individual. The fourth gives the distance from
+#'     the transect centre line of the detection location. The fifth
+#'     provides observed sibling information.
+#'
+#' @examples
+#' twocamera.data <- sim.twocamera(c(D.2D = 1.3, kappa = 27, sigma = 0.02), d = 500,
+#'                                 w = 0.175, b = 0.5, l = 20, tau = 110)
 #'
 #' @export
 sim.twocamera <- function(pars, d, w, b, l, tau, parents = NULL){
@@ -446,15 +504,14 @@ sim.twocamera <- function(pars, d, w, b, l, tau, parents = NULL){
 #'
 #' @return The original model object containing additional information
 #'     from the boostrap procedure. These are accessed by functions
-#'     such as \link{summary}.
+#'     such as \link{summary.palm} and \link{confint.palm}. The
+#'     bootstrap parameter estimates can be found in the \code{boots}
+#'     component of the returned object.
 #'
 #' @param fit A fitted object.
 #' @param N The number of bootstrap resamples.
 #' @param prog Logical, if \code{TRUE}, a progress bar is printed to
 #'     the console.
-#'
-#' @return The original R6 reference object, with additional bootstrap
-#'     information attached.
 #'
 #' @examples
 #' ## Fit model.
@@ -475,50 +532,3 @@ boot.palm <- function(fit, N, prog = TRUE){
 
 
 
-## Roxygen code for NAMESPACE.
-#' @import methods Rcpp R6
-#' @importFrom graphics abline axis box lines par plot.new plot.window title
-#' @importFrom gsl hyperg_2F1
-#' @importFrom mvtnorm rmvnorm
-#' @importFrom spatstat crossdist
-#' @importFrom stats coef dist integrate nlminb pbeta pgamma pnorm printCoefmat qnorm quantile rbinom rnorm rpois runif sd
-#' @importFrom utils setTxtProgressBar txtProgressBar
-#' @useDynLib palm
-NULL
-
-## Data documentation.
-
-#' 1-dimensional example data
-#'
-#' Simulated data, with children points generated from a Binomial(4,
-#' 0.5) distribution.
-#'
-#' @name example.1D
-#' @format A matrix.
-#' @usage example.1D
-#' @docType data
-#' @keywords datasets
-NULL
-
-#' 2-dimensional example data
-#'
-#' Simulated data, with children points generated from a Binomial(2,
-#' 0.5) distribution.
-#'
-#' @name example.2D
-#' @format A matrix.
-#' @usage example.2D
-#' @docType data
-#' @keywords datasets
-NULL
-
-#' Two-camera example data.
-#'
-#' Simulated data from a two-camera aerial survey.
-#'
-#' @name example.twocamera
-#' @format A list.
-#' @usage example.twocamera
-#' @docType data
-#' @keywords datasets
-NULL
