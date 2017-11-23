@@ -15,7 +15,7 @@
 #' identified---the data from which can conceptually be seen as a NSPP
 #' (Fewster, Stevenson, and Borchers, 2016). As such, some of the
 #' functions in this package are specifically for the estimation of
-#' cetacean density from two-camera aerial surveys, see Stevenson,
+#' cetacean density from two-camera aerial surveys; see Stevenson,
 #' Borchers, and Fewster (in revision).
 #'
 #' This package can also fit void processes, which, along with NSPPs,
@@ -136,9 +136,8 @@ NULL
 
 #' Two-camera porpoise data.
 #'
-#' Data constructed by and analysed by Stevenson, Borchers, and
-#' Fewster (in revision). These were constructed by resampling
-#' circle-back aerial survey data.
+#' Synthetic data constructed from circle-back aerial survey data; see
+#' Stevenson, Borchers, and Fewster (in revision).
 #'
 #' @name porpoise.data
 #' @format A list.
