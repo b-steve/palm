@@ -1,25 +1,14 @@
 ## Test environments
 
-* Local Xubuntu 16.04 install, R 3.3.2
+* Local Xubuntu 16.04 install, R 3.4.2
 * win-builder (devel and release)
 
 ## R CMD check results
 
-* No ERRORs or WARNINGs
+* No ERRORs, WARNINGs, or NOTEs.
 
-* There was 1 NOTE:
+* There was 1 Note_to_CRAN_maintainers:
 
-   checking CRAN incoming feasibility ... NOTE
-   Maintainer: ‘Ben Stevenson <ben.stevenson@auckland.ac.nz>’
+  Maintainer: ‘Ben Stevenson <ben.stevenson@auckland.ac.nz>’
 
-   New submission
-
-   Possibly mis-spelled words in DESCRIPTION:
-     Neyman (12:358)
-     Ogata (12:117)
-     Stoyan (12:128)
-     Tanaka (12:109)
-
-   * This is the first package I have submitted to CRAN.
-
-   * These are author names, and are not mis-spelled.
+    * These details are correct.
