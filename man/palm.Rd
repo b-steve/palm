@@ -20,7 +20,7 @@ capture-recapture surveys on which individuals cannot be
 identified---the data from which can conceptually be seen as a NSPP
 (Fewster, Stevenson, and Borchers, 2016). As such, some of the
 functions in this package are specifically for the estimation of
-cetacean density from two-camera aerial surveys, see Stevenson,
+cetacean density from two-camera aerial surveys; see Stevenson,
 Borchers, and Fewster (in revision).
 
 This package can also fit void processes, which, along with NSPPs,

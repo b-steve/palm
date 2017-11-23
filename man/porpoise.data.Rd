@@ -9,9 +9,8 @@
 porpoise.data
 }
 \description{
-Data constructed by and analysed by Stevenson, Borchers, and
-Fewster (in revision). These were constructed by resampling
-circle-back aerial survey data.
+Synthetic data constructed from circle-back aerial survey data; see
+Stevenson, Borchers, and Fewster (in revision).
 }
 \references{
 Stevenson, B. C., Borchers, D. L., and Fewster,
