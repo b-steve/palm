@@ -6,9 +6,3 @@
 ## R CMD check results
 
 * No ERRORs, WARNINGs, or NOTEs.
-
-* There was 1 Note_to_CRAN_maintainers:
-
-  Maintainer: ‘Ben Stevenson <ben.stevenson@auckland.ac.nz>’
-
-    * These details are correct.
