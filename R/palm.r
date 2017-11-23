@@ -133,3 +133,20 @@ NULL
 #' @docType data
 #' @keywords datasets
 NULL
+
+#' Two-camera porpoise data.
+#'
+#' Data constructed by and analysed by Stevenson, Borchers, and
+#' Fewster (in revision). These were constructed by resampling
+#' circle-back aerial survey data.
+#'
+#' @name porpoise.data
+#' @format A list.
+#' @usage porpoise.data
+#' @docType data
+#' @keywords datasets
+#' @references Stevenson, B. C., Borchers, D. L., and Fewster,
+#'     R. M. (in revision) Cluster capture-recapture to account for
+#'     identification uncertainty on aerial surveys of animal
+#'     populations.
+NULL
