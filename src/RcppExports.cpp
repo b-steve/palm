@@ -30,14 +30,3 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-
-static const R_CallMethodDef CallEntries[] = {
-    {"_palm_buffer_keep", (DL_FUNC) &_palm_buffer_keep, 3},
-    {"_palm_pbc_distances", (DL_FUNC) &_palm_pbc_distances, 2},
-    {NULL, NULL, 0}
-};
-
-RcppExport void R_init_palm(DllInfo *dll) {
-    R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
-    R_useDynamicSymbols(dll, FALSE);
-}

@@ -92,7 +92,7 @@ NULL
 #' @importFrom spatstat crossdist
 #' @importFrom stats coef dist integrate nlminb pbeta pgamma pnorm printCoefmat qnorm quantile rbinom rnorm rpois runif sd
 #' @importFrom utils setTxtProgressBar txtProgressBar
-#' @useDynLib palm
+#' @useDynLib palm, .registration = TRUE
 NULL
 
 ## Data documentation.
