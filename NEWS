@@ -1,10 +1,18 @@
-Version 1.0.1
+Version 1.1.0
 -------------
 
-- Added a function to simulate data from two-camera aerial surveys.
+- Added sim.twocamera() to simulate data from two-camera aerial
+  surveys.
 
 - Added the `parents' argument to simulation functions, so that the
   user can specify their own parent locations.
+
+- Added a component containing parent locations to the output of
+  sim.ns().
+
+- Bug fix for buffer edge correction with fit.twocamera().
+
+- Bug fix for user-specified parameter bounds with fit.void().
 
 Version 1.0.0
 -------------
