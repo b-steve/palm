@@ -75,7 +75,7 @@ coef.palm_twocamerachild <- function(object, se = FALSE, report.2D = TRUE, ...){
 #'     calculate confidence intervals. Choices are "normal", for a
 #'     normal approximation, and "percentile", for the percentile
 #'     method.
-#' @param ... Other parameters (for S3 generic compatability).
+#' @param ... Other parameters (for S3 generic compatibility).
 #'
 #' @method confint palm
 #'

@@ -503,7 +503,7 @@ sim.twocamera <- function(pars, d, w, b, l, tau, parents = NULL){
 #' using the \code{palm} package.
 #'
 #' @return The original model object containing additional information
-#'     from the boostrap procedure. These are accessed by functions
+#'     from the bootstrap procedure. These are accessed by functions
 #'     such as \link{summary.palm} and \link{confint.palm}. The
 #'     bootstrap parameter estimates can be found in the \code{boots}
 #'     component of the returned object.
