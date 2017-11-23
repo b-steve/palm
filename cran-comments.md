@@ -5,4 +5,17 @@
 
 ## R CMD check results
 
-* No ERRORs, WARNINGs, or NOTEs.
+* With local Xubuntu 16.04 install and win-builder (devel), there were
+  no ERRORs, WARNINGs, or NOTEs.
+
+* With win-builder (release) there was 1 NOTE:
+
+  Maintainer: 'Ben Stevenson <ben.stevenson@auckland.ac.nz>'
+
+  Possibly mis-spelled words in DESCRIPTION:
+    Neyman (12:371)
+    Ogata (12:105)
+    Stoyan (12:116)
+    Tanaka (12:97)
+
+    * These are author names, and are not mis-spelled.
