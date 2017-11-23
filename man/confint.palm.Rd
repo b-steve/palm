@@ -22,7 +22,7 @@ calculate confidence intervals. Choices are "normal", for a
 normal approximation, and "percentile", for the percentile
 method.}
 
-\item{...}{Other parameters (for S3 generic compatability).}
+\item{...}{Other parameters (for S3 generic compatibility).}
 }
 \description{
 Extracts confidence intervals for estimated and derived parameters
