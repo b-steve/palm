@@ -128,7 +128,7 @@
 #'
 #' @export
 fit.ns <- function(points, lims, R, disp = "gaussian", child.dist = "pois", child.info = NULL,
-                      sibling.list = NULL, edge.correction = "pbc", start = NULL, bounds = NULL, trace = FALSE){
+                   sibling.list = NULL, edge.correction = "pbc", start = NULL, bounds = NULL, trace = FALSE){
     classes.list <- setup.classes(fit = TRUE, family = "ns", family.info = list(child.dist = child.dist,
                                                                                 child.info = child.info,
                                                                                 disp = disp,
@@ -438,6 +438,9 @@ setup.classes <- function(fit, family, family.info, edge.correction){
 fit.twocamera <- function(points, cameras = NULL, d, w, b, l, tau, R,
                          edge.correction = "pbc", start = NULL,
                          bounds = NULL, trace = FALSE){
+    if (is.vector(points)){
+        points <- matrix(points, ncol = 1)
+    }
     if (is.null(cameras)){
         sibling.list <- NULL
     } else {

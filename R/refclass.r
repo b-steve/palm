@@ -929,6 +929,9 @@ create.obj <- function(classes, points, lims, R, child.list, parent.locs, siblin
     if (any(classes == "twocamerachild") & !any(classes == "thomas")){
         stop("Analysis of two-camera surveys is only implemented for Thomas processes.")
     }
+    if (!is.matrix(points)){
+        stop("The argument 'points' must be a matrix.")
+    }
     class$new(points = points, lims = lims, R = R, child.list = child.list, parent.locs = parent.locs,
               sibling.list = sibling.list, trace = trace, classes = classes, start = start, bounds = bounds)
 }
