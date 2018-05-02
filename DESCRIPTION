@@ -11,6 +11,7 @@ Depends:
 Imports:
     gsl,
     methods,
+    minqa,
     mvtnorm,
     R6,
     spatstat

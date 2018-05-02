@@ -90,6 +90,9 @@
 #'     for the named parameter.
 #' @param trace Logical; if \code{TRUE}, parameter values are printed
 #'     to the screen for each iteration of the optimisation procedure.
+#' @param use.bobyqa Logial; if \code{TRUE} the \link{bobyqa} function
+#'     is used for optimisation. Otherwise the \link{nlminb} function
+#'     is used.
 #'
 #' @inheritParams fit.ns
 #' 
@@ -128,12 +131,15 @@
 #'
 #' @export
 fit.ns <- function(points, lims, R, disp = "gaussian", child.dist = "pois", child.info = NULL,
-                   sibling.list = NULL, edge.correction = "pbc", start = NULL, bounds = NULL, trace = FALSE){
-    classes.list <- setup.classes(fit = TRUE, family = "ns", family.info = list(child.dist = child.dist,
-                                                                                child.info = child.info,
-                                                                                disp = disp,
-                                                                                sibling.list = sibling.list),
-                                  edge.correction = edge.correction)
+                   sibling.list = NULL, edge.correction = "pbc", start = NULL, bounds = NULL,
+                   use.bobyqa = TRUE, trace = FALSE){
+    classes.list <- setup.classes(fit = TRUE, family = "ns",
+                                  family.info = list(child.dist = child.dist,
+                                                     child.info = child.info,
+                                                     disp = disp,
+                                                     sibling.list = sibling.list),
+                                  fit.info = list(edge.correction = edge.correction,
+                                                  use.bobyqa = use.bobyqa))
     obj <- create.obj(classes = classes.list$classes, points = points, lims = lims, R = R,
                       child.list = classes.list$child.list, parent.locs = NULL,
                       sibling.list = sibling.list, trace = trace, start = start, bounds = bounds)
@@ -185,7 +191,7 @@ sim.ns <- function(pars, lims, disp = "gaussian", child.dist = "pois", parents =
                                                                                  child.info = child.info,
                                                                                  parent.locs = parents,
                                                                                  disp = disp),
-                                  edge.correction = NULL)
+                                  fit.info = NULL)
     obj <- create.obj(classes = classes.list$classes, points = NULL, lims = lims, R = NULL,
                       child.list = classes.list$child.list, parent.locs = classes.list$parent.locs,
                       sibling.list = NULL, trace = NULL, start = NULL, bounds = NULL)
@@ -241,7 +247,7 @@ sim.ns <- function(pars, lims, disp = "gaussian", child.dist = "pois", parents =
 #' @export
 fit.void <- function(points, lims, R, edge.correction = "pbc", start = NULL, bounds = NULL, trace = FALSE){
     classes.list <- setup.classes(fit = TRUE, family = "void", family.info = NULL,
-                                  edge.correction = edge.correction)
+                                  fit.info = NULL)
     obj <- create.obj(classes = classes.list$classes, points = points, lims = lims, R = R,
                       child.list = NULL, parent.locs = NULL, sibling.list = NULL,
                       trace = trace, start = start, bounds = bounds)
@@ -277,16 +283,18 @@ fit.void <- function(points, lims, R, edge.correction = "pbc", start = NULL, bou
 #' @export
 sim.void <- function(pars, lims, parents = NULL){
     classes.list <- setup.classes(fit = FALSE, family = "void", family.info = list(parent.locs = parents),
-                                  edge.correction = NULL)
+                                  fit.info = NULL)
     obj <- create.obj(classes = classes.list$classes, points = NULL, lims = lims, R = NULL,
                       child.list = NULL, parent.locs = classes.list$parent.locs,
                       sibling.list = NULL, trace = NULL, start = NULL, bounds = NULL)
     obj$simulate(pars)
 }
 
-setup.classes <- function(fit, family, family.info, edge.correction){
+setup.classes <- function(fit, family, family.info, fit.info){
     ## Initialising all classes to FALSE.
     use.fit.class <- FALSE
+    use.nlminb.class <- FALSE
+    use.bobyqa.class <- FALSE
     use.pbc.class <- FALSE
     use.buffer.class <- FALSE
     use.ns.class <- FALSE
@@ -301,13 +309,19 @@ setup.classes <- function(fit, family, family.info, edge.correction){
     use.void.class <- FALSE
     use.totaldeletion.class <- FALSE
     use.giveparent.class <- FALSE
-    ## Sorting out fitting class.
+    ## Sorting out fitting classes.
     if (fit){
         use.fit.class <- TRUE
+        ## Sorting out optimisation class.
+        if (fit.info$use.bobyqa){
+            use.bobyqa.class <- TRUE
+        } else {
+            use.nlminb.class <- TRUE
+        }
         ## Sorting out boundary condition class.
-        if (edge.correction == "pbc"){
+        if (fit.info$edge.correction == "pbc"){
             use.pbc.class <- TRUE
-        } else if (edge.correction == "buffer"){
+        } else if (fit.info$edge.correction == "buffer"){
             use.buffer.class <- TRUE
         } else {
             stop("Edge correction method not recognised; use either 'pbc' or 'buffer'.")
@@ -355,6 +369,8 @@ setup.classes <- function(fit, family, family.info, edge.correction){
         parent.locs <- family.info$parent.locs
     }
     classes <- c("fit"[use.fit.class],
+                 "bobyqa"[use.bobyqa.class],
+                 "nlminb"[use.nlminb.class],
                  "pbc"[use.pbc.class],
                  "buffer"[use.buffer.class],
                  "ns"[use.ns.class],

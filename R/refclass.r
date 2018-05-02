@@ -152,8 +152,6 @@ set.fit.class <- function(class, class.env){
                     if (any(name == names(self$set.start))){
                         start <- self$set.start[name]
                     }
-                    self$par.start <- c(self$par.start, start)
-                    names(self$par.start) <- self$par.names
                     if (any(name == names(self$set.bounds))){
                         lower <- self$set.bounds[[name]][1]
                         upper <- self$set.bounds[[name]][2]
@@ -161,6 +159,14 @@ set.fit.class <- function(class, class.env){
                     self$par.upper <- c(self$par.upper, upper)
                     names(self$par.upper) <- self$par.names
                     self$par.lower <- c(self$par.lower, lower)
+                    ## Adjustment for start values on the bounds.
+                    if (start >= upper){
+                        start <- lower + 0.9*(upper - lower)
+                    } else if (start <= lower){
+                        start <- lower + 0.9*(upper - lower)
+                    }
+                    self$par.start <- c(self$par.start, start)
+                    names(self$par.start) <- self$par.names
                     names(self$par.lower) <- self$par.names
                 },
                 ## A method to set the upper and lower parameter bounds on the link scale.
@@ -229,18 +235,10 @@ set.fit.class <- function(class, class.env){
                 
                 ## A method for model fitting.
                 fit = function(){
-                    optim.obj <- nlminb(self$par.start.link, self$link.neg.log.palm.likelihood,
-                                        fixed.link.pars = self$par.fixed.link,
-                                        est.names = self$par.names.link, fixed.names = self$fixed.names.link,
-                                        control = list(eval.max = 2000, iter.max = 1500),
-                                        lower = self$par.lower.link, upper = self$par.upper.link)
-                    if (optim.obj$convergence > 1){
-                        warning("Failed convergence.")
-                    }
-                    self$par.fitted.link <- optim.obj$par
-                    names(self$par.fitted.link) <- self$par.names.link
-                    self$par.fitted <- self$invlink.pars(self$par.fitted.link)
-                    self$conv.code <- optim.obj$convergence
+                    ## At the moment this is simply an optimisation
+                    ## method, but I'll leave this nested in here in
+                    ## case things need to be more general later on.
+                    self$palm.optimise()
                 },
                 ## A method for bootstrapping.
                 boot = function(N, prog = TRUE){
@@ -328,6 +326,64 @@ set.fit.class <- function(class, class.env){
             ))
 }
 
+######
+## Class for bobyqa() optimisation.
+######
+
+set.bobyqa.class <- function(class, class.env){
+    ## Saving inherited class to class.env.
+    assign("bobyqa.inherit", class, envir = class.env)
+    R6Class("palm_bobyqa",
+            inherit = class.env$bobyqa.inherit,
+            public = list(
+                ## A method to minimise the negative Palm likelihood.
+                palm.optimise = function(){
+                    cat("Using bobyqa()...\n")
+                    out <- bobyqa(self$par.start.link, self$link.neg.log.palm.likelihood,
+                                  lower = self$par.lower.link, upper = self$par.upper.link,
+                                  fixed.link.pars = self$par.fixed.link,
+                                  est.names = self$par.names.link,
+                                  fixed.names = self$fixed.names.link,
+                                  control = list(maxfun = 2000, npt = 2*self$n.par + 1))
+                    if (out$ierr > 0){
+                        warning("Failed convergence.")
+                    }
+                    self$par.fitted.link <- out$par
+                    names(self$par.fitted.link) <- self$par.names.link
+                    self$par.fitted <- self$invlink.pars(self$par.fitted.link)
+                    self$conv.code <- out$ierr
+                }
+            ))
+}
+    
+######
+## Class for nlminb() optimisation.
+######
+
+set.nlminb.class <- function(class, class.env){
+    ## Saving inherited class to class.env.
+    assign("nlminb.inherit", class, envir = class.env)
+    R6Class("palm_nlminb",
+            inherit = class.env$nlminb.inherit,
+            public = list(
+                ## A method to minimise the negative Palm likelihood.
+                palm.optimise = function(){
+                    out <- nlminb(self$par.start.link, self$link.neg.log.palm.likelihood,
+                                  fixed.link.pars = self$par.fixed.link,
+                                  est.names = self$par.names.link, fixed.names = self$fixed.names.link,
+                                  control = list(eval.max = 2000, iter.max = 1500),
+                                  lower = self$par.lower.link, upper = self$par.upper.link)
+                    if (out$convergence > 1){
+                        warning("Failed convergence.")
+                    }
+                    self$par.fitted.link <- out$par
+                    names(self$par.fitted.link) <- self$par.names.link
+                    self$par.fitted <- self$invlink.pars(self$par.fitted.link)
+                    self$conv.code <- out$convergence
+                }
+            ))
+}
+    
 ######
 ## Class for periodic boundary conditions.
 ######
@@ -929,7 +985,7 @@ create.obj <- function(classes, points, lims, R, child.list, parent.locs, siblin
     if (any(classes == "twocamerachild") & !any(classes == "thomas")){
         stop("Analysis of two-camera surveys is only implemented for Thomas processes.")
     }
-    if (!is.matrix(points)){
+    if (!is.null(points) & !is.matrix(points)){
         stop("The argument 'points' must be a matrix.")
     }
     class$new(points = points, lims = lims, R = R, child.list = child.list, parent.locs = parent.locs,

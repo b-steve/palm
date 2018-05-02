@@ -88,6 +88,7 @@ NULL
 #' @import methods Rcpp R6
 #' @importFrom graphics abline axis box lines par plot.new plot.window title
 #' @importFrom gsl hyperg_2F1
+#' @importFrom minqa bobyqa
 #' @importFrom mvtnorm rmvnorm
 #' @importFrom spatstat crossdist
 #' @importFrom stats coef dist integrate nlminb pbeta pgamma pnorm printCoefmat qnorm quantile rbinom rnorm rpois runif sd
