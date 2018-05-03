@@ -9,6 +9,13 @@ test_that(
                                                      lambda = 2.061197102,
                                                      sigma = 0.005430651),
                      tolerance = 0.01)
+        ## Testing the above with bobyqa().
+        fit.bobyqa.pois.1D <- fit.ns(example.1D, lims = rbind(c(0, 1)), R = 0.5, use.bobyqa = TRUE)
+        expect_equal(coef(fit.bobyqa.pois.1D), expected = c(D = 46.545192991,
+                                                     lambda = 2.061197102,
+                                                     sigma = 0.005430651),
+                     tolerance = 0.01)
+        ## Testing the above with a binomial number of children.
         fit.bin.1D <- fit.ns(points = example.1D, lims = rbind(c(0, 1)), R = 0.5,
                                    child.dist = "binom4")
         expect_equal(coef(fit.bin.1D), expected = c(D = 34.908870817,
@@ -49,10 +56,12 @@ test_that(
 test_that(
     "Matern fitting",
     {
-        fit.matern <- fit.ns(example.2D, lims = rbind(c(0, 1), c(0, 1)), R = 0.5, disp = "uniform")
-        par.fit.matern <- coef(fit.matern)
-        names(par.fit.matern) <- NULL
-        expect_equal(par.fit.matern, c(38.76459565, 0.73561864, 0.05327295), tolerance = 0.001)
+        ## With bobyqa(), as nlminb() appears more unstable for this.
+        fit.bobyqa.matern <- fit.ns(example.2D, lims = rbind(c(0, 1), c(0, 1)), R = 0.5, disp = "uniform",
+                             use.bobyqa = TRUE)
+        par.fit.bobyqa.matern <- coef(fit.bobyqa.matern)
+        names(par.fit.bobyqa.matern) <- NULL
+        expect_equal(par.fit.bobyqa.matern, c(38.88561077, 0.73344422, 0.05298069), tolerance = 0.001)
     })
 
 test_that(
