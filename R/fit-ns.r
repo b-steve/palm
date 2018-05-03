@@ -92,7 +92,9 @@
 #'     to the screen for each iteration of the optimisation procedure.
 #' @param use.bobyqa Logial; if \code{TRUE} the \link{bobyqa} function
 #'     is used for optimisation. Otherwise the \link{nlminb} function
-#'     is used.
+#'     is used. Note that \link{bobyqa} seems to be less stable than
+#'     \code{nlminb}, but does not require calculation of the Palm
+#'     likelihood's partial derivatives.
 #'
 #' @inheritParams fit.ns
 #' 
@@ -132,7 +134,7 @@
 #' @export
 fit.ns <- function(points, lims, R, disp = "gaussian", child.dist = "pois", child.info = NULL,
                    sibling.list = NULL, edge.correction = "pbc", start = NULL, bounds = NULL,
-                   use.bobyqa = TRUE, trace = FALSE){
+                   use.bobyqa = FALSE, trace = FALSE){
     classes.list <- setup.classes(fit = TRUE, family = "ns",
                                   family.info = list(child.dist = child.dist,
                                                      child.info = child.info,
