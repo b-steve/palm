@@ -6,7 +6,7 @@
 \usage{
 fit.ns(points, lims, R, disp = "gaussian", child.dist = "pois",
   child.info = NULL, sibling.list = NULL, edge.correction = "pbc",
-  start = NULL, bounds = NULL, trace = FALSE)
+  start = NULL, bounds = NULL, use.bobyqa = FALSE, trace = FALSE)
 }
 \arguments{
 \item{points}{A matrix containing locations of observed points,
@@ -58,6 +58,12 @@ parameters.}
 \item{bounds}{A list with named components. Each component should
 be a vector of length two, giving the upper and lower bounds
 for the named parameter.}
+
+\item{use.bobyqa}{Logial; if \code{TRUE} the \link{bobyqa} function
+is used for optimisation. Otherwise the \link{nlminb} function
+is used. Note that \link{bobyqa} seems to be less stable than
+\code{nlminb}, but does not require calculation of the Palm
+likelihood's partial derivatives.}
 
 \item{trace}{Logical; if \code{TRUE}, parameter values are printed
 to the screen for each iteration of the optimisation procedure.}
