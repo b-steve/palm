@@ -67,6 +67,7 @@ set.fit.class <- function(class, class.env){
                 boots = NULL,
                 trace = NULL,
                 conv.code = NULL,
+                converged = NULL,
                 n.par = NULL,
                 set.start = NULL,
                 set.bounds = NULL,
@@ -218,7 +219,6 @@ set.fit.class <- function(class, class.env){
                     }
                     out
                 },
-
                 ## A method for the negative Palm likelihood function.
                 neg.log.palm.likelihood = function(pars){
                     -self$log.palm.likelihood(pars)
@@ -232,13 +232,25 @@ set.fit.class <- function(class, class.env){
                     pars <- self$invlink.pars(link.pars)
                     self$neg.log.palm.likelihood(pars)
                 },
-                
+                ## An empty method for optimisation.
+                palm.optimise = function(){},
+                ## A method for non-optimisation.
+                palm.not.optimise = function(){
+                    self$converged <- FALSE
+                    self$par.fitted.link <- rep(NA, self$n.par)
+                    names(self$par.fitted.link) <- self$par.names.link
+                    self$par.fitted <- rep(NA, self$n.par)
+                    self$conv.code <- 5
+                },
                 ## A method for model fitting.
                 fit = function(){
-                    ## At the moment this is simply an optimisation
-                    ## method, but I'll leave this nested in here in
-                    ## case things need to be more general later on.
-                    self$palm.optimise()
+                    ## If there are contrasts, fit the model. Otherwise, return something else.
+                    if (self$n.contrasts <= 1){
+                        warning("Not enough observed points to compute parameter estimates.")
+                        self$palm.not.optimise()
+                    } else {
+                        self$palm.optimise()
+                    }
                 },
                 ## A method for bootstrapping.
                 boot = function(N, prog = TRUE){
@@ -255,10 +267,10 @@ set.fit.class <- function(class, class.env){
                                                sibling.list = sim.obj$sibling.list, trace = FALSE,
                                                start = self$par.fitted, bounds = self$bounds)
                         obj.boot$fit()
-                        if (obj.boot$conv.code > 1){
-                            boots[i, ] <- rep(NA, self$n.par)
+                        if (obj.boot$converged){
+                            boots[i, ] <- obj.boot$par.fitted  
                         } else {
-                            boots[i, ] <- obj.boot$par.fitted
+                            boots[i, ] <- rep(NA, self$n.par)
                         }
                         ## Updating progress bar.
                         if (prog){
@@ -338,20 +350,26 @@ set.bobyqa.class <- function(class, class.env){
             public = list(
                 ## A method to minimise the negative Palm likelihood.
                 palm.optimise = function(){
-                    cat("Using bobyqa()...\n")
-                    out <- bobyqa(self$par.start.link, self$link.neg.log.palm.likelihood,
-                                  lower = self$par.lower.link, upper = self$par.upper.link,
-                                  fixed.link.pars = self$par.fixed.link,
-                                  est.names = self$par.names.link,
-                                  fixed.names = self$fixed.names.link,
-                                  control = list(maxfun = 2000, npt = 2*self$n.par + 1))
-                    if (out$ierr > 0){
-                        warning("Failed convergence.")
+                    out <- try(bobyqa(self$par.start.link, self$link.neg.log.palm.likelihood,
+                                      lower = self$par.lower.link, upper = self$par.upper.link,
+                                      fixed.link.pars = self$par.fixed.link,
+                                      est.names = self$par.names.link,
+                                      fixed.names = self$fixed.names.link,
+                                      control = list(maxfun = 2000, npt = 2*self$n.par + 1)), silent = TRUE)
+                    if (class(out)[1] == "try-error"){
+                        self$palm.not.optimise()
+                    } else {
+                        if (out$ierr > 0){
+                            warning("Failed convergence.")
+                            self$converged <- FALSE
+                        } else {
+                            self$converged <- TRUE
+                        }
+                        self$par.fitted.link <- out$par
+                        names(self$par.fitted.link) <- self$par.names.link
+                        self$par.fitted <- self$invlink.pars(self$par.fitted.link)
+                        self$conv.code <- out$ierr
                     }
-                    self$par.fitted.link <- out$par
-                    names(self$par.fitted.link) <- self$par.names.link
-                    self$par.fitted <- self$invlink.pars(self$par.fitted.link)
-                    self$conv.code <- out$ierr
                 }
             ))
 }
@@ -375,6 +393,9 @@ set.nlminb.class <- function(class, class.env){
                                   lower = self$par.lower.link, upper = self$par.upper.link)
                     if (out$convergence > 1){
                         warning("Failed convergence.")
+                        self$converged <- FALSE
+                    } else {
+                        self$converged <- TRUE
                     }
                     self$par.fitted.link <- out$par
                     names(self$par.fitted.link) <- self$par.names.link
@@ -400,16 +421,21 @@ set.pbc.class <- function(class, class.env){
                     contrast.pairs <- matrix(0, nrow = self$n.points^2 -
                                                     self$n.points, ncol = 2)
                     k <- 1
-                    for (i in 1:(self$n.points - 1)){
-                        for (j in (i + 1):self$n.points){
-                            contrast.pairs[k, ] <- c(i, j)
-                            contrast.pairs[k + 1, ] <- c(i, j)
-                            k <- k + 2
+                    if (self$n.points > 1){
+                        for (i in 1:(self$n.points - 1)){
+                            for (j in (i + 1):self$n.points){
+                                contrast.pairs[k, ] <- c(i, j)
+                                contrast.pairs[k + 1, ] <- c(i, j)
+                                k <- k + 2
+                            }
                         }
+                        contrasts <- pbc_distances(points = self$points, lims = self$lims)
+                        self$contrast.pairs <- contrast.pairs[contrasts <= self$R, ]
+                        self$contrasts <- contrasts[contrasts <= self$R]
+                    } else {
+                        self$contrast.pairs <- contrast.pairs
+                        self$contrasts <- numeric(0)
                     }
-                    contrasts <- pbc_distances(points = self$points, lims = self$lims)
-                    self$contrast.pairs <- contrast.pairs[contrasts <= self$R, ]
-                    self$contrasts <- contrasts[contrasts <= self$R]
                     super$get.contrasts()
                 }
             ))
@@ -489,14 +515,14 @@ set.ns.class <- function(class, class.env){
                     sibling.list <- sim.n.children$sibling.list
                     child.locs <- matrix(0, nrow = sum(n.children), ncol = self$dim)
                     j <- 0
-                    for (i in 1:n.parents){
+                    for (i in seq_along(n.children)){
                         if (n.children[i] > 0){
                             child.locs[(j + 1):(j + n.children[i]), ] <-
                                 self$simulate.children(n.children[i], parent.locs[i, ], pars)
                             j <- j + n.children[i]
                         }
                     }
-                    parent.ids <- rep(1:n.parents, times = n.children)
+                    parent.ids <- rep(seq_along(n.children), times = n.children)
                     trimmed <- self$trim.points(child.locs, output.indices = TRUE)
                     list(points = child.locs[trimmed, , drop = FALSE],
                          parents = parent.locs,
