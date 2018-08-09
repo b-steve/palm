@@ -140,6 +140,7 @@ fit.ns <- function(points, lims, R, disp = "gaussian", child.dist = "pois", chil
                                                      child.info = child.info,
                                                      disp = disp,
                                                      sibling.list = sibling.list),
+                                  multipattern.info = list(use.multipattern = is.list(points)),
                                   fit.info = list(edge.correction = edge.correction,
                                                   use.bobyqa = use.bobyqa))
     obj <- create.obj(classes = classes.list$classes, points = points, lims = lims, R = R,
@@ -193,6 +194,7 @@ sim.ns <- function(pars, lims, disp = "gaussian", child.dist = "pois", parents =
                                                                                  child.info = child.info,
                                                                                  parent.locs = parents,
                                                                                  disp = disp),
+                                  multipattern.info = list(use.multipattern = is.list(lims)),
                                   fit.info = NULL)
     obj <- create.obj(classes = classes.list$classes, points = NULL, lims = lims, R = NULL,
                       child.list = classes.list$child.list, parent.locs = classes.list$parent.locs,
@@ -249,6 +251,7 @@ sim.ns <- function(pars, lims, disp = "gaussian", child.dist = "pois", parents =
 #' @export
 fit.void <- function(points, lims, R, edge.correction = "pbc", start = NULL, bounds = NULL, trace = FALSE){
     classes.list <- setup.classes(fit = TRUE, family = "void", family.info = NULL,
+                                  multipattern.info = list(use.multipattern = is.list(points)),
                                   fit.info = NULL)
     obj <- create.obj(classes = classes.list$classes, points = points, lims = lims, R = R,
                       child.list = NULL, parent.locs = NULL, sibling.list = NULL,
@@ -285,16 +288,17 @@ fit.void <- function(points, lims, R, edge.correction = "pbc", start = NULL, bou
 #' @export
 sim.void <- function(pars, lims, parents = NULL){
     classes.list <- setup.classes(fit = FALSE, family = "void", family.info = list(parent.locs = parents),
-                                  fit.info = NULL)
+                                  multipattern.info = list(use.multipattern = is.list(lims)), fit.info = NULL)
     obj <- create.obj(classes = classes.list$classes, points = NULL, lims = lims, R = NULL,
                       child.list = NULL, parent.locs = classes.list$parent.locs,
                       sibling.list = NULL, trace = NULL, start = NULL, bounds = NULL)
     obj$simulate(pars)
 }
 
-setup.classes <- function(fit, family, family.info, fit.info){
+setup.classes <- function(fit, family, family.info, multipattern.info, fit.info){
     ## Initialising all classes to FALSE.
     use.fit.class <- FALSE
+    use.multipattern.class <- FALSE
     use.nlminb.class <- FALSE
     use.bobyqa.class <- FALSE
     use.pbc.class <- FALSE
@@ -328,6 +332,10 @@ setup.classes <- function(fit, family, family.info, fit.info){
         } else {
             stop("Edge correction method not recognised; use either 'pbc' or 'buffer'.")
         }
+    }
+    ## Sorting out multipattern stuff.
+    if (multipattern.info$use.multipattern){
+        use.multipattern.class <- TRUE
     }
     ## Sorting out family (ns/void) class.
     if (family == "ns"){
@@ -384,7 +392,8 @@ setup.classes <- function(fit, family, family.info, fit.info){
                  "matern"[use.matern.class],
                  "void"[use.void.class],
                  "totaldeletion"[use.totaldeletion.class],
-                 "giveparent"[use.giveparent.class])
+                 "giveparent"[use.giveparent.class],
+                 "multipattern"[use.multipattern.class])
     list(classes = classes, child.list = child.list, parent.locs = parent.locs)
 }
 
@@ -510,7 +519,9 @@ sim.twocamera <- function(pars, d, w, b, l, tau, parents = NULL){
                         child.info = list(w = w, b = b, l = l, tau = tau),
                         parent.locs = parents, disp = "gaussian")
     classes.list <- setup.classes(fit = FALSE, family = "ns",
-                                  family.info = family.info)
+                                  family.info = family.info,
+                                  multipattern.info = list(use.multipattern = FALSE),
+                                  fit.info = NULL)
     obj <- create.obj(classes = classes.list$classes, points = NULL, lims = rbind(c(0, d)),
                       R = NULL, child.list = classes.list$child.list,
                       parent.locs = classes.list$parent.locs, sibling.list = NULL,
