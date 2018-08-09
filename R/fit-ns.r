@@ -4,7 +4,7 @@
 #' the Palm likelihood. This approach was first proposed by Tanaka et
 #' al. (2008) for two-dimensional Thomas processes. Further
 #' generalisations were made by Stevenson, Borchers, and Fewster (in
-#' revision) and Jones-Todd et al. (in submission).
+#' submission) and Jones-Todd et al. (in submission).
 #' 
 #' The parameter \code{D} is the density of parent points, which is
 #' always estimated. Possible additional parameters are
@@ -13,11 +13,11 @@
 #'         parent (when \code{child.dist = "pois"}).
 #' 
 #'   \item \code{p}, the proportion of the \code{x} possible children
-#'         are generated (when \code{child.dist = "binomx"}).
+#'         that are generated (when \code{child.dist = "binomx"}).
 #'
 #'   \item \code{kappa}, the average length of the surface phase of a
 #'         diving cetacean (when \code{child.dist = "twocamera"}; see
-#'         Stevenson, Borchers, and Fewster, in revision).
+#'         Stevenson, Borchers, and Fewster, in submission).
 #'
 #'   \item \code{sigma}, the standard deviation of dispersion along
 #'         each dimension (when \code{disp} = "gaussian").
@@ -34,14 +34,14 @@
 #' the survey area; (iii) a component named \code{l}, providing the
 #' time lag between cameras (in seconds); and (iv) a component named
 #' \code{tau}, providing the mean dive-cycle duration. See Stevenson,
-#' Borchers, and Fewster (in revision) for details.
+#' Borchers, and Fewster (in submission) for details.
 #'
 #' @references Jones-Todd, C. M., Caie, P., Illian, J., Stevenson,
 #'     B. C., Savage, A., Harrison, D. J., and Bown, J. L. (in
 #'     submission). Identifying unusual structures in tissue sections
 #'     of colon cancer patients using point pattern analysis.
 #' @references Stevenson, B. C., Borchers, D. L., and Fewster,
-#'     R. M. (in revision) Cluster capture-recapture to account for
+#'     R. M. (in submission) Cluster capture-recapture to account for
 #'     identification uncertainty on aerial surveys of animal
 #'     populations.
 #' @references Tanaka, U., Ogata, Y., and Stoyan, D. (2008) Parameter
@@ -93,7 +93,7 @@
 #' @param use.bobyqa Logial; if \code{TRUE} the \link{bobyqa} function
 #'     is used for optimisation. Otherwise the \link{nlminb} function
 #'     is used. Note that \link{bobyqa} seems to be less stable than
-#'     \code{nlminb}, but does not require calculation of the Palm
+#'     \link{nlminb}, but does not require calculation of the Palm
 #'     likelihood's partial derivatives.
 #'
 #' @inheritParams fit.ns
@@ -163,7 +163,7 @@ fit.ns <- function(points, lims, R, disp = "gaussian", child.dist = "pois", chil
 #' the survey area; (iii) a component named \code{l}, providing the
 #' time lag between cameras (in seconds); and (iv) a component named
 #' \code{tau}, providing the mean dive-cycle duration. See Stevenson,
-#' Borchers, and Fewster (in revision) for details.
+#' Borchers, and Fewster (in submission) for details.
 #'
 #' @param pars A named vector containing the values of the parameters
 #'     of the process that generates the points.
@@ -396,7 +396,7 @@ setup.classes <- function(fit, family, family.info, fit.info){
 #'
 #' This function is simply a wrapper for \code{fit.ns}, and
 #' facilitates the fitting of the model proposed by Stevenson,
-#' Borchers, and Fewster (in revision). This function presents the
+#' Borchers, and Fewster (in submission). This function presents the
 #' parameter \code{D.2D} (two-dimensional cetacean density in
 #' cetaceans per square km) rather than \code{D} for enhanced
 #' interpretability.
@@ -409,7 +409,7 @@ setup.classes <- function(fit, family, family.info, fit.info){
 #'     without capture histories. \emph{Statistical Science},
 #'     \strong{31}: 245--258.
 #' @references Stevenson, B. C., Borchers, D. L., and Fewster,
-#'     R. M. (in revision) Cluster capture-recapture to account for
+#'     R. M. (in submission) Cluster capture-recapture to account for
 #'     identification uncertainty on aerial surveys of animal
 #'     populations.
 #'
