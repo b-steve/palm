@@ -298,6 +298,7 @@ sim.void <- function(pars, lims, parents = NULL){
 setup.classes <- function(fit, family, family.info, multipattern.info, fit.info){
     ## Initialising all classes to FALSE.
     use.fit.class <- FALSE
+    use.singlepattern.class <- FALSE
     use.multipattern.class <- FALSE
     use.nlminb.class <- FALSE
     use.bobyqa.class <- FALSE
@@ -336,6 +337,8 @@ setup.classes <- function(fit, family, family.info, multipattern.info, fit.info)
     ## Sorting out multipattern stuff.
     if (multipattern.info$use.multipattern){
         use.multipattern.class <- TRUE
+    } else {
+        use.singlepattern.class <- TRUE
     }
     ## Sorting out family (ns/void) class.
     if (family == "ns"){
@@ -378,7 +381,9 @@ setup.classes <- function(fit, family, family.info, multipattern.info, fit.info)
         use.giveparent.class <- TRUE
         parent.locs <- family.info$parent.locs
     }
-    classes <- c("fit"[use.fit.class],
+    classes <- c("singlepattern"[use.singlepattern.class],
+                 "multipattern"[use.multipattern.class],
+                 "fit"[use.fit.class],
                  "bobyqa"[use.bobyqa.class],
                  "nlminb"[use.nlminb.class],
                  "pbc"[use.pbc.class],
@@ -392,8 +397,7 @@ setup.classes <- function(fit, family, family.info, multipattern.info, fit.info)
                  "matern"[use.matern.class],
                  "void"[use.void.class],
                  "totaldeletion"[use.totaldeletion.class],
-                 "giveparent"[use.giveparent.class],
-                 "multipattern"[use.multipattern.class])
+                 "giveparent"[use.giveparent.class])
     list(classes = classes, child.list = child.list, parent.locs = parent.locs)
 }
 
