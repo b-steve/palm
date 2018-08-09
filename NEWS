@@ -1,3 +1,11 @@
+Version 1.1.1
+-------------
+
+- Added the `use.bobyqa' argument to fit.ns(), allowing optimisation
+  via the bobyqa() function from the minqa package.
+
+- Bug fix for bootstrap simulations with no generated children.
+
 Version 1.1.0
 -------------
 
