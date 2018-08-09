@@ -998,17 +998,6 @@ set.giveparent.class <- function(class, class.env){
             ))
 }
 
-######
-## Class for multiple independent patterns.
-######
-
-## 1. Initialize with points and lims above with get.points() and get.lims().
-## 2. Overwrite get.points() and get.lims() in this class for pattern-specific details.
-## 3. Inside functions that need to recognise multiple patterns:
-##    - Run initialize to set up points/lims for specific pattern.
-##    - Run self() functions for these specific points/lims.
-##    - Save results in a list.
-##    - Combobulate list as necessary (i.e., log-likelihood takes a sum).
 
 ## Function to create R6 object with correct class hierarchy.
 create.obj <- function(classes, points, lims, R, child.list, parent.locs, sibling.list, trace, start, bounds){
@@ -1022,8 +1011,8 @@ create.obj <- function(classes, points, lims, R, child.list, parent.locs, siblin
     if (any(classes == "twocamerachild") & !any(classes == "thomas")){
         stop("Analysis of two-camera surveys is only implemented for Thomas processes.")
     }
-    if (!is.null(points) & !(is.matrix(points) | is.list(points))){
-        stop("The argument 'points' must be a matrix or a list.")
+    if (!is.null(points) & !is.matrix(points)){
+        stop("The argument 'points' must be a matrix.")
     }
     class$new(points = points, lims = lims, R = R, child.list = child.list, parent.locs = parent.locs,
               sibling.list = sibling.list, trace = trace, classes = classes, start = start, bounds = bounds)
