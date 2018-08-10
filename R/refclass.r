@@ -109,6 +109,7 @@ set.fit.class <- function(class, class.env){
                 par.lower.link = NULL,
                 par.upper = NULL,
                 par.upper.link = NULL,
+                ## Initialisation method.
                 initialize = function(points.list, R, trace, start, bounds, ...){
                     super$initialize(...)
                     self$points.list <- points.list
@@ -632,15 +633,21 @@ set.sibling.class <- function(class, class.env){
             inherit = class.env$sibling.inherit,
             public = list(
                 siblings = NULL,
+                sibling.list = NULL,
                 sibling.mat = NULL,
                 sibling.alpha = NULL,
                 sibling.beta = NULL,
+                ## Initialisation method.
+                initialize = function(sibling.list, ...){
+                    self$sibling.list <- sibling.list
+                    super$initialize(...)
+                },
                 ## Overwriting the method to set up a new pattern.
                 setup.pattern = function(pattern){
                     super$setup.pattern(pattern)
-                    self$sibling.mat <- self$sibling.list[pattern]$sibling.mat
-                    self$sibling.alpha <- self$sibling.list[pattern]$alpha
-                    self$sibling.beta <- self$sibling.list[pattern]$beta
+                    self$sibling.mat <- self$sibling.list[[pattern]]$sibling.mat
+                    self$sibling.alpha <- self$sibling.list[[pattern]]$alpha
+                    self$sibling.beta <- self$sibling.list[[pattern]]$beta
                     self$get.siblings()
                 },
                 ## A method to get vector of sibling relationships
