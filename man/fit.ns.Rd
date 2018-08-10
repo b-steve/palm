@@ -9,12 +9,16 @@ fit.ns(points, lims, R, disp = "gaussian", child.dist = "pois",
   start = NULL, bounds = NULL, use.bobyqa = FALSE, trace = FALSE)
 }
 \arguments{
-\item{points}{A matrix containing locations of observed points,
-where each row corresponds to a point and each column
-corresponds to a dimension.}
+\item{points}{A matrix or list of matrices containing locations of
+observed points, where each row corresponds to a point and each
+column corresponds to a dimension. If a list, then the patterns
+are assumed to be independent and a single process is fitted to
+all.}
 
-\item{lims}{A matrix with two columns, corresponding to the upper
-and lower limits of each dimension, respectively.}
+\item{lims}{A matrix or list of matrices with two columns,
+corresponding to the upper and lower limits of each dimension,
+respectively. If a list, then each matrix provides the limits
+for the corresponding pattern in \code{points}.}
 
 \item{R}{Truncation distance for the difference process.}
 
@@ -62,7 +66,7 @@ for the named parameter.}
 \item{use.bobyqa}{Logial; if \code{TRUE} the \link{bobyqa} function
 is used for optimisation. Otherwise the \link{nlminb} function
 is used. Note that \link{bobyqa} seems to be less stable than
-\code{nlminb}, but does not require calculation of the Palm
+\link{nlminb}, but does not require calculation of the Palm
 likelihood's partial derivatives.}
 
 \item{trace}{Logical; if \code{TRUE}, parameter values are printed
@@ -76,7 +80,7 @@ Estimates parameters for a Neyman-Scott point process by maximising
 the Palm likelihood. This approach was first proposed by Tanaka et
 al. (2008) for two-dimensional Thomas processes. Further
 generalisations were made by Stevenson, Borchers, and Fewster (in
-revision) and Jones-Todd et al. (in submission).
+submission) and Jones-Todd et al. (in submission).
 }
 \details{
 The parameter \code{D} is the density of parent points, which is
@@ -86,11 +90,11 @@ always estimated. Possible additional parameters are
         parent (when \code{child.dist = "pois"}).
 
 \item \code{p}, the proportion of the \code{x} possible children
-        are generated (when \code{child.dist = "binomx"}).
+        that are generated (when \code{child.dist = "binomx"}).
 
 \item \code{kappa}, the average length of the surface phase of a
         diving cetacean (when \code{child.dist = "twocamera"}; see
-        Stevenson, Borchers, and Fewster, in revision).
+        Stevenson, Borchers, and Fewster, in submission).
 
 \item \code{sigma}, the standard deviation of dispersion along
         each dimension (when \code{disp} = "gaussian").
@@ -107,7 +111,7 @@ zone; (ii) a component named \code{b}, providing the halfwidth of
 the survey area; (iii) a component named \code{l}, providing the
 time lag between cameras (in seconds); and (iv) a component named
 \code{tau}, providing the mean dive-cycle duration. See Stevenson,
-Borchers, and Fewster (in revision) for details.
+Borchers, and Fewster (in submission) for details.
 }
 \examples{
 ## Fitting model to example data.
@@ -139,7 +143,7 @@ Jones-Todd, C. M., Caie, P., Illian, J., Stevenson,
     of colon cancer patients using point pattern analysis.
 
 Stevenson, B. C., Borchers, D. L., and Fewster,
-    R. M. (in revision) Cluster capture-recapture to account for
+    R. M. (in submission) Cluster capture-recapture to account for
     identification uncertainty on aerial surveys of animal
     populations.
 

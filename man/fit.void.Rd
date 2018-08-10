@@ -8,12 +8,16 @@ fit.void(points, lims, R, edge.correction = "pbc", start = NULL,
   bounds = NULL, trace = FALSE)
 }
 \arguments{
-\item{points}{A matrix containing locations of observed points,
-where each row corresponds to a point and each column
-corresponds to a dimension.}
+\item{points}{A matrix or list of matrices containing locations of
+observed points, where each row corresponds to a point and each
+column corresponds to a dimension. If a list, then the patterns
+are assumed to be independent and a single process is fitted to
+all.}
 
-\item{lims}{A matrix with two columns, corresponding to the upper
-and lower limits of each dimension, respectively.}
+\item{lims}{A matrix or list of matrices with two columns,
+corresponding to the upper and lower limits of each dimension,
+respectively. If a list, then each matrix provides the limits
+for the corresponding pattern in \code{points}.}
 
 \item{R}{Truncation distance for the difference process.}
 

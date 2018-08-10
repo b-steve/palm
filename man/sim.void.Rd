@@ -10,8 +10,10 @@ sim.void(pars, lims, parents = NULL)
 \item{pars}{A named vector containing the values of the parameters
 of the process that generates the points.}
 
-\item{lims}{A matrix with two columns, corresponding to the upper
-and lower limits of each dimension, respectively.}
+\item{lims}{A matrix or list of matrices with two columns,
+corresponding to the upper and lower limits of each dimension,
+respectively. If a list, then each matrix provides the limits
+for the corresponding pattern in \code{points}.}
 
 \item{parents}{An optional matrix containing locations of
 parents. If this is provided, then the parameter \code{D} is
