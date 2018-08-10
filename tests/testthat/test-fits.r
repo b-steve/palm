@@ -95,3 +95,17 @@ test_that(
                      tolerance = 0.001)
     })
 
+test_that(
+    "Multipattern simulation and model fitting.",
+    {
+        set.seed(3210)
+        ## Spatial domain limits.
+        multi.lims <- list(rbind(c(0, 1), c(0, 1)), rbind(c(0, 1), c(0, 2)))
+        ## Simulation.
+        multipattern.data <- sim.ns(c(D = 5, lambda = 10, sigma = 0.025), lims = multi.lims)
+        expect_equal(multipattern.data[[1]]$points[1, 1], expected = 0.3199291, tolerance = 1e-6)
+        expect_equal(multipattern.data[[2]]$points[1, 1], expected = 0.4434522, tolerance = 1e-6)
+        ## Model fitting.
+        fit <- fit.ns(lapply(multipattern.data, function(x) x$points), lims = multi.lims, R = 0.5)
+        expect_equal(coef(fit), expected = c(D = 3.42470931, lambda = 9.37854369, sigma = 0.02031755))
+    })
