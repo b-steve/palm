@@ -25,7 +25,7 @@ base.class.R6 <- R6Class("palm",
                                  self$lims <- self$lims.list[[pattern]]
                                  self$vol <-  prod(apply(self$lims, 1, diff))
                                  self$dim <- nrow(self$lims)
-                             }
+                             },
                              ## An empty method for simulation.
                              simulate = function(pars){},
                              ## A method to trim points to the observation window.
@@ -101,6 +101,8 @@ set.fit.class <- function(class, class.env){
                     super$initialize(...)
                     self$points.list <- points.list
                     self$R <- R
+                    ## Starting out with the first pattern for start values and such.
+                    self$setup.pattern(1)
                     self$trace <- trace
                     self$set.start <- start
                     self$set.bounds <- bounds
@@ -108,14 +110,15 @@ set.fit.class <- function(class, class.env){
                     self$n.par <- length(self$par.start)
                     self$par.start.link <- self$link.pars(self$par.start)
                     self$get.link.bounds()
+                   
                 },
                 ## Overwriting the method to set up a new pattern.
                 setup.pattern = function(pattern){
                     super$setup.pattern(pattern)
                     self$points <- self$points.list[[pattern]]
-                    self$n.points <- nrow(points)
+                    self$n.points <- nrow(self$points)
                     self$get.contrasts()
-                }
+                },
                 ## An empty method for getting contrasts.
                 get.contrasts = function(){
                     self$n.contrasts <- length(self$contrasts)
@@ -217,13 +220,14 @@ set.fit.class <- function(class, class.env){
                     names(combined.pars) <- c(est.names, fixed.names)
                     link.pars <- combined.pars[self$par.names.link]
                     pars <- self$invlink.pars(link.pars)
-                    obj.fun.components <- numeric(n.patterns)
+                    obj.fun.components <- numeric(self$n.patterns)
                     ## Summing over all the patterns.
-                    for (i in 1:n.patterns){
+                    for (i in 1:self$n.patterns){
                         self$setup.pattern(i)
                         obj.fun.components[i] <- self$neg.log.palm.likelihood(pars)
                     }
-                }
+                    sum(obj.fun.components)
+                },
                 ## An empty method for the Palm intensity.
                 palm.intensity = function(r, pars){},
                 ## A default method for the sum of the log Palm intensities.
@@ -1038,7 +1042,10 @@ create.obj <- function(classes, points, lims, R, child.list, parent.locs, siblin
     if (is.matrix(points)){
         points <- list(points)
     }
-    class$new(points.list = points.list, lims.list = lims.list, R = R,
+    if (is.matrix(lims)){
+        lims <- list(lims)
+    }
+    class$new(points.list = points, lims.list = lims, R = R,
               child.list = child.list, parent.locs = parent.locs,
               sibling.list = sibling.list, trace = trace,
               classes = classes, start = start, bounds = bounds)
