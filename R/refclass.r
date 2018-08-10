@@ -26,8 +26,20 @@ base.class.R6 <- R6Class("palm",
                                  self$vol <-  prod(apply(self$lims, 1, diff))
                                  self$dim <- nrow(self$lims)
                              },
-                             ## An empty method for simulation.
-                             simulate = function(pars){},
+                             ## A method to simulate multiple patterns.
+                             simulate = function(pars = self$par.fitted){
+                                 out <- vector(mode = "list", length = self$n.patterns)
+                                 for (i in 1:self$n.patterns){
+                                     self$setup.pattern(i)
+                                     out[[i]] <- self$simulate.pattern(pars)
+                                 }
+                                 if (self$n.patterns == 1){
+                                     out <- out[[1]]
+                                 }
+                                 out
+                             },
+                             ## A method to simulate a single pattern.
+                             simulate.pattern = function(pars){},
                              ## A method to trim points to the observation window.
                              trim.points = function(points, output.indices = FALSE){
                                  in.window <- rep(TRUE, nrow(points))
@@ -532,8 +544,8 @@ set.ns.class <- function(class, class.env){
                     out[which.D] <- self$par.invlinks[[which.D]](pars, out)
                     out
                 },
-                ## Overwriting simulation method.
-                simulate = function(pars = self$par.fitted){
+                ## Overwriting simulation methods.
+                simulate.pattern = function(pars = self$par.fitted){
                     parent.locs <- self$get.parents(pars)
                     n.parents <- nrow(parent.locs)
                     sim.n.children <- self$simulate.n.children(n.parents, pars)
@@ -747,6 +759,7 @@ set.twocamerachild.class <- function(class, class.env){
                     self$twocamera.l <- child.list$twocamera.l
                     self$twocamera.tau <- child.list$twocamera.tau
                     super$initialize(...)
+                    self$setup.pattern(1)
                     if (self$dim != 1){
                         stop("Analysis of two-camera surveys is only implemented for one-dimensional processes.")
                     }
@@ -758,13 +771,13 @@ set.twocamerachild.class <- function(class, class.env){
                                   upper = self$twocamera.tau)
                 },
                 ## Overwriting base simulation method in case D.2D is provided.
-                simulate = function(pars = self$par.fitted){
+                simulate.pattern = function(pars = self$par.fitted){
                     if (any(names(pars) == "D.2D")){
                         which.D <- which(names(pars) == "D.2D")
                         pars[which.D] <- 2*pars[which.D]*self$twocamera.b
                         names(pars)[which.D] <- "D"
                     }
-                    super$simulate(pars)
+                    super$simulate.pattern(pars)
                 },
                 ## Simulation method for the number of children per parent.
                 simulate.n.children = function(n, pars){
@@ -944,7 +957,7 @@ set.void.class <- function(class, class.env){
                     self$add.pars(name = "Dc", link = log, start = self$n.points/self$vol, lower = 0, upper = Inf)
                 },
                 ## Overwriting simulation method.
-                simulate = function(pars = self$par.fitted){
+                simulate.pattern = function(pars = self$par.fitted){
                     ## Generating children.
                     expected.children <- pars["Dc"]*self$vol
                     n.children <- rpois(1, expected.children)
