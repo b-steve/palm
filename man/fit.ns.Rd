@@ -50,7 +50,8 @@ and \code{NA} if their sibling status is not known; (ii) alpha,
 providing the probability that a sibling is successfully
 identified as a sibling; and (iii) beta, providing the
 probability that a nonsibling is successfully identified as a
-nonsibling.}
+nonsibling. For multi-pattern fitting, this object must be a
+list of such lists, one for each pattern.}
 
 \item{edge.correction}{The method used for the correction of edge
 effects. Either \code{"pbc"} for periodic boundary conditions,
