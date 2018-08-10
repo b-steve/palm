@@ -1,3 +1,9 @@
+Version 1.1.2
+-------------
+
+- Implemented multipattern model fitting, so a single process can be
+  fitted to multiple independent patterns.
+
 Version 1.1.1
 -------------
 
