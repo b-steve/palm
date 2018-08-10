@@ -642,7 +642,7 @@ set.sibling.class <- function(class, class.env){
                     self$sibling.alpha <- sibling.list[pattern]$alpha
                     self$sibling.beta <- sibling.list[pattern]$beta
                     self$get.siblings()
-                }
+                },
                 ## A method to get vector of sibling relationships
                 ## that matches with the contrasts.
                 get.siblings = function(){
