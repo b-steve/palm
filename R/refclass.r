@@ -304,7 +304,7 @@ set.fit.class <- function(class, class.env){
                         sim.obj <- self$simulate()
                         if (self$n.patterns > 1){
                             sim.obj$points <- lapply(sim.obj, function(x) x$points)
-                            sim.obj$sibling.list <- labpply(sim.obj, function(x) x$sibling.list)
+                            sim.obj$sibling.list <- lapply(sim.obj, function(x) x$sibling.list)
                         }
                         ## Doesn't matter that sibling.list is non-null below, as sibling class is not passed.
                         obj.boot <- create.obj(classes = self$classes, points = sim.obj$points, lims = self$lims,
@@ -638,9 +638,9 @@ set.sibling.class <- function(class, class.env){
                 ## Overwriting the method to set up a new pattern.
                 setup.pattern = function(pattern){
                     super$setup.pattern(pattern)
-                    self$sibling.mat <- sibling.list[pattern]$sibling.mat
-                    self$sibling.alpha <- sibling.list[pattern]$alpha
-                    self$sibling.beta <- sibling.list[pattern]$beta
+                    self$sibling.mat <- self$sibling.list[pattern]$sibling.mat
+                    self$sibling.alpha <- self$sibling.list[pattern]$alpha
+                    self$sibling.beta <- self$sibling.list[pattern]$beta
                     self$get.siblings()
                 },
                 ## A method to get vector of sibling relationships
