@@ -83,7 +83,8 @@
 #'     providing the probability that a sibling is successfully
 #'     identified as a sibling; and (iii) beta, providing the
 #'     probability that a nonsibling is successfully identified as a
-#'     nonsibling.
+#'     nonsibling. For multi-pattern fitting, this object must be a
+#'     list of such lists, one for each pattern.
 #' @param edge.correction The method used for the correction of edge
 #'     effects. Either \code{"pbc"} for periodic boundary conditions,
 #'     or \code{"buffer"} for a buffer-zone correction.

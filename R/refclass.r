@@ -112,6 +112,10 @@ set.fit.class <- function(class, class.env){
                 initialize = function(points.list, R, trace, start, bounds, ...){
                     super$initialize(...)
                     self$points.list <- points.list
+                    ## Checking list of points and list of lims have the same length.
+                    if (length(self$points.list) != length(self$lims.list)){
+                        stop("The list 'points' must have the same number of components as 'lims'.")
+                    }
                     self$R <- R
                     ## Starting out with the first pattern for start values and such.
                     self$setup.pattern(1)
@@ -122,7 +126,6 @@ set.fit.class <- function(class, class.env){
                     self$n.par <- length(self$par.start)
                     self$par.start.link <- self$link.pars(self$par.start)
                     self$get.link.bounds()
-                   
                 },
                 ## Overwriting the method to set up a new pattern.
                 setup.pattern = function(pattern){
@@ -299,6 +302,10 @@ set.fit.class <- function(class, class.env){
                     }
                     for (i in 1:N){
                         sim.obj <- self$simulate()
+                        if (self$n.patterns > 1){
+                            sim.obj$points <- lapply(sim.obj, function(x) x$points)
+                            sim.obj$sibling.list <- labpply(sim.obj, function(x) x$sibling.list)
+                        }
                         ## Doesn't matter that sibling.list is non-null below, as sibling class is not passed.
                         obj.boot <- create.obj(classes = self$classes, points = sim.obj$points, lims = self$lims,
                                                R = self$R, child.list = self$child.list,
@@ -628,13 +635,14 @@ set.sibling.class <- function(class, class.env){
                 sibling.mat = NULL,
                 sibling.alpha = NULL,
                 sibling.beta = NULL,
-                initialize = function(sibling.list, ...){
-                    self$sibling.mat <- sibling.list$sibling.mat
-                    self$sibling.alpha <- sibling.list$alpha
-                    self$sibling.beta <- sibling.list$beta
-                    super$initialize(...)
+                ## Overwriting the method to set up a new pattern.
+                setup.pattern = function(pattern){
+                    super$setup.pattern(pattern)
+                    self$sibling.mat <- sibling.list[pattern]$sibling.mat
+                    self$sibling.alpha <- sibling.list[pattern]$alpha
+                    self$sibling.beta <- sibling.list[pattern]$beta
                     self$get.siblings()
-                },
+                }
                 ## A method to get vector of sibling relationships
                 ## that matches with the contrasts.
                 get.siblings = function(){
@@ -1055,6 +1063,7 @@ create.obj <- function(classes, points, lims, R, child.list, parent.locs, siblin
     }
     if (is.matrix(points)){
         points <- list(points)
+        sibling.list <- list(sibling.list)
     }
     if (is.matrix(lims)){
         lims <- list(lims)
