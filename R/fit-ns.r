@@ -48,11 +48,15 @@
 #'     estimation and model selection for Neyman-Scott point
 #'     processes. \emph{Biometrical Journal}, \strong{50}: 43--57.
 #'
-#' @param points A matrix containing locations of observed points,
-#'     where each row corresponds to a point and each column
-#'     corresponds to a dimension.
-#' @param lims A matrix with two columns, corresponding to the upper
-#'     and lower limits of each dimension, respectively.
+#' @param points A matrix or list of matrices containing locations of
+#'     observed points, where each row corresponds to a point and each
+#'     column corresponds to a dimension. If a list, then the patterns
+#'     are assumed to be independent and a single process is fitted to
+#'     all.
+#' @param lims A matrix or list of matrices with two columns,
+#'     corresponding to the upper and lower limits of each dimension,
+#'     respectively. If a list, then each matrix provides the limits
+#'     for the corresponding pattern in \code{points}.
 #' @param disp A character string indicating the distribution of
 #'     children around their parents. Use \code{"gaussian"} for
 #'     multivariate normal dispersion with standard deviation

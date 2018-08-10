@@ -5,17 +5,27 @@
 base.class.R6 <- R6Class("palm",
                          public = list(
                              ## Setting fields.
+                             lims.list = NULL,
+                             n.patterns = NULL,
                              lims = NULL,
                              vol = NULL,
                              dim = NULL,
                              classes = NULL,
                              ## Initialisation method.
-                             initialize = function(lims, classes, ...){
-                                 self$lims <- lims
-                                 self$vol <- prod(apply(self$lims, 1, diff))
-                                 self$dim <- nrow(lims)
+                             initialize = function(lims.list, classes, ...){
+                                 self$lims.list <- lims.list
+                                 self$n.patterns <- length(lims.list)
                                  self$classes <- classes
                              },
+                             ## A method to set up a new pattern.
+                             setup.pattern = function(pattern){
+                                 if (pattern > self$n.patterns){
+                                     stop("Pattern index exceeds the number of patterns")
+                                 }
+                                 self$lims <- self$lims.list[[pattern]]
+                                 self$vol <-  prod(apply(self$lims, 1, diff))
+                                 self$dim <- nrow(self$lims)
+                             }
                              ## An empty method for simulation.
                              simulate = function(pars){},
                              ## A method to trim points to the observation window.
@@ -58,6 +68,7 @@ set.fit.class <- function(class, class.env){
     R6Class("palm_fit",
             inherit = class.env$fit.inherit,
             public = list(
+                points.list = NULL,
                 points = NULL,
                 n.points = NULL,
                 contrasts = NULL,
@@ -86,20 +97,25 @@ set.fit.class <- function(class, class.env){
                 par.lower.link = NULL,
                 par.upper = NULL,
                 par.upper.link = NULL,
-                initialize = function(points, R, trace, start, bounds, ...){
+                initialize = function(points.list, R, trace, start, bounds, ...){
                     super$initialize(...)
-                    self$points <- points
-                    self$n.points <- nrow(points)
+                    self$points.list <- points.list
                     self$R <- R
                     self$trace <- trace
                     self$set.start <- start
                     self$set.bounds <- bounds
-                    self$get.contrasts()
                     self$get.pars()
                     self$n.par <- length(self$par.start)
                     self$par.start.link <- self$link.pars(self$par.start)
                     self$get.link.bounds()
                 },
+                ## Overwriting the method to set up a new pattern.
+                setup.pattern = function(pattern){
+                    super$setup.pattern(pattern)
+                    self$points <- self$points.list[[pattern]]
+                    self$n.points <- nrow(points)
+                    self$get.contrasts()
+                }
                 ## An empty method for getting contrasts.
                 get.contrasts = function(){
                     self$n.contrasts <- length(self$contrasts)
@@ -194,6 +210,20 @@ set.fit.class <- function(class, class.env){
                     out
                 },               
 
+                ## A method for the objective function.
+                obj.fun = function(link.pars, fixed.link.pars = NULL,
+                                         est.names = NULL, fixed.names = NULL){
+                    combined.pars <- c(link.pars, fixed.link.pars)
+                    names(combined.pars) <- c(est.names, fixed.names)
+                    link.pars <- combined.pars[self$par.names.link]
+                    pars <- self$invlink.pars(link.pars)
+                    obj.fun.components <- numeric(n.patterns)
+                    ## Summing over all the patterns.
+                    for (i in 1:n.patterns){
+                        self$setup.pattern(i)
+                        obj.fun.components[i] <- self$neg.log.palm.likelihood(pars)
+                    }
+                }
                 ## An empty method for the Palm intensity.
                 palm.intensity = function(r, pars){},
                 ## A default method for the sum of the log Palm intensities.
@@ -222,15 +252,6 @@ set.fit.class <- function(class, class.env){
                 ## A method for the negative Palm likelihood function.
                 neg.log.palm.likelihood = function(pars){
                     -self$log.palm.likelihood(pars)
-                },
-                ## A method for the negative Palm likelihood function with linked parameters.
-                link.neg.log.palm.likelihood = function(link.pars, fixed.link.pars = NULL,
-                                                        est.names = NULL, fixed.names = NULL){
-                    combined.pars <- c(link.pars, fixed.link.pars)
-                    names(combined.pars) <- c(est.names, fixed.names)
-                    link.pars <- combined.pars[self$par.names.link]
-                    pars <- self$invlink.pars(link.pars)
-                    self$neg.log.palm.likelihood(pars)
                 },
                 ## An empty method for optimisation.
                 palm.optimise = function(){},
@@ -350,7 +371,7 @@ set.bobyqa.class <- function(class, class.env){
             public = list(
                 ## A method to minimise the negative Palm likelihood.
                 palm.optimise = function(){
-                    out <- try(bobyqa(self$par.start.link, self$link.neg.log.palm.likelihood,
+                    out <- try(bobyqa(self$par.start.link, self$obj.fun,
                                       lower = self$par.lower.link, upper = self$par.upper.link,
                                       fixed.link.pars = self$par.fixed.link,
                                       est.names = self$par.names.link,
@@ -386,7 +407,7 @@ set.nlminb.class <- function(class, class.env){
             public = list(
                 ## A method to minimise the negative Palm likelihood.
                 palm.optimise = function(){
-                    out <- nlminb(self$par.start.link, self$link.neg.log.palm.likelihood,
+                    out <- nlminb(self$par.start.link, self$obj.fun,
                                   fixed.link.pars = self$par.fixed.link,
                                   est.names = self$par.names.link, fixed.names = self$fixed.names.link,
                                   control = list(eval.max = 2000, iter.max = 1500),
@@ -1011,11 +1032,16 @@ create.obj <- function(classes, points, lims, R, child.list, parent.locs, siblin
     if (any(classes == "twocamerachild") & !any(classes == "thomas")){
         stop("Analysis of two-camera surveys is only implemented for Thomas processes.")
     }
-    if (!is.null(points) & !is.matrix(points)){
-        stop("The argument 'points' must be a matrix.")
+    if (!is.null(points) & !(is.matrix(points) | is.list(points))){
+        stop("The argument 'points' must be a matrix, or a list of matrices.")
     }
-    class$new(points = points, lims = lims, R = R, child.list = child.list, parent.locs = parent.locs,
-              sibling.list = sibling.list, trace = trace, classes = classes, start = start, bounds = bounds)
+    if (is.matrix(points)){
+        points <- list(points)
+    }
+    class$new(points.list = points.list, lims.list = lims.list, R = R,
+              child.list = child.list, parent.locs = parent.locs,
+              sibling.list = sibling.list, trace = trace,
+              classes = classes, start = start, bounds = bounds)
 }
 
 ## Some objects to get around R CMD check.
