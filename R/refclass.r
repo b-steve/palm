@@ -226,7 +226,16 @@ set.fit.class <- function(class, class.env){
                         self$setup.pattern(i)
                         obj.fun.components[i] <- self$neg.log.palm.likelihood(pars)
                     }
-                    sum(obj.fun.components)
+                    out <- sum(obj.fun.components)
+                    ll <- -out
+                    if (self$trace){
+                        for (i in 1:self$n.par){
+                            cat(self$par.names[i], ": ", sep = "")
+                            cat(pars[i], ", ", sep = "")
+                        }
+                        cat("Log-lik: ", ll, "\n", sep = "")
+                    }
+                    out
                 },
                 ## An empty method for the Palm intensity.
                 palm.intensity = function(r, pars){},
@@ -244,14 +253,6 @@ set.fit.class <- function(class, class.env){
                 ## A default method for the log of the Palm likelihood function.
                 log.palm.likelihood = function(pars){
                     out <- self$sum.log.intensities(pars) + self$palm.likelihood.integral(pars)
-                    if (self$trace){
-                        for (i in 1:self$n.par){
-                            cat(self$par.names[i], ": ", sep = "")
-                            cat(pars[i], ", ", sep = "")
-                        }
-                        cat("Log-lik: ", out, "\n", sep = "")
-                    }
-                    out
                 },
                 ## A method for the negative Palm likelihood function.
                 neg.log.palm.likelihood = function(pars){
