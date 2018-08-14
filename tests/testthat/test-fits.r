@@ -96,6 +96,19 @@ test_that(
     })
 
 test_that(
+    "Void process simulation and model fitting.",
+    {
+        set.seed(2468)
+        ## Simulation.
+        void.data <- sim.void(c(Dc = 500, Dp = 100, tau = 0.05), rbind(c(0, 1), c(0, 1)))
+        expect_equal(void.data$points[22, 1], expected = 0.2294614180, tolerance = 1e-6)
+        ## Model fitting.
+        fit <- fit.void(void.data$points, lims = rbind(c(0, 1), c(0, 1)), R = 0.5, edge.correction = "pbc",
+                        use.bobyqa = FALSE, trace = TRUE)
+        expect_equal(coef(fit), expected = c(Dp = 124.66492029, Dc = 630.62677086, tau = 0.05242846))
+    })
+
+test_that(
     "Multipattern simulation and model fitting.",
     {
         set.seed(3210)
