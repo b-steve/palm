@@ -5,7 +5,7 @@
 \title{Fitting a model to a void point process}
 \usage{
 fit.void(points, lims, R, edge.correction = "pbc", start = NULL,
-  bounds = NULL, trace = FALSE)
+  bounds = NULL, use.bobyqa = FALSE, trace = FALSE)
 }
 \arguments{
 \item{points}{A matrix or list of matrices containing locations of
@@ -31,6 +31,12 @@ parameters.}
 \item{bounds}{A list with named components. Each component should
 be a vector of length two, giving the upper and lower bounds
 for the named parameter.}
+
+\item{use.bobyqa}{Logial; if \code{TRUE} the \link{bobyqa} function
+is used for optimisation. Otherwise the \link{nlminb} function
+is used. Note that \link{bobyqa} seems to be less stable than
+\link{nlminb}, but does not require calculation of the Palm
+likelihood's partial derivatives.}
 
 \item{trace}{Logical; if \code{TRUE}, parameter values are printed
 to the screen for each iteration of the optimisation procedure.}
