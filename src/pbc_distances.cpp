@@ -7,7 +7,7 @@ using namespace std;
 NumericVector pbc_distances(const NumericMatrix& points, const NumericMatrix& lims){
   int n_dims = points.ncol();
   int n_points = points.nrow();
-  NumericVector out(pow(n_points, 2) - n_points);
+  NumericVector out((pow(n_points, 2) - n_points)/2);
   double diff, dist_sq;
   int i, j, k, m;
   // Difference between limits for each dimension.
@@ -33,8 +33,7 @@ NumericVector pbc_distances(const NumericMatrix& points, const NumericMatrix& li
       // Saving distances (duplication for consistency with method of
       // Tanaka et al).
       out(m) = sqrt(dist_sq);
-      out(m + 1) = sqrt(dist_sq);
-      m += 2;
+      m++;
     }
   }
   return out;

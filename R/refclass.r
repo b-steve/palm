@@ -109,6 +109,7 @@ set.fit.class <- function(class, class.env){
                 par.lower.link = NULL,
                 par.upper = NULL,
                 par.upper.link = NULL,
+                pi.multiplier = NULL,
                 ## Initialisation method.
                 initialize = function(points.list, R, trace, start, bounds, ...){
                     super$initialize(...)
@@ -255,16 +256,16 @@ set.fit.class <- function(class, class.env){
                 },
                 ## An empty method for the Palm intensity.
                 palm.intensity = function(r, pars){},
-                ## A default method for the sum of the log Palm intensities.
+                ## An empty method for the sum of the log Palm intensities.
                 sum.log.intensities = function(pars){
-                    sum(log(self$n.points*self$palm.intensity(self$contrasts, pars)))
+                    sum(log(self$pi.multiplier*self$palm.intensity(self$contrasts, pars)))
                 },
                 ## A default method for the integral in the Palm likelihood.
                 palm.likelihood.integral = function(pars){
                     f <- function(r, pars){
                         self$palm.intensity(r, pars)*Sd(r, self$dim)
                     }
-                    -self$n.points*integrate(f, lower = 0, upper = self$R, pars = pars)$value
+                    -self$pi.multiplier*integrate(f, lower = 0, upper = self$R, pars = pars)$value
                 },
                 ## A default method for the log of the Palm likelihood function.
                 log.palm.likelihood = function(pars){
@@ -461,18 +462,21 @@ set.pbc.class <- function(class, class.env){
     R6Class("palm_pbc",
             inherit = class.env$pbc.inherit,
             public = list(
+                ## Initialisation method.
+                initialize = function(...){
+                    super$initialize(...)
+                    self$pi.multiplier <- self$n.points/2
+                },
                 ## A method to generate contrasts.
                 get.contrasts = function(){
                     ## Saving which contrast applies to which pair of observations.
-                    contrast.pairs <- matrix(0, nrow = self$n.points^2 -
-                                                    self$n.points, ncol = 2)
+                    contrast.pairs <- matrix(0, nrow = (self$n.points^2 - self$n.points)/2, ncol = 2)
                     k <- 1
                     if (self$n.points > 1){
                         for (i in 1:(self$n.points - 1)){
                             for (j in (i + 1):self$n.points){
                                 contrast.pairs[k, ] <- c(i, j)
-                                contrast.pairs[k + 1, ] <- c(i, j)
-                                k <- k + 2
+                                k <- k + 1
                             }
                         }
                         contrasts <- pbc_distances(points = self$points, lims = self$lims)
@@ -497,6 +501,11 @@ set.buffer.class <- function(class, class.env){
     R6Class("palm_pbc",
             inherit = class.env$pbc.inherit,
             public = list(
+                ## Initialisation method.
+                initialize = function(...){
+                    super$initialize(...)
+                    self$pi.multiplier <- self$n.points
+                },
                 ## A method to generate contrasts.
                 get.contrasts = function(){
                     ## Getting rid of contrasts between two external points.
@@ -873,7 +882,7 @@ set.thomas.class <- function(class, class.env){
                 },
                 ## Overwriting method for the integral in the Palm likelihood.
                 palm.likelihood.integral = function(pars){
-                    -self$n.points*(pars["D"]*self$child.expectation(pars)*Vd(self$R, self$dim) +
+                    -self$pi.multiplier*(pars["D"]*self$child.expectation(pars)*Vd(self$R, self$dim) +
                                     self$sibling.expectation(pars)*self$Fq(self$R, pars))
                 },
                 ## Overwriting method for the PDF of Q.
