@@ -462,9 +462,9 @@ set.pbc.class <- function(class, class.env){
     R6Class("palm_pbc",
             inherit = class.env$pbc.inherit,
             public = list(
-                ## Initialisation method.
-                initialize = function(...){
-                    super$initialize(...)
+                ## Overwriting the method to set up a new pattern.
+                setup.pattern = function(pattern){
+                    super$setup.pattern(pattern)
                     self$pi.multiplier <- self$n.points/2
                 },
                 ## A method to generate contrasts.
@@ -501,9 +501,9 @@ set.buffer.class <- function(class, class.env){
     R6Class("palm_pbc",
             inherit = class.env$pbc.inherit,
             public = list(
-                ## Initialisation method.
-                initialize = function(...){
-                    super$initialize(...)
+                ## Overwriting the method to set up a new pattern.
+                setup.pattern = function(pattern){
+                    super$setup.pattern(pattern)
                     self$pi.multiplier <- self$n.points
                 },
                 ## A method to generate contrasts.
