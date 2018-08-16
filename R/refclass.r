@@ -378,7 +378,7 @@ set.fit.class <- function(class, class.env){
                         n.interval <- sum(dists <= (midpoints[i] + halfwidth)) -
                             sum(dists <= (midpoints[i] - halfwidth))
                         area <- Vd(midpoints[i] + halfwidth, self$dim) -  Vd(midpoints[i] - halfwidth, self$dim)
-                        intensities[i] <- n.interval/(self$n.points*area)
+                        intensities[i] <- n.interval/(self$pi.multiplier*area)
                     }
                     list(x = midpoints, y = intensities)
                 }
