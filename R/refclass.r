@@ -154,7 +154,7 @@ set.fit.class <- function(class, class.env){
                     self$n.points <- self$n.points.list[[pattern]]
                     if (do.contrasts){
                         self$contrast.pairs <- self$contrast.pairs.list[[pattern]]
-                        self$contrasts <- self$contrasts[[pattern]]
+                        self$contrasts <- self$contrasts.list[[pattern]]
                         self$n.contrasts <- self$n.contrasts.list[[pattern]]
                     }
                 },
