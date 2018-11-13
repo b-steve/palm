@@ -4,8 +4,8 @@
 \alias{plot.palm}
 \title{Plotting an estimated Palm intensity function.}
 \usage{
-\method{plot}{palm}(x, xlim = NULL, ylim = NULL, show.empirical = TRUE,
-  breaks = 50, ...)
+\method{plot}{palm}(x, xlim = NULL, ylim = NULL,
+  show.empirical = TRUE, breaks = 50, ...)
 }
 \arguments{
 \item{x}{A fitted model from \link{fit.ns}.}

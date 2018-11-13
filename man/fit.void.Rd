@@ -48,8 +48,7 @@ An R6 reference class object.
 Estimates parameters for a void point process by maximising the
 Palm likelihood. This approach was first proposed by Tanaka et
 al. (2008) for two-dimensional Thomas processes. Generalisation to
-d-dimensional void processes was made by Jones-Todd (in
-submission).
+d-dimensional void processes was made by Jones-Todd et al. (in press).
 }
 \details{
 Parameters to estimate are as follows:
@@ -72,10 +71,11 @@ fit <- fit.void(void.data$points, rbind(c(0, 1), c(0, 1)), R = 0.5)
 
 }
 \references{
-Jones-Todd, C. M., Caie, P., Illian, J., Stevenson,
+Jones-Todd, C. M., Caie, P., Illian, J. B., Stevenson,
     B. C., Savage, A., Harrison, D. J., and Bown, J. L. (in
-    submission). Identifying unusual structures in tissue sections
-    of colon cancer patients using point pattern analysis.
+    press). Identifying prognostic structural features in tissue
+    sections of colon cancer patients using point pattern
+    analysis. \emph{Statistics in Medicine}.
 
 Tanaka, U., Ogata, Y., and Stoyan, D. (2008) Parameter
     estimation and model selection for Neyman-Scott point

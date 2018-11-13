@@ -81,7 +81,7 @@ Estimates parameters for a Neyman-Scott point process by maximising
 the Palm likelihood. This approach was first proposed by Tanaka et
 al. (2008) for two-dimensional Thomas processes. Further
 generalisations were made by Stevenson, Borchers, and Fewster (in
-submission) and Jones-Todd et al. (in submission).
+press) and Jones-Todd et al. (in press).
 }
 \details{
 The parameter \code{D} is the density of parent points, which is
@@ -95,7 +95,7 @@ always estimated. Possible additional parameters are
 
 \item \code{kappa}, the average length of the surface phase of a
         diving cetacean (when \code{child.dist = "twocamera"}; see
-        Stevenson, Borchers, and Fewster, in submission).
+        Stevenson, Borchers, and Fewster, in press).
 
 \item \code{sigma}, the standard deviation of dispersion along
         each dimension (when \code{disp} = "gaussian").
@@ -112,7 +112,7 @@ zone; (ii) a component named \code{b}, providing the halfwidth of
 the survey area; (iii) a component named \code{l}, providing the
 time lag between cameras (in seconds); and (iv) a component named
 \code{tau}, providing the mean dive-cycle duration. See Stevenson,
-Borchers, and Fewster (in submission) for details.
+Borchers, and Fewster (in press) for details.
 }
 \examples{
 ## Fitting model to example data.
@@ -138,15 +138,16 @@ fit.matern <- fit.ns(data.matern$points, lims = rbind(c(0, 1), c(0, 2), c(0, 3))
 
 }
 \references{
-Jones-Todd, C. M., Caie, P., Illian, J., Stevenson,
+Jones-Todd, C. M., Caie, P., Illian, J. B., Stevenson,
     B. C., Savage, A., Harrison, D. J., and Bown, J. L. (in
-    submission). Identifying unusual structures in tissue sections
-    of colon cancer patients using point pattern analysis.
+    press). Identifying prognostic structural features in tissue
+    sections of colon cancer patients using point pattern
+    analysis. \emph{Statistics in Medicine}.
 
 Stevenson, B. C., Borchers, D. L., and Fewster,
-    R. M. (in submission) Cluster capture-recapture to account for
+    R. M. (in press) Cluster capture-recapture to account for
     identification uncertainty on aerial surveys of animal
-    populations.
+    populations. \emph{Biometrics}.
 
 Tanaka, U., Ogata, Y., and Stoyan, D. (2008) Parameter
     estimation and model selection for Neyman-Scott point

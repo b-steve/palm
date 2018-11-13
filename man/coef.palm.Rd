@@ -7,8 +7,8 @@
 \usage{
 \method{coef}{palm}(object, se = FALSE, ...)
 
-\method{coef}{palm_twocamerachild}(object, se = FALSE, report.2D = TRUE,
-  ...)
+\method{coef}{palm_twocamerachild}(object, se = FALSE,
+  report.2D = TRUE, ...)
 }
 \arguments{
 \item{object}{A fitted model object.}
