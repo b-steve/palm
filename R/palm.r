@@ -90,6 +90,7 @@ NULL
 #' @importFrom gsl hyperg_2F1
 #' @importFrom minqa bobyqa
 #' @importFrom mvtnorm rmvnorm
+#' @importFrom Rcpp sourceCpp
 #' @importFrom spatstat crossdist
 #' @importFrom stats coef dist integrate nlminb pbeta pgamma pnorm printCoefmat qnorm quantile rbinom rnorm rpois runif sd
 #' @importFrom utils setTxtProgressBar txtProgressBar
