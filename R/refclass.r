@@ -134,8 +134,8 @@ set.fit.class <- function(class, class.env){
                     self$contrasts.list <- list()
                     self$contrast.pairs.list <- list()
                     self$n.contrasts.list <- list()
-                    for (i in 1:n.patterns){
-                        get.contrasts(i)
+                    for (i in 1:self$n.patterns){
+                        self$get.contrasts(i)
                     }
                     ## Starting out with the first pattern for start values and such.
                     self$setup.pattern(1)
@@ -155,6 +155,7 @@ set.fit.class <- function(class, class.env){
                     if (do.contrasts){
                         self$contrast.pairs <- self$contrast.pairs.list[[pattern]]
                         self$contrasts <- self$contrasts[[pattern]]
+                        self$n.contrasts <- self$n.contrasts.list[[pattern]]
                     }
                 },
                 ## An empty method for getting contrasts.
@@ -484,13 +485,13 @@ set.pbc.class <- function(class, class.env){
             inherit = class.env$pbc.inherit,
             public = list(
                 ## Overwriting the method to set up a new pattern.
-                setup.pattern = function(pattern){
-                    super$setup.pattern(pattern)
+                setup.pattern = function(pattern, do.contrasts = TRUE){
+                    super$setup.pattern(pattern, do.contrasts)
                     self$pi.multiplier <- self$n.points/2
                 },
                 ## A method to generate contrasts.
                 get.contrasts = function(pattern){
-                    setup.pattern(pattern, do.contrasts = FALSE)
+                    self$setup.pattern(pattern, do.contrasts = FALSE)
                     ## Saving which contrast applies to which pair of observations.
                     contrast.pairs <- matrix(0, nrow = (self$n.points^2 - self$n.points)/2, ncol = 2)
                     k <- 1
@@ -524,13 +525,13 @@ set.buffer.class <- function(class, class.env){
             inherit = class.env$buffer.inherit,
             public = list(
                 ## Overwriting the method to set up a new pattern.
-                setup.pattern = function(pattern){
-                    super$setup.pattern(pattern)
+                setup.pattern = function(pattern, do.contrasts = TRUE){
+                    super$setup.pattern(pattern, do.contrasts)
                     self$pi.multiplier <- self$n.points
                 },
                 ## A method to generate contrasts.
                 get.contrasts = function(pattern){
-                    setup.pattern(pattern, do.contrasts = FALSE)
+                    self$setup.pattern(pattern, do.contrasts = FALSE)
                     ## Getting rid of contrasts between two external points.
                     buffer.keep <- buffer_keep(points = self$points, lims = self$lims,
                                                R = self$R)
@@ -675,8 +676,8 @@ set.sibling.class <- function(class, class.env){
                     super$initialize(...)
                 },
                 ## Overwriting the method to set up a new pattern.
-                setup.pattern = function(pattern){
-                    super$setup.pattern(pattern)
+                setup.pattern = function(pattern, do.contrasts = TRUE){
+                    super$setup.pattern(pattern, do.contrasts)
                     self$sibling.mat <- self$sibling.list[[pattern]]$sibling.mat
                     self$sibling.alpha <- self$sibling.list[[pattern]]$alpha
                     self$sibling.beta <- self$sibling.list[[pattern]]$beta
