@@ -216,11 +216,11 @@ sim.ns <- function(pars, lims, disp = "gaussian", child.dist = "pois", parents =
 #' Estimates parameters for a void point process by maximising the
 #' Palm likelihood. This approach was first proposed by Tanaka et
 #' al. (2008) for two-dimensional Thomas processes. Generalisation to
-#' d-dimensional void processes was made by Jones-Todd et al. (in press).
+#' d-dimensional void processes was made by Jones-Todd et al. (in
+#' press).
 #'
-#' Parameters to estimate are as follows:
-#' \itemize{
-#'   \item \code{Dc}, the baseline density of points prior to the deletion process.
+#' Parameters to estimate are as follows: \itemize{ \item \code{Dc},
+#' the baseline density of points prior to the deletion process.
 #'
 #'   \item \code{Dp}, the density of unobserved parents that cause voids.
 #'
