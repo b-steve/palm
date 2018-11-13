@@ -269,7 +269,7 @@ set.fit.class <- function(class, class.env){
                 },
                 ## A default method for the log of the Palm likelihood function.
                 log.palm.likelihood = function(pars){
-                    out <- self$sum.log.intensities(pars) + self$palm.likelihood.integral(pars)
+                    self$sum.log.intensities(pars) + self$palm.likelihood.integral(pars)
                 },
                 ## A method for the negative Palm likelihood function.
                 neg.log.palm.likelihood = function(pars){
