@@ -543,7 +543,7 @@ set.buffer.class <- function(class, class.env){
                     contrast.pairs <- cbind(contrast.pairs.1, contrast.pairs.2)
                     ## Now truncating to contrasts less than R.
                     self$contrasts.list[[pattern]] <- contrasts[contrasts <= self$R] 
-                    self$contrast.pairs[[pattern]] <- contrast.pairs[contrasts <= self$R, ]
+                    self$contrast.pairs.list[[pattern]] <- contrast.pairs[contrasts <= self$R, ]
                     super$get.contrasts(pattern)
                 }
             ))
@@ -666,6 +666,10 @@ set.sibling.class <- function(class, class.env){
             inherit = class.env$sibling.inherit,
             public = list(
                 siblings = NULL,
+                ## Lol one day you'll get a bug because you're an
+                ## idiot and you have objects called 'sibling.list'
+                ## and 'siblings.list' and you'll be so mad.
+                siblings.list = NULL,
                 sibling.list = NULL,
                 sibling.mat = NULL,
                 sibling.alpha = NULL,
@@ -674,18 +678,25 @@ set.sibling.class <- function(class, class.env){
                 initialize = function(sibling.list, ...){
                     self$sibling.list <- sibling.list
                     super$initialize(...)
+                    self$siblings.list <- list()
+                    for (i in 1:self$n.patterns){
+                        self$get.siblings(i)
+                    }
                 },
                 ## Overwriting the method to set up a new pattern.
-                setup.pattern = function(pattern, do.contrasts = TRUE){
+                setup.pattern = function(pattern, do.contrasts = TRUE, do.siblings = TRUE){
                     super$setup.pattern(pattern, do.contrasts)
                     self$sibling.mat <- self$sibling.list[[pattern]]$sibling.mat
                     self$sibling.alpha <- self$sibling.list[[pattern]]$alpha
                     self$sibling.beta <- self$sibling.list[[pattern]]$beta
-                    self$get.siblings()
+                    if (do.siblings){
+                        self$siblings <- self$siblings.list[[pattern]]
+                    }
                 },
                 ## A method to get vector of sibling relationships
                 ## that matches with the contrasts.
-                get.siblings = function(){
+                get.siblings = function(pattern){
+                    self$setup.pattern(pattern, do.siblings = FALSE)
                     siblings <- numeric(self$n.contrasts)
                     for (i in 1:self$n.contrasts){
                         pair <- self$contrast.pairs[i, ]
@@ -696,7 +707,7 @@ set.sibling.class <- function(class, class.env){
                     ## 2 for unknown sibling status.
                     siblings <- as.numeric(siblings)
                     siblings[is.na(siblings)] <- 2
-                    self$siblings <- siblings
+                    self$siblings.list[[pattern]] <- siblings
                 },
                 ## Overwriting the sum of the log intensities.
                 sum.log.intensities = function(pars){
