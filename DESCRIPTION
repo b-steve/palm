@@ -2,7 +2,7 @@ Package: palm
 Type: Package
 Title: Fitting Point Process Models via the Palm Likelihood
 Version: 1.1.2
-Date: 2018-08-10
+Date: 2018-11-13
 Author: Ben Stevenson <ben.stevenson@auckland.ac.nz>
 Maintainer: Ben Stevenson <ben.stevenson@auckland.ac.nz>
 Depends:
