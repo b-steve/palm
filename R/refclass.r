@@ -497,9 +497,9 @@ set.pbc.class <- function(class, class.env){
 
 set.buffer.class <- function(class, class.env){
     ## Saving inherited class to class.env.
-    assign("pbc.inherit", class, envir = class.env)
-    R6Class("palm_pbc",
-            inherit = class.env$pbc.inherit,
+    assign("buffer.inherit", class, envir = class.env)
+    R6Class("palm_buffer",
+            inherit = class.env$buffer.inherit,
             public = list(
                 ## Overwriting the method to set up a new pattern.
                 setup.pattern = function(pattern){
