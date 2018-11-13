@@ -103,9 +103,10 @@ test_that(
         void.data <- sim.void(c(Dc = 500, Dp = 100, tau = 0.05), rbind(c(0, 1), c(0, 1)))
         expect_equal(void.data$points[22, 1], expected = 0.2294614180, tolerance = 1e-6)
         ## Model fitting.
-        fit <- fit.void(void.data$points, lims = rbind(c(0, 1), c(0, 1)), R = 0.5, edge.correction = "pbc",
-                        use.bobyqa = FALSE, trace = TRUE)
-        expect_equal(coef(fit), expected = c(Dp = 124.66492029, Dc = 630.62677086, tau = 0.05242846))
+        fit <- fit.void(void.data$points, lims = rbind(c(0, 1), c(0, 1)), R = 0.5,
+                        start = c(Dc = 1000, Dp = 20, tau = 0.075))
+        expect_equal(coef(fit), expected = c(Dp = 124.1927, Dc = 628.1451, tau = 0.0524),
+                     tolerance = 0.001)
     })
 
 test_that(
