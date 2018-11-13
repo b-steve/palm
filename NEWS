@@ -4,6 +4,8 @@ Version 1.1.2
 - Implemented multipattern model fitting, so a single process can be
   fitted to multiple independent patterns.
 
+- Minor bug fixes for void process fits.
+
 Version 1.1.1
 -------------
 
