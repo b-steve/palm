@@ -16,11 +16,11 @@
 #' (Fewster, Stevenson, and Borchers, 2016). As such, some of the
 #' functions in this package are specifically for the estimation of
 #' cetacean density from two-camera aerial surveys; see Stevenson,
-#' Borchers, and Fewster (in revision).
+#' Borchers, and Fewster (in press).
 #'
 #' This package can also fit void processes, which, along with NSPPs,
-#' have been fitted to patterns of cancer cell locations to predict
-#' patient outcome (Jones-Todd et al., in submission).
+#' have been fitted to patterns of colon cancer and stroma cell
+#' locations (Jones-Todd et al., in press).
 #'
 #' The main functions of this package are summarised below.
 #' 
@@ -62,19 +62,19 @@
 #'
 #' }
 #'
-#'
 #' @references Fewster, R. M., Stevenson, B. C., and Borchers,
 #'     D. L. (2016) Trace-contrast methods for capture-recapture
 #'     without capture histories. \emph{Statistical Science},
 #'     \strong{31}: 245--258.
-#' @references Jones-Todd, C. M., Caie, P., Illian, J., Stevenson,
+#' @references Jones-Todd, C. M., Caie, P., Illian, J. B., Stevenson,
 #'     B. C., Savage, A., Harrison, D. J., and Bown, J. L. (in
-#'     submission). Identifying unusual structures in tissue sections
-#'     of colon cancer patients using point pattern analysis.
+#'     press). Identifying prognostic structural features in tissue
+#'     sections of colon cancer patients using point pattern
+#'     analysis. \emph{Statistics in Medicine}.
 #' @references Stevenson, B. C., Borchers, D. L., and Fewster,
-#'     R. M. (in revision) Cluster capture-recapture to account for
+#'     R. M. (in press) Cluster capture-recapture to account for
 #'     identification uncertainty on aerial surveys of animal
-#'     populations.
+#'     populations. \emph{Biometrics}.
 #' @references Tanaka, U., Ogata, Y., and Stoyan, D. (2008) Parameter
 #'     estimation and model selection for Neyman-Scott point
 #'     processes. \emph{Biometrical Journal}, \strong{50}: 43--57.
@@ -138,7 +138,7 @@ NULL
 #' Two-camera porpoise data.
 #'
 #' Synthetic data constructed from circle-back aerial survey data; see
-#' Stevenson, Borchers, and Fewster (in revision).
+#' Stevenson, Borchers, and Fewster (in press).
 #'
 #' @name porpoise.data
 #' @format A list.
@@ -146,7 +146,7 @@ NULL
 #' @docType data
 #' @keywords datasets
 #' @references Stevenson, B. C., Borchers, D. L., and Fewster,
-#'     R. M. (in revision) Cluster capture-recapture to account for
+#'     R. M. (in press) Cluster capture-recapture to account for
 #'     identification uncertainty on aerial surveys of animal
-#'     populations.
+#'     populations. \emph{Biometrics}.
 NULL
