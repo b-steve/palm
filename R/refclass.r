@@ -5,15 +5,21 @@
 base.class.R6 <- R6Class("palm",
                          public = list(
                              ## Setting fields.
-                             lims.list = NULL,
                              n.patterns = NULL,
                              lims = NULL,
+                             lims.list = NULL,
                              vol = NULL,
+                             vol.list = NULL,
                              dim = NULL,
+                             dim.list = NULL,
                              classes = NULL,
                              ## Initialisation method.
                              initialize = function(lims.list, classes, ...){
                                  self$lims.list <- lims.list
+                                 self$vol.list <- lapply(self$lims.list,
+                                                         function(x) prod(apply(x, 1, diff)))
+                                 self$dim.list <- lapply(self$lims.list,
+                                                         function(x) nrow(x))
                                  self$n.patterns <- length(lims.list)
                                  self$classes <- classes
                              },
@@ -23,8 +29,8 @@ base.class.R6 <- R6Class("palm",
                                      stop("Pattern index exceeds the number of patterns")
                                  }
                                  self$lims <- self$lims.list[[pattern]]
-                                 self$vol <-  prod(apply(self$lims, 1, diff))
-                                 self$dim <- nrow(self$lims)
+                                 self$vol <-  self$vol.list[[pattern]]
+                                 self$dim <- self$dim.list[[pattern]]
                              },
                              ## A method to simulate multiple patterns.
                              simulate = function(pars = self$par.fitted){
@@ -83,9 +89,13 @@ set.fit.class <- function(class, class.env){
                 points.list = NULL,
                 points = NULL,
                 n.points = NULL,
+                n.points.list = NULL,
                 contrasts = NULL,
+                contrasts.list = NULL,
                 n.contrasts = NULL,
+                n.contrasts.list = NULL,
                 contrast.pairs = NULL,
+                contrast.pairs.list = NULL,
                 R = NULL,
                 boots = NULL,
                 trace = NULL,
@@ -119,6 +129,14 @@ set.fit.class <- function(class, class.env){
                         stop("The list 'points' must have the same number of components as 'lims'.")
                     }
                     self$R <- R
+                    ## Creating numbers of points and contrasts for each pattern.
+                    self$n.points.list <- lapply(points.list, nrow)
+                    self$contrasts.list <- list()
+                    self$contrast.pars.list <- list()
+                    self$n.contrasts.list <- list()
+                    for (i in 1:n.patterns){
+                        get.contrasts(i)
+                    }
                     ## Starting out with the first pattern for start values and such.
                     self$setup.pattern(1)
                     self$trace <- trace
@@ -130,15 +148,18 @@ set.fit.class <- function(class, class.env){
                     self$get.link.bounds()
                 },
                 ## Overwriting the method to set up a new pattern.
-                setup.pattern = function(pattern){
+                setup.pattern = function(pattern, do.contrasts = TRUE){
                     super$setup.pattern(pattern)
                     self$points <- self$points.list[[pattern]]
-                    self$n.points <- nrow(self$points)
-                    self$get.contrasts()
+                    self$n.points <- self$n.points.list[[pattern]]
+                    if (do.contrasts){
+                        self$contrast.pairs <- self$contrast.pairs.list[[pattern]]
+                        self$contrasts <- self$contrasts[[pattern]]
+                    }
                 },
                 ## An empty method for getting contrasts.
-                get.contrasts = function(){
-                    self$n.contrasts <- length(self$contrasts)
+                get.contrasts = function(pattern){
+                    self$n.contrasts.list[[pattern]] <- length(self$contrasts.list[[pattern]])
                 },
                 ## A method for getting the parameters across all classes.
                 get.pars = function(){
@@ -468,7 +489,8 @@ set.pbc.class <- function(class, class.env){
                     self$pi.multiplier <- self$n.points/2
                 },
                 ## A method to generate contrasts.
-                get.contrasts = function(){
+                get.contrasts = function(pattern){
+                    setup.pattern(pattern, do.contrasts = FALSE)
                     ## Saving which contrast applies to which pair of observations.
                     contrast.pairs <- matrix(0, nrow = (self$n.points^2 - self$n.points)/2, ncol = 2)
                     k <- 1
@@ -480,13 +502,13 @@ set.pbc.class <- function(class, class.env){
                             }
                         }
                         contrasts <- pbc_distances(points = self$points, lims = self$lims)
-                        self$contrast.pairs <- contrast.pairs[contrasts <= self$R, ]
-                        self$contrasts <- contrasts[contrasts <= self$R]
+                        self$contrast.pairs.list[[pattern]] <- contrast.pairs[contrasts <= self$R, ]
+                        self$contrasts.list[[pattern]] <- contrasts[contrasts <= self$R]
                     } else {
-                        self$contrast.pairs <- contrast.pairs
-                        self$contrasts <- numeric(0)
+                        self$contrast.pairs.list[[pattern]] <- contrast.pairs
+                        self$contrasts[[pattern]] <- numeric(0)
                     }
-                    super$get.contrasts()
+                    super$get.contrasts(pattern)
                 }
             ))
 }
@@ -507,7 +529,8 @@ set.buffer.class <- function(class, class.env){
                     self$pi.multiplier <- self$n.points
                 },
                 ## A method to generate contrasts.
-                get.contrasts = function(){
+                get.contrasts = function(pattern){
+                    setup.pattern(pattern, do.contrasts = FALSE)
                     ## Getting rid of contrasts between two external points.
                     buffer.keep <- buffer_keep(points = self$points, lims = self$lims,
                                                R = self$R)
@@ -518,9 +541,9 @@ set.buffer.class <- function(class, class.env){
                     contrast.pairs.2 <- as.vector(contrast.pairs.2[buffer.keep])
                     contrast.pairs <- cbind(contrast.pairs.1, contrast.pairs.2)
                     ## Now truncating to contrasts less than R.
-                    self$contrasts <- contrasts[contrasts <= self$R] 
-                    self$contrast.pairs <- contrast.pairs[contrasts <= self$R, ]
-                    super$get.contrasts()
+                    self$contrasts.list[[pattern]] <- contrasts[contrasts <= self$R] 
+                    self$contrast.pairs[[pattern]] <- contrast.pairs[contrasts <= self$R, ]
+                    super$get.contrasts(pattern)
                 }
             ))
 }
