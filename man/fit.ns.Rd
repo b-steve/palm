@@ -64,7 +64,7 @@ parameters.}
 be a vector of length two, giving the upper and lower bounds
 for the named parameter.}
 
-\item{use.bobyqa}{Logial; if \code{TRUE} the \link{bobyqa} function
+\item{use.bobyqa}{Logical; if \code{TRUE} the \link{bobyqa} function
 is used for optimisation. Otherwise the \link{nlminb} function
 is used. Note that \link{bobyqa} seems to be less stable than
 \link{nlminb}, but does not require calculation of the Palm
