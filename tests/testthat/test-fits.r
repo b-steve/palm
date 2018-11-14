@@ -104,7 +104,7 @@ test_that(
         expect_equal(void.data$points[22, 1], expected = 0.2294614180, tolerance = 1e-6)
         ## Model fitting.
         fit <- fit.void(void.data$points, lims = rbind(c(0, 1), c(0, 1)), R = 0.5,
-                        start = c(Dc = 1000, Dp = 20, tau = 0.075), trace = TRUE)
+                        start = c(Dc = 1000, Dp = 20, tau = 0.075))
         expect_equal(fit$log.palm.likelihood(fit$par.fitted),
                      expected = 166313.248625127, tolerance = 0.001)
     })
