@@ -1,7 +1,13 @@
+Version 1.1.4
+-------------
+
+- Another bug fix for bootstrap simulations with no generated
+  children.
+
 Version 1.1.3
 -------------
 
-- A minor change to one of the package's unit tests.
+- Minor change to one of the package's unit tests.
 
 Version 1.1.2
 -------------
@@ -14,7 +20,7 @@ Version 1.1.2
 Version 1.1.1
 -------------
 
-- Added the `use.bobyqa' argument to fit.ns(), allowing optimisation
+- Added the 'use.bobyqa' argument to fit.ns(), allowing optimisation
   via the bobyqa() function from the minqa package.
 
 - Bug fix for bootstrap simulations with no generated children.
@@ -25,7 +31,7 @@ Version 1.1.0
 - Added sim.twocamera() to simulate data from two-camera aerial
   surveys.
 
-- Added the `parents' argument to simulation functions, so that the
+- Added the 'parents' argument to simulation functions, so that the
   user can specify their own parent locations.
 
 - Added a component containing parent locations to the output of
