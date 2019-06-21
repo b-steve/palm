@@ -131,7 +131,6 @@ set.fit.class <- function(class, class.env){
                     self$R <- R
                     ## Creating numbers of points and contrasts for each pattern.
                     self$n.points.list <- lapply(points.list, nrow)
-                    print(self$n.points.list)
                     self$contrasts.list <- list()
                     self$contrast.pairs.list <- list()
                     self$n.contrasts.list <- list()
