@@ -86,7 +86,7 @@ NULL
 ## Roxygen code for NAMESPACE.
 
 #' @import methods Rcpp R6
-#' @importFrom graphics abline axis box lines par plot.new plot.window title
+#' @importFrom graphics lines par plot title
 #' @importFrom gsl hyperg_2F1
 #' @importFrom minqa bobyqa
 #' @importFrom mvtnorm rmvnorm
