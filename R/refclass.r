@@ -325,16 +325,23 @@ set.fit.class <- function(class, class.env){
                         pb <- txtProgressBar(min = 0, max = N, style = 3)
                     }
                     for (i in 1:N){
-                        sim.obj <- self$simulate()
-                        if (self$n.patterns > 1){
-                            sim.obj$points <- lapply(sim.obj, function(x) x$points)
-                            sim.obj$sibling.list <- lapply(sim.obj, function(x) x$sibling.list)
+                        zero.points <- TRUE
+                        while (zero.points){
+                            sim.obj <- self$simulate()
+                            if (self$n.patterns > 1){
+                                sim.obj$points <- lapply(sim.obj, function(x) x$points)
+                                sim.obj$sibling.list <- lapply(sim.obj, function(x) x$sibling.list)
+                                zero.points <- sum(sapply(sim.obj$points, nrow)) == 0
+                            } else {
+                                zero.points <- nrow(sim.obj$points) == 0
+                            }
                         }
                         ## Doesn't matter that sibling.list is non-null below, as sibling class is not passed.
                         obj.boot <- create.obj(classes = self$classes, points = sim.obj$points, lims = self$lims,
                                                R = self$R, child.list = self$child.list,
                                                sibling.list = sim.obj$sibling.list, trace = FALSE,
                                                start = self$par.fitted, bounds = self$bounds)
+                        
                         obj.boot$fit()
                         if (obj.boot$converged){
                             boots[i, ] <- obj.boot$par.fitted  
@@ -368,12 +375,7 @@ set.fit.class <- function(class, class.env){
                         }
                     }
                     par(xaxs = "i")
-                    plot.new()
-                    plot.window(xlim = range(xx), ylim = ylim)
-                    box()
-                    axis(1)
-                    axis(2)
-                    abline(h = 0, col = "grey")
+                    plot(xx, yy, xlab = "", ylab = "", xlim = range(xx), ylim = ylim, type = "n", ...)
                     title(xlab = "r", ylab = "Palm intensity")
                     lines(xx, yy)
                     if (show.empirical){
