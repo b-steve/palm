@@ -13,8 +13,7 @@ Imports:
     methods,
     minqa,
     mvtnorm,
-    R6,
-    spatstat
+    R6
 LinkingTo: Rcpp
 Suggests:
     testthat
