@@ -18,6 +18,20 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// euc_distances
+NumericMatrix euc_distances(const NumericVector& x1, const NumericVector& y1, const NumericVector& x2, const NumericVector& y2);
+RcppExport SEXP _palm_euc_distances(SEXP x1SEXP, SEXP y1SEXP, SEXP x2SEXP, SEXP y2SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const NumericVector& >::type x1(x1SEXP);
+    Rcpp::traits::input_parameter< const NumericVector& >::type y1(y1SEXP);
+    Rcpp::traits::input_parameter< const NumericVector& >::type x2(x2SEXP);
+    Rcpp::traits::input_parameter< const NumericVector& >::type y2(y2SEXP);
+    rcpp_result_gen = Rcpp::wrap(euc_distances(x1, y1, x2, y2));
+    return rcpp_result_gen;
+END_RCPP
+}
 // pbc_distances
 NumericVector pbc_distances(const NumericMatrix& points, const NumericMatrix& lims);
 RcppExport SEXP _palm_pbc_distances(SEXP pointsSEXP, SEXP limsSEXP) {
@@ -29,4 +43,16 @@ BEGIN_RCPP
     rcpp_result_gen = Rcpp::wrap(pbc_distances(points, lims));
     return rcpp_result_gen;
 END_RCPP
+}
+
+static const R_CallMethodDef CallEntries[] = {
+    {"_palm_buffer_keep", (DL_FUNC) &_palm_buffer_keep, 3},
+    {"_palm_euc_distances", (DL_FUNC) &_palm_euc_distances, 4},
+    {"_palm_pbc_distances", (DL_FUNC) &_palm_pbc_distances, 2},
+    {NULL, NULL, 0}
+};
+
+RcppExport void R_init_palm(DllInfo *dll) {
+    R_registerRoutines(dll, NULL, CallEntries, NULL, NULL);
+    R_useDynamicSymbols(dll, FALSE);
 }
