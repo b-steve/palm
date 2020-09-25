@@ -4,6 +4,8 @@ Version 1.1.4
 - Another bug fix for bootstrap simulations with no generated
   children.
 
+- Removing spatstat dependency.
+
 Version 1.1.3
 -------------
 
