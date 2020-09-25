@@ -4,7 +4,9 @@
 \name{example.twocamera}
 \alias{example.twocamera}
 \title{Two-camera example data.}
-\format{A list.}
+\format{
+A list.
+}
 \usage{
 example.twocamera
 }

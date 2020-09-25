@@ -4,8 +4,16 @@
 \alias{fit.void}
 \title{Fitting a model to a void point process}
 \usage{
-fit.void(points, lims, R, edge.correction = "pbc", start = NULL,
-  bounds = NULL, use.bobyqa = FALSE, trace = FALSE)
+fit.void(
+  points,
+  lims,
+  R,
+  edge.correction = "pbc",
+  start = NULL,
+  bounds = NULL,
+  use.bobyqa = FALSE,
+  trace = FALSE
+)
 }
 \arguments{
 \item{points}{A matrix or list of matrices containing locations of
@@ -55,9 +63,9 @@ press).
 Parameters to estimate are as follows: \itemize{ \item \code{Dc},
 the baseline density of points prior to the deletion process.
 
-\item \code{Dp}, the density of unobserved parents that cause voids.
+  \item \code{Dp}, the density of unobserved parents that cause voids.
 
-\item \code{tau}, the radius of the deletion process centred at each parent.
+  \item \code{tau}, the radius of the deletion process centred at each parent.
 }
 }
 \examples{

@@ -4,7 +4,9 @@
 \name{example.1D}
 \alias{example.1D}
 \title{1-dimensional example data}
-\format{A matrix.}
+\format{
+A matrix.
+}
 \usage{
 example.1D
 }

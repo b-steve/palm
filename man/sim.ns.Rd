@@ -4,8 +4,14 @@
 \alias{sim.ns}
 \title{Simulating points from a Neyman-Scott point process}
 \usage{
-sim.ns(pars, lims, disp = "gaussian", child.dist = "pois",
-  parents = NULL, child.info = NULL)
+sim.ns(
+  pars,
+  lims,
+  disp = "gaussian",
+  child.dist = "pois",
+  parents = NULL,
+  child.info = NULL
+)
 }
 \arguments{
 \item{pars}{A named vector containing the values of the parameters
@@ -62,7 +68,7 @@ zone; (ii) a component named \code{b}, providing the halfwidth of
 the survey area; (iii) a component named \code{l}, providing the
 time lag between cameras (in seconds); and (iv) a component named
 \code{tau}, providing the mean dive-cycle duration. See Stevenson,
-Borchers, and Fewster (in press) for details.
+Borchers, and Fewster (2019) for details.
 }
 \examples{
 ## Simulating from a one-dimensional Thomas process.
@@ -74,7 +80,7 @@ data.matern <- sim.ns(c(D = 10, lambda = 10, tau = 0.1), disp = "uniform",
 }
 \references{
 Stevenson, B. C., Borchers, D. L., and Fewster,
-    R. M. (in press) Cluster capture-recapture to account for
+    R. M. (2019) Cluster capture-recapture to account for
     identification uncertainty on aerial surveys of animal
     populations. \emph{Biometrics}.
 }

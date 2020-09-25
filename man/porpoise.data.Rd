@@ -4,7 +4,9 @@
 \name{porpoise.data}
 \alias{porpoise.data}
 \title{Two-camera porpoise data.}
-\format{A list.}
+\format{
+A list.
+}
 \usage{
 porpoise.data
 }

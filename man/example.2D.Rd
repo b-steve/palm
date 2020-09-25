@@ -4,7 +4,9 @@
 \name{example.2D}
 \alias{example.2D}
 \title{2-dimensional example data}
-\format{A matrix.}
+\format{
+A matrix.
+}
 \usage{
 example.2D
 }
