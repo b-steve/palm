@@ -139,7 +139,6 @@ get.boots.palm_twocamerachild <- function(object, report.2D = TRUE, ...){
 #'
 #' @param object A fitted model returned by \link{fit.ns}.
 #' @param ... Other parameters (for S3 generic compatibility).
-#' @inheritParams coef.palm
 #' 
 #' @method summary palm
 #'

@@ -101,8 +101,6 @@
 #'     is used. Note that \link{bobyqa} seems to be less stable than
 #'     \link{nlminb}, but does not require calculation of the Palm
 #'     likelihood's partial derivatives.
-#'
-#' @inheritParams fit.ns
 #' 
 #' @return An R6 reference class object.
 #'
