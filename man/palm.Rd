@@ -3,7 +3,6 @@
 \docType{package}
 \name{palm}
 \alias{palm}
-\alias{palm-package}
 \title{palm: A package to fit point process models via the Palm
 likelihood}
 \description{
@@ -80,15 +79,16 @@ Fewster, R. M., Stevenson, B. C., and Borchers,
     \strong{31}: 245--258.
 
 Jones-Todd, C. M., Caie, P., Illian, J. B., Stevenson,
-    B. C., Savage, A., Harrison, D. J., and Bown, J. L. (in
-    press). Identifying prognostic structural features in tissue
-    sections of colon cancer patients using point pattern
-    analysis. \emph{Statistics in Medicine}.
+    B. C., Savage, A., Harrison, D. J., and Bown,
+    J. L. (2019). Identifying prognostic structural features in
+    tissue sections of colon cancer patients using point pattern
+    analysis. \emph{Statistics in Medicine}, \strong{38}:
+    1421--1441.
 
 Stevenson, B. C., Borchers, D. L., and Fewster,
-    R. M. (in press) Cluster capture-recapture to account for
+    R. M. (2019) Cluster capture-recapture to account for
     identification uncertainty on aerial surveys of animal
-    populations. \emph{Biometrics}.
+    populations. \emph{Biometrics}, \strong{75}: 326--336.
 
 Tanaka, U., Ogata, Y., and Stoyan, D. (2008) Parameter
     estimation and model selection for Neyman-Scott point

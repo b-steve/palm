@@ -4,9 +4,20 @@
 \alias{fit.ns}
 \title{Fitting a Neyman-Scott point process model}
 \usage{
-fit.ns(points, lims, R, disp = "gaussian", child.dist = "pois",
-  child.info = NULL, sibling.list = NULL, edge.correction = "pbc",
-  start = NULL, bounds = NULL, use.bobyqa = FALSE, trace = FALSE)
+fit.ns(
+  points,
+  lims,
+  R,
+  disp = "gaussian",
+  child.dist = "pois",
+  child.info = NULL,
+  sibling.list = NULL,
+  edge.correction = "pbc",
+  start = NULL,
+  bounds = NULL,
+  use.bobyqa = FALSE,
+  trace = FALSE
+)
 }
 \arguments{
 \item{points}{A matrix or list of matrices containing locations of
@@ -81,7 +92,7 @@ Estimates parameters for a Neyman-Scott point process by maximising
 the Palm likelihood. This approach was first proposed by Tanaka et
 al. (2008) for two-dimensional Thomas processes. Further
 generalisations were made by Stevenson, Borchers, and Fewster (in
-press) and Jones-Todd et al. (in press).
+press) and Jones-Todd et al. (2019).
 }
 \details{
 The parameter \code{D} is the density of parent points, which is
@@ -90,17 +101,17 @@ always estimated. Possible additional parameters are
   \item \code{lambda}, the expected number of children generated per
         parent (when \code{child.dist = "pois"}).
 
-\item \code{p}, the proportion of the \code{x} possible children
+  \item \code{p}, the proportion of the \code{x} possible children
         that are generated (when \code{child.dist = "binomx"}).
 
-\item \code{kappa}, the average length of the surface phase of a
+  \item \code{kappa}, the average length of the surface phase of a
         diving cetacean (when \code{child.dist = "twocamera"}; see
-        Stevenson, Borchers, and Fewster, in press).
+        Stevenson, Borchers, and Fewster, 2019).
 
-\item \code{sigma}, the standard deviation of dispersion along
+  \item \code{sigma}, the standard deviation of dispersion along
         each dimension (when \code{disp} = "gaussian").
 
-\item \code{tau}, the maximum distance a child can be from its
+  \item \code{tau}, the maximum distance a child can be from its
         parent (when \code{disp} = "uniform").
 
 }
@@ -112,7 +123,7 @@ zone; (ii) a component named \code{b}, providing the halfwidth of
 the survey area; (iii) a component named \code{l}, providing the
 time lag between cameras (in seconds); and (iv) a component named
 \code{tau}, providing the mean dive-cycle duration. See Stevenson,
-Borchers, and Fewster (in press) for details.
+Borchers, and Fewster (2019) for details.
 }
 \examples{
 ## Fitting model to example data.
@@ -145,7 +156,7 @@ Jones-Todd, C. M., Caie, P., Illian, J. B., Stevenson,
     analysis. \emph{Statistics in Medicine}.
 
 Stevenson, B. C., Borchers, D. L., and Fewster,
-    R. M. (in press) Cluster capture-recapture to account for
+    R. M. (2019) Cluster capture-recapture to account for
     identification uncertainty on aerial surveys of animal
     populations. \emph{Biometrics}.
 

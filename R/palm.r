@@ -67,9 +67,9 @@
 #'     without capture histories. \emph{Statistical Science},
 #'     \strong{31}: 245--258.
 #' @references Jones-Todd, C. M., Caie, P., Illian, J. B., Stevenson,
-#'     B. C., Savage, A., Harrison, D. J., and Bown, J. L. (in
-#'     press). Identifying prognostic structural features in tissue
-#'     sections of colon cancer patients using point pattern
+#'     B. C., Savage, A., Harrison, D. J., and Bown,
+#'     J. L. (2019). Identifying prognostic structural features in
+#'     tissue sections of colon cancer patients using point pattern
 #'     analysis. \emph{Statistics in Medicine}, \strong{38}:
 #'     1421--1441.
 #' @references Stevenson, B. C., Borchers, D. L., and Fewster,
@@ -92,7 +92,6 @@ NULL
 #' @importFrom minqa bobyqa
 #' @importFrom mvtnorm rmvnorm
 #' @importFrom Rcpp sourceCpp
-#' @importFrom spatstat crossdist
 #' @importFrom stats coef dist integrate nlminb pbeta pgamma pnorm printCoefmat qnorm quantile rbinom rnorm rpois runif sd
 #' @importFrom utils setTxtProgressBar txtProgressBar
 #' @useDynLib palm, .registration = TRUE

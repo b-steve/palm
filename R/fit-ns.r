@@ -3,8 +3,8 @@
 #' Estimates parameters for a Neyman-Scott point process by maximising
 #' the Palm likelihood. This approach was first proposed by Tanaka et
 #' al. (2008) for two-dimensional Thomas processes. Further
-#' generalisations were made by Stevenson, Borchers, and Fewster (in
-#' 2019) and Jones-Todd et al. (2019).
+#' generalisations were made by Stevenson, Borchers, and Fewster
+#' (2019) and Jones-Todd et al. (2019).
 #' 
 #' The parameter \code{D} is the density of parent points, which is
 #' always estimated. Possible additional parameters are
@@ -102,8 +102,6 @@
 #'     is used. Note that \link{bobyqa} seems to be less stable than
 #'     \link{nlminb}, but does not require calculation of the Palm
 #'     likelihood's partial derivatives.
-#'
-#' @inheritParams fit.ns
 #' 
 #' @return An R6 reference class object.
 #'

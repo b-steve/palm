@@ -4,8 +4,7 @@
 \alias{confint.palm}
 \title{Extracts Neyman-Scott point process parameter confidence intervals.}
 \usage{
-\method{confint}{palm}(object, parm = NULL, level = 0.95,
-  method = "percentile", ...)
+\method{confint}{palm}(object, parm = NULL, level = 0.95, method = "percentile", ...)
 }
 \arguments{
 \item{object}{A fitted model returned by \link{fit.ns},

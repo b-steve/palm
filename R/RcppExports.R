@@ -5,6 +5,10 @@ buffer_keep <- function(points, lims, R) {
     .Call(`_palm_buffer_keep`, points, lims, R)
 }
 
+euc_distances <- function(x1, y1, x2, y2) {
+    .Call(`_palm_euc_distances`, x1, y1, x2, y2)
+}
+
 pbc_distances <- function(points, lims) {
     .Call(`_palm_pbc_distances`, points, lims)
 }

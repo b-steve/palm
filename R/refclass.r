@@ -1063,7 +1063,7 @@ set.totaldeletion.class <- function(class, class.env){
                 },
                 ## Function to delete children, given children and parent locations.
                 delete.points = function(child.locs, parent.locs, pars){
-                    dists <- crossdist(child.locs[, 1], child.locs[, 2], parent.locs[, 1], parent.locs[, 2])
+                    dists <- euc_distances(child.locs[, 1], child.locs[, 2], parent.locs[, 1], parent.locs[, 2])
                     child.locs[apply(dists, 1, min) > pars["tau"], ]
                 },
                 ## A method for xlim.

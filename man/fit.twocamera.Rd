@@ -4,9 +4,20 @@
 \alias{fit.twocamera}
 \title{Estimation of animal density from two-camera surveys.}
 \usage{
-fit.twocamera(points, cameras = NULL, d, w, b, l, tau, R,
-  edge.correction = "pbc", start = NULL, bounds = NULL,
-  trace = FALSE)
+fit.twocamera(
+  points,
+  cameras = NULL,
+  d,
+  w,
+  b,
+  l,
+  tau,
+  R,
+  edge.correction = "pbc",
+  start = NULL,
+  bounds = NULL,
+  trace = FALSE
+)
 }
 \arguments{
 \item{points}{A vector (or single-column matrix) containing the
@@ -59,7 +70,7 @@ Neyman-Scott point pattern.
 \details{
 This function is simply a wrapper for \code{fit.ns}, and
 facilitates the fitting of the model proposed by Stevenson,
-Borchers, and Fewster (in press). This function presents the
+Borchers, and Fewster (2019). This function presents the
 parameter \code{D.2D} (two-dimensional cetacean density in
 cetaceans per square km) rather than \code{D} for enhanced
 interpretability.
@@ -84,7 +95,7 @@ Fewster, R. M., Stevenson, B. C., and Borchers,
     \strong{31}: 245--258.
 
 Stevenson, B. C., Borchers, D. L., and Fewster,
-    R. M. (in press) Cluster capture-recapture to account for
+    R. M. (2019) Cluster capture-recapture to account for
     identification uncertainty on aerial surveys of animal
     populations. \emph{Biometrics}.
 }
