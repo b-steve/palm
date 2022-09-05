@@ -16,11 +16,11 @@
 #' (Fewster, Stevenson, and Borchers, 2016). As such, some of the
 #' functions in this package are specifically for the estimation of
 #' cetacean density from two-camera aerial surveys; see Stevenson,
-#' Borchers, and Fewster (in press).
+#' Borchers, and Fewster (2019).
 #'
 #' This package can also fit void processes, which, along with NSPPs,
 #' have been fitted to patterns of colon cancer and stroma cell
-#' locations (Jones-Todd et al., in press).
+#' locations (Jones-Todd et al., 2019).
 #'
 #' The main functions of this package are summarised below.
 #' 
@@ -70,11 +70,12 @@
 #'     B. C., Savage, A., Harrison, D. J., and Bown, J. L. (in
 #'     press). Identifying prognostic structural features in tissue
 #'     sections of colon cancer patients using point pattern
-#'     analysis. \emph{Statistics in Medicine}.
+#'     analysis. \emph{Statistics in Medicine}, \strong{38}:
+#'     1421--1441.
 #' @references Stevenson, B. C., Borchers, D. L., and Fewster,
-#'     R. M. (in press) Cluster capture-recapture to account for
+#'     R. M. (2019) Cluster capture-recapture to account for
 #'     identification uncertainty on aerial surveys of animal
-#'     populations. \emph{Biometrics}.
+#'     populations. \emph{Biometrics}, \strong{75}: 326--336.
 #' @references Tanaka, U., Ogata, Y., and Stoyan, D. (2008) Parameter
 #'     estimation and model selection for Neyman-Scott point
 #'     processes. \emph{Biometrical Journal}, \strong{50}: 43--57.
@@ -139,7 +140,7 @@ NULL
 #' Two-camera porpoise data.
 #'
 #' Synthetic data constructed from circle-back aerial survey data; see
-#' Stevenson, Borchers, and Fewster (in press).
+#' Stevenson, Borchers, and Fewster (2019).
 #'
 #' @name porpoise.data
 #' @format A list.
@@ -147,7 +148,7 @@ NULL
 #' @docType data
 #' @keywords datasets
 #' @references Stevenson, B. C., Borchers, D. L., and Fewster,
-#'     R. M. (in press) Cluster capture-recapture to account for
+#'     R. M. (2019) Cluster capture-recapture to account for
 #'     identification uncertainty on aerial surveys of animal
-#'     populations. \emph{Biometrics}.
+#'     populations. \emph{Biometrics}, \strong{75}: 326--336.
 NULL

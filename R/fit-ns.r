@@ -4,7 +4,7 @@
 #' the Palm likelihood. This approach was first proposed by Tanaka et
 #' al. (2008) for two-dimensional Thomas processes. Further
 #' generalisations were made by Stevenson, Borchers, and Fewster (in
-#' press) and Jones-Todd et al. (in press).
+#' 2019) and Jones-Todd et al. (2019).
 #' 
 #' The parameter \code{D} is the density of parent points, which is
 #' always estimated. Possible additional parameters are
@@ -17,7 +17,7 @@
 #'
 #'   \item \code{kappa}, the average length of the surface phase of a
 #'         diving cetacean (when \code{child.dist = "twocamera"}; see
-#'         Stevenson, Borchers, and Fewster, in press).
+#'         Stevenson, Borchers, and Fewster, 2019).
 #'
 #'   \item \code{sigma}, the standard deviation of dispersion along
 #'         each dimension (when \code{disp} = "gaussian").
@@ -34,17 +34,18 @@
 #' the survey area; (iii) a component named \code{l}, providing the
 #' time lag between cameras (in seconds); and (iv) a component named
 #' \code{tau}, providing the mean dive-cycle duration. See Stevenson,
-#' Borchers, and Fewster (in press) for details.
+#' Borchers, and Fewster (2019) for details.
 #'
 #' @references Jones-Todd, C. M., Caie, P., Illian, J. B., Stevenson,
 #'     B. C., Savage, A., Harrison, D. J., and Bown, J. L. (in
 #'     press). Identifying prognostic structural features in tissue
 #'     sections of colon cancer patients using point pattern
-#'     analysis. \emph{Statistics in Medicine}.
+#'     analysis. \emph{Statistics in Medicine}, \strong{38}:
+#'     1421--1441.
 #' @references Stevenson, B. C., Borchers, D. L., and Fewster,
-#'     R. M. (in press) Cluster capture-recapture to account for
+#'     R. M. (2019) Cluster capture-recapture to account for
 #'     identification uncertainty on aerial surveys of animal
-#'     populations. \emph{Biometrics}.
+#'     populations. \emph{Biometrics}, \strong{75}: 326--336.
 #' @references Tanaka, U., Ogata, Y., and Stoyan, D. (2008) Parameter
 #'     estimation and model selection for Neyman-Scott point
 #'     processes. \emph{Biometrical Journal}, \strong{50}: 43--57.
@@ -169,12 +170,12 @@ fit.ns <- function(points, lims, R, disp = "gaussian", child.dist = "pois", chil
 #' the survey area; (iii) a component named \code{l}, providing the
 #' time lag between cameras (in seconds); and (iv) a component named
 #' \code{tau}, providing the mean dive-cycle duration. See Stevenson,
-#' Borchers, and Fewster (in press) for details.
+#' Borchers, and Fewster (2019) for details.
 #'
 #' @references Stevenson, B. C., Borchers, D. L., and Fewster,
-#'     R. M. (in press) Cluster capture-recapture to account for
+#'     R. M. (2019) Cluster capture-recapture to account for
 #'     identification uncertainty on aerial surveys of animal
-#'     populations. \emph{Biometrics}.
+#'     populations. \emph{Biometrics}, \strong{75}: 326--336.
 #'
 #' @param pars A named vector containing the values of the parameters
 #'     of the process that generates the points.
@@ -231,7 +232,8 @@ sim.ns <- function(pars, lims, disp = "gaussian", child.dist = "pois", parents =
 #'     B. C., Savage, A., Harrison, D. J., and Bown, J. L. (in
 #'     press). Identifying prognostic structural features in tissue
 #'     sections of colon cancer patients using point pattern
-#'     analysis. \emph{Statistics in Medicine}.
+#'     analysis. \emph{Statistics in Medicine}, \strong{38}:
+#'     1421--1441.
 #' @references Tanaka, U., Ogata, Y., and Stoyan, D. (2008) Parameter
 #'     estimation and model selection for Neyman-Scott point
 #'     processes. \emph{Biometrical Journal}, \strong{50}: 43--57.
@@ -409,7 +411,7 @@ setup.classes <- function(fit, family, family.info, fit.info){
 #'
 #' This function is simply a wrapper for \code{fit.ns}, and
 #' facilitates the fitting of the model proposed by Stevenson,
-#' Borchers, and Fewster (in press). This function presents the
+#' Borchers, and Fewster (2019). This function presents the
 #' parameter \code{D.2D} (two-dimensional cetacean density in
 #' cetaceans per square km) rather than \code{D} for enhanced
 #' interpretability.
@@ -422,9 +424,9 @@ setup.classes <- function(fit, family, family.info, fit.info){
 #'     without capture histories. \emph{Statistical Science},
 #'     \strong{31}: 245--258.
 #' @references Stevenson, B. C., Borchers, D. L., and Fewster,
-#'     R. M. (in press) Cluster capture-recapture to account for
+#'     R. M. (2019) Cluster capture-recapture to account for
 #'     identification uncertainty on aerial surveys of animal
-#'     populations. \emph{Biometrics}.
+#'     populations. \emph{Biometrics}, \strong{75}: 326--336.
 #'
 #' @param points A vector (or single-column matrix) containing the
 #'     distance along the transect that each detection was made.
