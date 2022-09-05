@@ -83,7 +83,8 @@ Jones-Todd, C. M., Caie, P., Illian, J. B., Stevenson,
     B. C., Savage, A., Harrison, D. J., and Bown, J. L. (in
     press). Identifying prognostic structural features in tissue
     sections of colon cancer patients using point pattern
-    analysis. \emph{Statistics in Medicine}.
+    analysis. \emph{Statistics in Medicine}, \strong{38}:
+    1421--1441.
 
 Tanaka, U., Ogata, Y., and Stoyan, D. (2008) Parameter
     estimation and model selection for Neyman-Scott point

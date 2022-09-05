@@ -91,8 +91,8 @@ An R6 reference class object.
 Estimates parameters for a Neyman-Scott point process by maximising
 the Palm likelihood. This approach was first proposed by Tanaka et
 al. (2008) for two-dimensional Thomas processes. Further
-generalisations were made by Stevenson, Borchers, and Fewster (in
-press) and Jones-Todd et al. (2019).
+generalisations were made by Stevenson, Borchers, and Fewster
+(2019) and Jones-Todd et al. (2019).
 }
 \details{
 The parameter \code{D} is the density of parent points, which is
@@ -153,12 +153,13 @@ Jones-Todd, C. M., Caie, P., Illian, J. B., Stevenson,
     B. C., Savage, A., Harrison, D. J., and Bown, J. L. (in
     press). Identifying prognostic structural features in tissue
     sections of colon cancer patients using point pattern
-    analysis. \emph{Statistics in Medicine}.
+    analysis. \emph{Statistics in Medicine}, \strong{38}:
+    1421--1441.
 
 Stevenson, B. C., Borchers, D. L., and Fewster,
     R. M. (2019) Cluster capture-recapture to account for
     identification uncertainty on aerial surveys of animal
-    populations. \emph{Biometrics}.
+    populations. \emph{Biometrics}, \strong{75}: 326--336.
 
 Tanaka, U., Ogata, Y., and Stoyan, D. (2008) Parameter
     estimation and model selection for Neyman-Scott point

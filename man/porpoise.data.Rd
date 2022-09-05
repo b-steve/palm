@@ -12,12 +12,12 @@ porpoise.data
 }
 \description{
 Synthetic data constructed from circle-back aerial survey data; see
-Stevenson, Borchers, and Fewster (in press).
+Stevenson, Borchers, and Fewster (2019).
 }
 \references{
 Stevenson, B. C., Borchers, D. L., and Fewster,
-    R. M. (in press) Cluster capture-recapture to account for
+    R. M. (2019) Cluster capture-recapture to account for
     identification uncertainty on aerial surveys of animal
-    populations. \emph{Biometrics}.
+    populations. \emph{Biometrics}, \strong{75}: 326--336.
 }
 \keyword{datasets}

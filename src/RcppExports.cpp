@@ -5,6 +5,11 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // buffer_keep
 LogicalMatrix buffer_keep(const NumericMatrix& points, const NumericMatrix& lims, const double& R);
 RcppExport SEXP _palm_buffer_keep(SEXP pointsSEXP, SEXP limsSEXP, SEXP RSEXP) {

@@ -20,11 +20,11 @@ identified---the data from which can conceptually be seen as a NSPP
 (Fewster, Stevenson, and Borchers, 2016). As such, some of the
 functions in this package are specifically for the estimation of
 cetacean density from two-camera aerial surveys; see Stevenson,
-Borchers, and Fewster (in press).
+Borchers, and Fewster (2019).
 
 This package can also fit void processes, which, along with NSPPs,
 have been fitted to patterns of colon cancer and stroma cell
-locations (Jones-Todd et al., in press).
+locations (Jones-Todd et al., 2019).
 
 The main functions of this package are summarised below.
 }
