@@ -3,6 +3,7 @@
 \docType{package}
 \name{palm}
 \alias{palm}
+\alias{palm-package}
 \title{palm: A package to fit point process models via the Palm
 likelihood}
 \description{
