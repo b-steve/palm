@@ -82,6 +82,7 @@
 #'
 #' @docType package
 #' @name palm
+#' @aliases palm-package
 NULL
 
 ## Roxygen code for NAMESPACE.
