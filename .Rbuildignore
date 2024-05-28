@@ -4,3 +4,4 @@
 cran-comments.md
 package-build
 palm.Rcheck
+^CRAN-SUBMISSION$
