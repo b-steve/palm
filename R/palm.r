@@ -80,10 +80,8 @@
 #'     estimation and model selection for Neyman-Scott point
 #'     processes. \emph{Biometrical Journal}, \strong{50}: 43--57.
 #'
-#' @docType package
-#' @name palm
-#' @aliases palm-package
-NULL
+#' @keywords internal
+"_PACKAGE"
 
 ## Roxygen code for NAMESPACE.
 
