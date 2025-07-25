@@ -8,7 +8,7 @@
 }
 \arguments{
 \item{object}{A fitted model returned by \link{fit.ns},
-bootstrapped using \link{boot}.}
+bootstrapped using \link[boot]{boot}.}
 
 \item{parm}{A vector of parameter names, specifying which
 parameters are to be given confidence intervals. Defaults to

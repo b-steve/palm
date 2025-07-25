@@ -1,10 +1,12 @@
 Package: palm
 Type: Package
 Title: Fitting Point Process Models via the Palm Likelihood
-Version: 1.1.5
-Date: 2023-09-22
-Author: Ben Stevenson <ben.stevenson@auckland.ac.nz>
-Maintainer: Ben Stevenson <ben.stevenson@auckland.ac.nz>
+Version: 1.1.6
+Date: 2025-07-25
+Authors@R: person(given = "Ben",
+      		  family = "Stevenson",
+                  role = c("aut", "cre"),
+                  email = "ben.stevenson@auckland.ac.nz")
 Depends:
     R (>= 3.0.0),
     Rcpp (>= 0.11.5)
@@ -22,4 +24,4 @@ License: GPL
 URL: https://github.com/b-steve/palm
 LazyData: TRUE
 Encoding: UTF-8
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.2

@@ -95,3 +95,14 @@ Tanaka, U., Ogata, Y., and Stoyan, D. (2008) Parameter
     estimation and model selection for Neyman-Scott point
     processes. \emph{Biometrical Journal}, \strong{50}: 43--57.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://github.com/b-steve/palm}
+}
+
+}
+\author{
+\strong{Maintainer}: Ben Stevenson \email{ben.stevenson@auckland.ac.nz}
+
+}
