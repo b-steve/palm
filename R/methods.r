@@ -66,7 +66,7 @@ coef.palm_twocamerachild <- function(object, se = FALSE, report.2D = TRUE, ...){
 #' methods can be calculated by hand.
 #'
 #' @param object A fitted model returned by \link{fit.ns},
-#'     bootstrapped using \link{boot}.
+#'     bootstrapped using \link[boot]{boot}.
 #' @param parm A vector of parameter names, specifying which
 #'     parameters are to be given confidence intervals. Defaults to
 #'     all parameters.

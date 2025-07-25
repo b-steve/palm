@@ -97,11 +97,11 @@
 #'     for the named parameter.
 #' @param trace Logical; if \code{TRUE}, parameter values are printed
 #'     to the screen for each iteration of the optimisation procedure.
-#' @param use.bobyqa Logical; if \code{TRUE} the \link{bobyqa} function
-#'     is used for optimisation. Otherwise the \link{nlminb} function
-#'     is used. Note that \link{bobyqa} seems to be less stable than
-#'     \link{nlminb}, but does not require calculation of the Palm
-#'     likelihood's partial derivatives.
+#' @param use.bobyqa Logical; if \code{TRUE} the \link[minqa]{bobyqa}
+#'     function is used for optimisation. Otherwise the \link{nlminb}
+#'     function is used. Note that \link[minqa]{bobyqa} seems to be
+#'     less stable than \link{nlminb}, but does not require
+#'     calculation of the Palm likelihood's partial derivatives.
 #' 
 #' @return An R6 reference class object.
 #'
